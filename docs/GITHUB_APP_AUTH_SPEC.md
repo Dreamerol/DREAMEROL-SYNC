@@ -1,6 +1,7 @@
 # DREAMEROL-SYNC — Authentication Implementation Brief
 
-**Status:** Approved architecture — implementation approval pending  
+**Status:** Approved architecture — implementation complete; live GitHub App smoke test pending
+
 **Purpose:** Implement the approved GitHub authentication architecture with minimal scope and no disruption to existing synchronization.
 
 ## 1. Scope and components

@@ -179,7 +179,7 @@ Designed to make fork management easier, faster and more convenient.
 
 Before getting started, make sure you have:
 
-- 🐍 **Python 3**
+- 🐍 **Python 3.10+**
 - 🔑 **GitHub Personal Access Token** with access to the repositories being synchronized and permission to update them.
 - 🔐 **Operating-system keyring backend** (required for saved accounts).
 
@@ -190,8 +190,8 @@ Before getting started, make sure you have:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Dreamerol/DREAMEROL-SYNC-FORK.git
-cd DREAMEROL-SYNC-FORK
+git clone https://github.com/Dreamerol/DREAMEROL-SYNC.git
+cd DREAMEROL-SYNC
 ```
 
 ### 2. Create a virtual environment
@@ -398,6 +398,20 @@ python main.py --account octocat
 
 ---
 
+## 🌐 Web Dashboard
+
+The repository also includes a FastAPI-backed browser dashboard in `api/` with static files in `web/`.
+
+```bash
+uvicorn api.app:app --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000` and paste a GitHub personal access token. The token is kept in browser memory for the request only and sent to the local server in the `Authorization` header. The dashboard previews forks against upstream and synchronizes only the forks shown as `behind`, after an explicit `SYNC` confirmation.
+
+> ⚠️ The dashboard currently uses a manually supplied token. It does not yet sign in through the Auth Broker or use the saved-account keyring.
+
+---
+
 ## 📊 Synchronization Results
 
 Each repository receives a status describing the synchronization result.
@@ -405,10 +419,12 @@ Each repository receives a status describing the synchronization result.
 | Status | Description |
 |:---|:---|
 | ✅ `synced` | GitHub accepted the upstream synchronization request. |
-| 🟢 `up-to-date` | GitHub indicated that no changes needed to be merged. |
+| 🟢 `up-to-date` | Fork and upstream already match. |
+| 🔵 `behind` | Preview found upstream commits that can be synchronized. |
+| 🟡 `ahead` | Fork has local commits and is not safe to merge automatically. |
+| 🟠 `diverged` | Fork and upstream have both changed; automatic sync is refused. |
 | ⚠️ `conflict` | GitHub reported a synchronization conflict (HTTP 409). |
 | ❌ `error` | Repository data was invalid or an API request failed. |
-| 🔍 `dry-run` | Repository was selected for preview; no synchronization request was sent. |
 
 > 📌 Exit Status
 >
@@ -435,7 +451,7 @@ The tests use fakes for GitHub API calls and the system keyring.
 ## 📁 Project Structure
 
 ```text
-DREAMEROL-SYNC-FORK/
+DREAMEROL-SYNC/
 │
 ├── main.py
 │
@@ -444,33 +460,60 @@ DREAMEROL-SYNC-FORK/
 │   ├── github.py
 │   └── synchronizer.py
 │
-├── tests/
-│   ├── test_accounts.py
-│   ├── test_cli.py
-│   └── test_synchronizer.py
+├── auth_broker/
+│   ├── app.py
+│   ├── client.py
+│   ├── config.py
+│   ├── oauth.py
+│   ├── rate_limit.py
+│   ├── routes.py
+│   ├── security.py
+│   ├── token_policy.py
+│   └── transactions.py
 │
+├── api/
+│   ├── app.py
+│   └── routes.py
+│
+├── web/
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+│
+├── backend/
+│   └── github_client.py
+│
+├── tests/
+│   └── test_*.py
+│
+├── docs/
+│   └── GITHUB_APP_AUTH_SPEC.md
+│
+├── .github/workflows/tests.yml
 ├── requirements.txt
 ├── LICENSE
-└── readme.md
+└── README.md
 ```
 
 ### 🧩 Core Components
 
 | File | Description |
 |:---|:---|
-| `main.py` | CLI, account selection and safety prompts. |
-| `accounts.py` | Keyring-backed account management. |
-| `github.py` | GitHub API client and repository pagination. |
-| `synchronizer.py` | Fork discovery, dry-run and upstream synchronization. |
-| `test_accounts.py` | Account and keyring behavior tests. |
-| `test_cli.py` | CLI arguments, filters and confirmation tests. |
-| `test_synchronizer.py` | Fork synchronization behavior tests. |
+| `main.py` | CLI, account selection, Broker login and safety prompts. |
+| `fork_sync/accounts.py` | Keyring-backed account management. |
+| `fork_sync/github.py` | GitHub API client and repository pagination. |
+| `fork_sync/synchronizer.py` | Fork discovery, preview and upstream synchronization. |
+| `auth_broker/` | GitHub App OAuth Broker, transaction store and rate limiting. |
+| `api/` | FastAPI web/API backend for the browser dashboard. |
+| `web/` | Static browser dashboard. |
+| `backend/github_client.py` | Legacy GitHub client kept for compatibility tests. |
+| `tests/` | Automated test suite. |
 
 ---
 
 ## 📌 Dependency Reproducibility
 
-`requirements.txt` pins the direct dependencies.
+`requirements.txt` pins the direct dependencies used by the CLI, Broker, API and tests.
 
 It is not a complete transitive lockfile.
 
