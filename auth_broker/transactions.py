@@ -279,6 +279,11 @@ class TransactionStore:
             transaction.state = TransactionState.ACKNOWLEDGED
             return transaction.state
 
+    def verify_polling_secret(self, transaction_id: str, polling_secret: str) -> None:
+        """Validate a polling secret without changing transaction state."""
+        with self._lock:
+            self._get_authenticated(transaction_id, polling_secret)
+
     def cleanup_expired(self) -> int:
         """Remove expired transactions and callback indexes; return removed count."""
         with self._lock:

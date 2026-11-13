@@ -336,6 +336,48 @@ def test_repeated_invalid_poll_secrets_trigger_failure_limit(broker_config):
     assert blocked.status_code == 429
 
 
+def test_invalid_poll_secret_does_not_consume_per_transaction_limit(broker_config):
+    limiter = InMemoryRateLimiter(clock=lambda: 1000.0)
+    rate_config = RateLimitConfig(
+        poll_per_ip=100,
+        poll_per_transaction=1,
+        failures_per_ip=100,
+        window_seconds=60,
+    )
+    app = make_app(broker_config, rate_config, limiter)
+
+    with TestClient(app) as client:
+        start_response, secret = start_auth(client)
+        transaction_id = start_response.json()["transaction_id"]
+
+        invalid = poll(client, transaction_id, "wrong-secret")
+        valid = poll(client, transaction_id, secret)
+
+    assert invalid.status_code == 401
+    assert valid.status_code == 200
+
+
+def test_invalid_ack_secret_does_not_consume_per_transaction_limit(broker_config):
+    limiter = InMemoryRateLimiter(clock=lambda: 1000.0)
+    rate_config = RateLimitConfig(
+        ack_per_ip=100,
+        ack_per_transaction=1,
+        failures_per_ip=100,
+        window_seconds=60,
+    )
+    app = make_app(broker_config, rate_config, limiter)
+
+    with TestClient(app) as client:
+        start_response, secret = start_auth(client)
+        transaction_id = start_response.json()["transaction_id"]
+
+        invalid = ack(client, transaction_id, "wrong-secret")
+        valid = ack(client, transaction_id, secret)
+
+    assert invalid.status_code == 401
+    assert valid.status_code == 409
+
+
 def test_ack_per_transaction_limit_returns_429(broker_config):
     limiter = InMemoryRateLimiter(clock=lambda: 1000.0)
     rate_config = RateLimitConfig(

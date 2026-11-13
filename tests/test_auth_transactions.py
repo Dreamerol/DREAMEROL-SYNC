@@ -500,6 +500,16 @@ def test_wrong_secret_never_reveals_transaction_state(store_and_secrets):
         store.acknowledge("unknown-id", "wrong-secret")
 
 
+def test_verify_polling_secret_does_not_change_transaction_state(store_and_secrets):
+    store, _, transaction_id, polling_secret, _ = store_and_secrets
+
+    store.verify_polling_secret(transaction_id, polling_secret)
+
+    assert store.poll(transaction_id, polling_secret).state is TransactionState.PENDING
+    with pytest.raises(InvalidTransaction):
+        store.verify_polling_secret(transaction_id, "wrong-secret")
+
+
 def test_expiration_clears_credential_and_cleanup_removes_transaction(store_and_secrets):
     store, clock, transaction_id, polling_secret, callback_state = store_and_secrets
     store.claim_callback(callback_state)

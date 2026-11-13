@@ -171,6 +171,31 @@ def _require_polling_secret(polling_secret: str | None) -> str:
     return polling_secret
 
 
+def _authenticate_transaction_request(
+    store: TransactionStore,
+    transaction_id: str,
+    polling_secret: str | None,
+    *,
+    limiter: InMemoryRateLimiter,
+    config: RateLimitConfig,
+    failure_key: str,
+) -> str:
+    try:
+        polling_secret = _require_polling_secret(polling_secret)
+        store.verify_polling_secret(transaction_id, polling_secret)
+    except HTTPException:
+        _record_failure(limiter, config, failure_key)
+        raise
+    except InvalidTransaction:
+        _record_failure(limiter, config, failure_key)
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid transaction or polling secret.",
+            headers={"WWW-Authenticate": POLLING_SECRET_HEADER},
+        ) from None
+    return polling_secret
+
+
 @router.post("/start", response_model=StartResponse)
 def start_authentication(
     payload: StartRequest,
@@ -292,6 +317,7 @@ def github_callback(
         )
         store.make_token_ready(transaction_id, token.access_token)
     except Exception:
+        _record_failure(rate_limiter, rate_limit_config, failure_key)
         try:
             store.fail_processing(transaction_id)
         except Exception:
@@ -336,21 +362,26 @@ def poll_authentication(
             f"poll:ip:{client_ip}",
             rate_limit_config.poll_per_ip,
         )
-    if retry_after is None:
-        retry_after = _record_limit(
-            rate_limiter,
-            rate_limit_config,
-            f"poll:transaction:{payload.transaction_id}",
-            rate_limit_config.poll_per_transaction,
-        )
     if retry_after is not None:
         raise _rate_limit_exception(retry_after)
 
-    try:
-        polling_secret = _require_polling_secret(polling_secret)
-    except HTTPException:
-        _record_failure(rate_limiter, rate_limit_config, failure_key)
-        raise
+    polling_secret = _authenticate_transaction_request(
+        store,
+        payload.transaction_id,
+        polling_secret,
+        limiter=rate_limiter,
+        config=rate_limit_config,
+        failure_key=failure_key,
+    )
+
+    retry_after = _record_limit(
+        rate_limiter,
+        rate_limit_config,
+        f"poll:transaction:{payload.transaction_id}",
+        rate_limit_config.poll_per_transaction,
+    )
+    if retry_after is not None:
+        raise _rate_limit_exception(retry_after)
 
     try:
         result = store.poll(payload.transaction_id, polling_secret)
@@ -406,21 +437,26 @@ def acknowledge_authentication(
             f"ack:ip:{client_ip}",
             rate_limit_config.ack_per_ip,
         )
-    if retry_after is None:
-        retry_after = _record_limit(
-            rate_limiter,
-            rate_limit_config,
-            f"ack:transaction:{payload.transaction_id}",
-            rate_limit_config.ack_per_transaction,
-        )
     if retry_after is not None:
         raise _rate_limit_exception(retry_after)
 
-    try:
-        polling_secret = _require_polling_secret(polling_secret)
-    except HTTPException:
-        _record_failure(rate_limiter, rate_limit_config, failure_key)
-        raise
+    polling_secret = _authenticate_transaction_request(
+        store,
+        payload.transaction_id,
+        polling_secret,
+        limiter=rate_limiter,
+        config=rate_limit_config,
+        failure_key=failure_key,
+    )
+
+    retry_after = _record_limit(
+        rate_limiter,
+        rate_limit_config,
+        f"ack:transaction:{payload.transaction_id}",
+        rate_limit_config.ack_per_transaction,
+    )
+    if retry_after is not None:
+        raise _rate_limit_exception(retry_after)
 
     try:
         state = store.acknowledge(payload.transaction_id, polling_secret)

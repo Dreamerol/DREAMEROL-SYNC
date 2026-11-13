@@ -8,8 +8,9 @@ import requests
 from fastapi.testclient import TestClient
 
 from auth_broker.app import create_app
-from auth_broker.config import BrokerConfig
+from auth_broker.config import BrokerConfig, RateLimitConfig
 from auth_broker.oauth import GITHUB_TOKEN_ENDPOINT, GitHubOAuthClient
+from auth_broker.rate_limit import InMemoryRateLimiter
 from auth_broker.security import (
     generate_polling_secret,
     hash_secret,
@@ -341,6 +342,33 @@ def test_callback_token_exchange_failure_fails_transaction(client, post):
     assert response.status_code == 502
     assert "network failure detail" not in response.text
     assert poll(client, transaction_id, secret).json() == {"state": "FAILED"}
+
+
+def test_callback_token_exchange_failure_records_failure_limit(config, store, post):
+    post.side_effect = requests.ConnectionError("network failure detail")
+    limiter = InMemoryRateLimiter(clock=lambda: 1000.0)
+    app = create_app(
+        config,
+        transaction_store=store,
+        oauth_client=GitHubOAuthClient(config, post=post),
+        rate_limit_config=RateLimitConfig(
+            callback_per_ip=100,
+            failures_per_ip=1,
+            window_seconds=60,
+        ),
+        rate_limiter=limiter,
+    )
+
+    with TestClient(app) as client:
+        secret = generate_polling_secret()
+        _, _, state = start_auth(client, secret)
+
+        first = callback(client, state, code="auth-code")
+        second = callback(client, state, code="auth-code")
+
+    assert first.status_code == 502
+    assert second.status_code == 429
+    assert "Too many requests" in second.text
 
 
 def test_callback_invalid_token_response_fails_transaction(client, post):
