@@ -13,7 +13,7 @@ import re
 import secrets
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable
 
@@ -61,18 +61,19 @@ class PollResult:
     """Safe poll result; credential is present only when delivery is allowed."""
 
     state: TransactionState
-    credential: str | None = None
+    credential: str | None = field(default=None, repr=False)
 
 
 @dataclass
 class _Transaction:
     transaction_id: str
-    polling_secret_hash: str
-    callback_state_hash: str
+    polling_secret_hash: str = field(repr=False)
+    callback_state_hash: str = field(repr=False)
     created_at: float
     expires_at: float
     state: TransactionState = TransactionState.PENDING
-    credential: str | None = None
+    credential: str | None = field(default=None, repr=False)
+    code_verifier: str | None = field(default=None, repr=False)
 
 
 class TransactionStore:
@@ -100,7 +101,13 @@ class TransactionStore:
         # Hash -> original transaction expiry. Never retain callback plaintext.
         self._used_callback_states: dict[str, float] = {}
 
-    def create(self, polling_secret_hash: str, callback_state: str) -> str:
+    def create(
+        self,
+        polling_secret_hash: str,
+        callback_state: str,
+        *,
+        code_verifier: str | None = None,
+    ) -> str:
         """Create a PENDING transaction, storing only hashes of supplied secrets."""
         if not isinstance(polling_secret_hash, str) or not _HASH_PATTERN.fullmatch(
             polling_secret_hash
@@ -108,6 +115,10 @@ class TransactionStore:
             raise ValueError("polling_secret_hash must be a lowercase SHA-256 hex digest")
         if not isinstance(callback_state, str) or not callback_state:
             raise ValueError("callback_state must be a non-empty string")
+        if code_verifier is not None and (
+            not isinstance(code_verifier, str) or not code_verifier
+        ):
+            raise ValueError("code_verifier must be a non-empty string")
 
         callback_state_hash = hash_secret(callback_state)
         with self._lock:
@@ -127,6 +138,7 @@ class TransactionStore:
                 callback_state_hash=callback_state_hash,
                 created_at=now,
                 expires_at=now + self._ttl_seconds,
+                code_verifier=code_verifier,
             )
             self._transactions[transaction_id] = transaction
             self._callback_states[callback_state_hash] = transaction_id
@@ -179,6 +191,7 @@ class TransactionStore:
                 raise TransactionExpired("transaction has expired")
             if transaction.state is not TransactionState.PENDING:
                 raise InvalidTransition("callback is not pending")
+            transaction.code_verifier = None
             transaction.state = (
                 TransactionState.CANCELLED if cancelled else TransactionState.FAILED
             )
@@ -196,9 +209,25 @@ class TransactionStore:
             if transaction.state is not TransactionState.PROCESSING:
                 raise InvalidTransition("only PROCESSING transactions can fail")
             transaction.credential = None
+            transaction.code_verifier = None
             transaction.state = TransactionState.FAILED
             self._callback_states.pop(transaction.callback_state_hash, None)
             return transaction.state
+
+    def get_code_verifier(self, transaction_id: str) -> str:
+        """Return the PKCE verifier only while the transaction is PROCESSING."""
+        with self._lock:
+            transaction = self._get_transaction(transaction_id)
+            self._expire_if_needed(transaction)
+            if transaction.state is TransactionState.EXPIRED:
+                raise TransactionExpired("transaction has expired")
+            if transaction.state is not TransactionState.PROCESSING:
+                raise InvalidTransition(
+                    "code verifier is available only during PROCESSING"
+                )
+            if transaction.code_verifier is None:
+                raise InvalidTransition("transaction has no code verifier")
+            return transaction.code_verifier
 
     def make_token_ready(self, transaction_id: str, credential: str) -> None:
         """Store a validated credential after callback processing succeeds."""
@@ -212,6 +241,7 @@ class TransactionStore:
             if transaction.state is not TransactionState.PROCESSING:
                 raise InvalidTransition("only PROCESSING transactions can become TOKEN_READY")
             transaction.credential = credential
+            transaction.code_verifier = None
             transaction.state = TransactionState.TOKEN_READY
 
     def poll(self, transaction_id: str, polling_secret: str) -> PollResult:
@@ -240,10 +270,12 @@ class TransactionStore:
             if transaction.state is TransactionState.EXPIRED:
                 raise TransactionExpired("transaction has expired")
             if transaction.state is TransactionState.ACKNOWLEDGED:
+                transaction.code_verifier = None
                 return TransactionState.ACKNOWLEDGED
             if transaction.state is not TransactionState.DELIVERY_AUTHORIZED:
                 raise InvalidTransition("ACK is allowed only after delivery is authorized")
             transaction.credential = None
+            transaction.code_verifier = None
             transaction.state = TransactionState.ACKNOWLEDGED
             return transaction.state
 
@@ -262,6 +294,7 @@ class TransactionStore:
         for transaction_id in expired_ids:
             transaction = self._transactions.pop(transaction_id)
             transaction.credential = None
+            transaction.code_verifier = None
             self._callback_states.pop(transaction.callback_state_hash, None)
 
         expired_state_hashes = [
@@ -294,5 +327,6 @@ class TransactionStore:
     def _expire_if_needed(self, transaction: _Transaction) -> None:
         if self._clock() >= transaction.expires_at:
             transaction.credential = None
+            transaction.code_verifier = None
             transaction.state = TransactionState.EXPIRED
             self._callback_states.pop(transaction.callback_state_hash, None)

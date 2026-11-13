@@ -321,6 +321,57 @@ Tokens are entered without echo and securely stored using your operating system'
 python main.py --add-account
 ```
 
+### Sign In Through the Auth Broker
+
+```bash
+python main.py --login
+```
+
+Set the Broker URL with `--broker-url` or the `BROKER_URL` environment variable:
+
+```bash
+python main.py --login --broker-url https://broker.example.com
+```
+
+The CLI keeps the polling secret in memory, displays the Broker-generated GitHub authorization URL, stores the returned credential in the system keyring, and acknowledges the credential only after storage succeeds. If keyring storage fails, the CLI does not acknowledge the credential and offers a safe retry while the transaction remains valid.
+
+### Deploy the Auth Broker
+
+The Broker is the FastAPI application in `auth_broker/`. Configure the GitHub App client and callback URL:
+
+| Variable | Required | Description |
+|:---|:---|:---|
+| `GITHUB_APP_CLIENT_ID` | Yes | GitHub App client ID. |
+| `GITHUB_APP_CLIENT_SECRET` | Yes | GitHub App client secret. |
+| `BROKER_CALLBACK_URL` | Yes | Fixed HTTPS callback URL, for example `https://broker.example.com/auth/callback`. |
+| `BROKER_REQUEST_TIMEOUT` | No | GitHub token-exchange timeout in seconds. Default: `30`. |
+
+Run the Broker with:
+
+```bash
+uvicorn auth_broker.app:create_app --factory --host 0.0.0.0 --port 8000
+```
+
+Rate limits are enabled by default and stored in memory per process:
+
+| Variable | Default |
+|:---|:---|
+| `BROKER_RATE_LIMIT_ENABLED` | `true` |
+| `BROKER_RATE_LIMIT_WINDOW_SECONDS` | `60` |
+| `BROKER_RATE_LIMIT_START_PER_IP` | `60` |
+| `BROKER_RATE_LIMIT_CALLBACK_PER_IP` | `120` |
+| `BROKER_RATE_LIMIT_POLL_PER_IP` | `240` |
+| `BROKER_RATE_LIMIT_POLL_PER_TRANSACTION` | `60` |
+| `BROKER_RATE_LIMIT_ACK_PER_IP` | `60` |
+| `BROKER_RATE_LIMIT_ACK_PER_TRANSACTION` | `10` |
+| `BROKER_RATE_LIMIT_FAILURES_PER_IP` | `30` |
+
+Blocked requests receive `429 Too Many Requests` with a `Retry-After` header; the browser callback returns an HTML `429` page. Invalid polling secrets and callback state/code values count toward `BROKER_RATE_LIMIT_FAILURES_PER_IP`; poll and ACK also have per-transaction limits.
+
+Set `BROKER_TRUSTED_PROXIES` to a comma-separated list of reverse-proxy IPs or CIDRs that are allowed to supply `X-Forwarded-For`. Leave it empty when clients connect directly. When configured, the Broker uses the rightmost untrusted forwarded address for per-IP limits.
+
+Rate-limit counters are local to each process and are not shared between workers. Adjust the limits for shared NAT environments, or deploy a shared limiter if strict global limits are required.
+
 ### 📋 List Saved Accounts
 
 ```bash

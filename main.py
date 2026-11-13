@@ -4,13 +4,24 @@ import argparse
 import getpass
 import os
 import sys
+import time
 
 from dotenv import load_dotenv
 from requests.exceptions import RequestException
 
+from auth_broker.client import (
+    DEFAULT_BROKER_URL,
+    BrokerAuthClient,
+    BrokerAuthError,
+)
+from auth_broker.security import generate_polling_secret, hash_secret
 from fork_sync.accounts import AccountManager
 from fork_sync.github import GitHubClient
 from fork_sync.synchronizer import ForkSynchronizer
+
+
+AUTH_POLL_INTERVAL_SECONDS = 2.0
+AUTH_TIMEOUT_SECONDS = 600.0
 
 
 def build_parser():
@@ -29,9 +40,19 @@ def build_parser():
         action="store_true",
         help="List accounts saved in the system keyring.",
     )
+    actions.add_argument(
+        "--login",
+        action="store_true",
+        help="Authenticate through the auth Broker and save the credential.",
+    )
     parser.add_argument(
         "--account",
         help="Use a saved account by GitHub username.",
+    )
+    parser.add_argument(
+        "--broker-url",
+        metavar="URL",
+        help="Auth Broker base URL (default: BROKER_URL or http://127.0.0.1:8000).",
     )
     parser.add_argument(
         "--dry-run",
@@ -105,8 +126,119 @@ def _get_github_client(args, accounts):
             "Saved accounts: " + ", ".join(saved_accounts)
         )
     raise ValueError(
-        "No token configured. Set GITHUB_TOKEN or add an account with --add-account."
+        "No token configured. Set GITHUB_TOKEN or add an account with "
+        "--login or --add-account."
     )
+
+
+def _run_broker_login(
+    args,
+    accounts,
+    *,
+    auth_client=None,
+    output=print,
+    error=None,
+    input_fn=input,
+    sleep=time.sleep,
+    clock=time.monotonic,
+):
+    """Run the Broker authorization flow, retrying Keyring storage safely."""
+    if error is None:
+        def error(message):
+            print(message, file=sys.stderr)
+
+    client = auth_client
+    try:
+        if client is None:
+            broker_url = getattr(args, "broker_url", None) or os.getenv(
+                "BROKER_URL",
+                DEFAULT_BROKER_URL,
+            )
+            client = BrokerAuthClient(broker_url)
+
+        polling_secret = generate_polling_secret()
+        start = client.start(hash_secret(polling_secret))
+        output("Open this URL in your browser to authorize GitHub access:")
+        output(start.authorization_url)
+        output("Waiting for authorization...")
+
+        deadline = clock() + AUTH_TIMEOUT_SECONDS
+        while True:
+            if clock() >= deadline:
+                error("Authentication timed out. Please try again.")
+                return 1
+
+            try:
+                result = client.poll(start.transaction_id, polling_secret)
+            except BrokerAuthError as exc:
+                error(f"Authentication failed: {exc}")
+                return 1
+
+            if result.state in {"PENDING", "PROCESSING", "TOKEN_READY"}:
+                sleep(AUTH_POLL_INTERVAL_SECONDS)
+                continue
+
+            if result.state == "DELIVERY_AUTHORIZED":
+                if not result.access_token:
+                    error(
+                        "Authentication failed: the Broker did not return a credential."
+                    )
+                    return 1
+                while True:
+                    try:
+                        username = accounts.add_account(result.access_token)
+                        break
+                    except Exception as exc:
+                        error(
+                            "Could not validate or store the credential in the "
+                            f"system keyring: {exc}"
+                        )
+                        try:
+                            response = input_fn(
+                                "Fix the problem (for example, unlock the system "
+                                "keyring), then press Enter to retry, or type "
+                                "anything else to cancel: "
+                            )
+                        except (EOFError, OSError):
+                            response = "cancel"
+                        if response.strip():
+                            error(
+                                "The credential was not acknowledged and will expire automatically."
+                            )
+                            return 1
+
+                output(f"Account '{username}' added to the system keyring.")
+                try:
+                    client.ack(start.transaction_id, polling_secret)
+                except BrokerAuthError as exc:
+                    error(
+                        "Credential stored, but the Broker could not be notified: "
+                        f"{exc}"
+                    )
+                    return 0
+                return 0
+
+            if result.state == "EXPIRED":
+                error("Authentication expired. Please try again.")
+                return 1
+            if result.state == "FAILED":
+                error("Authentication failed. Please try again.")
+                return 1
+            if result.state == "CANCELLED":
+                error("Authentication was cancelled.")
+                return 1
+            if result.state == "ACKNOWLEDGED":
+                error("Authentication transaction is already acknowledged.")
+                return 1
+
+            error(f"Authentication failed: unexpected state '{result.state}'.")
+            return 1
+    except BrokerAuthError as exc:
+        error(f"Authentication failed: {exc}")
+        return 1
+    finally:
+        if client is not None:
+            client.close()
 
 
 def main(argv=None):
@@ -114,6 +246,9 @@ def main(argv=None):
     args = build_parser().parse_args(argv)
     load_dotenv()
     accounts = AccountManager()
+
+    if args.login:
+        return _run_broker_login(args, accounts)
 
     if args.add_account:
         token = getpass.getpass("GitHub token (input hidden): ").strip()
@@ -135,7 +270,7 @@ def main(argv=None):
             print(f"Could not read saved accounts: {error}", file=sys.stderr)
             return 1
         if not saved_accounts:
-            print("No saved accounts. Add one with: python main.py --add-account")
+            print("No saved accounts. Add one with: python main.py --login")
         else:
             print("Saved accounts:")
             for username in saved_accounts:

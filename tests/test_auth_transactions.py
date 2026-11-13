@@ -5,7 +5,12 @@ from threading import Barrier
 
 import pytest
 
-from auth_broker.security import generate_callback_state, generate_polling_secret, hash_secret
+from auth_broker.security import (
+    generate_callback_state,
+    generate_pkce_verifier,
+    generate_polling_secret,
+    hash_secret,
+)
 from auth_broker.transactions import (
     InvalidCallbackState,
     InvalidTransaction,
@@ -35,6 +40,20 @@ def store_and_secrets():
     callback_state = generate_callback_state()
     transaction_id = store.create(hash_secret(polling_secret), callback_state)
     return store, clock, transaction_id, polling_secret, callback_state
+
+
+def _store_with_code_verifier():
+    clock = Clock()
+    store = TransactionStore(ttl_seconds=10, clock=clock)
+    polling_secret = generate_polling_secret()
+    callback_state = generate_callback_state()
+    code_verifier = generate_pkce_verifier()
+    transaction_id = store.create(
+        hash_secret(polling_secret),
+        callback_state,
+        code_verifier=code_verifier,
+    )
+    return store, clock, transaction_id, polling_secret, callback_state, code_verifier
 
 
 def test_transaction_follows_valid_state_machine(store_and_secrets):
@@ -195,6 +214,150 @@ def test_repeated_processing_failure_is_rejected(store_and_secrets):
         store.fail_processing(transaction_id)
 
     assert store.poll(transaction_id, polling_secret).state is TransactionState.FAILED
+
+
+def test_create_stores_code_verifier_without_exposing_it_in_poll():
+    store, _, transaction_id, polling_secret, _, code_verifier = _store_with_code_verifier()
+
+    transaction = store._transactions[transaction_id]
+    assert transaction.code_verifier == code_verifier
+    assert code_verifier not in repr(transaction)
+
+    result = store.poll(transaction_id, polling_secret)
+    assert result.state is TransactionState.PENDING
+    assert result.credential is None
+    assert not hasattr(result, "code_verifier")
+
+
+def test_transaction_and_poll_result_repr_hide_credentials_and_hashes(
+    store_and_secrets,
+):
+    store, _, transaction_id, polling_secret, callback_state = store_and_secrets
+    store.claim_callback(callback_state)
+    store.make_token_ready(transaction_id, "credential-value")
+
+    transaction = store._transactions[transaction_id]
+    result = store.poll(transaction_id, polling_secret)
+
+    assert result.credential == "credential-value"
+    assert "credential-value" not in repr(transaction)
+    assert "credential-value" not in repr(result)
+    assert transaction.polling_secret_hash not in repr(transaction)
+    assert transaction.callback_state_hash not in repr(transaction)
+    assert polling_secret not in repr(transaction)
+
+
+def test_code_verifier_is_available_only_during_processing():
+    store, _, transaction_id, _, callback_state, code_verifier = _store_with_code_verifier()
+
+    with pytest.raises(InvalidTransition):
+        store.get_code_verifier(transaction_id)
+
+    assert store.claim_callback(callback_state) == transaction_id
+    assert store.get_code_verifier(transaction_id) == code_verifier
+
+    store.make_token_ready(transaction_id, "credential-value")
+    with pytest.raises(InvalidTransition):
+        store.get_code_verifier(transaction_id)
+
+
+def test_code_verifier_is_cleared_on_failed_callback():
+    store, _, transaction_id, _, callback_state, _ = _store_with_code_verifier()
+
+    store.fail_callback(callback_state)
+
+    assert store._transactions[transaction_id].code_verifier is None
+    with pytest.raises(InvalidTransition):
+        store.get_code_verifier(transaction_id)
+
+
+def test_code_verifier_is_cleared_on_cancelled_callback():
+    store, _, transaction_id, _, callback_state, _ = _store_with_code_verifier()
+
+    store.fail_callback(callback_state, cancelled=True)
+
+    assert store._transactions[transaction_id].code_verifier is None
+    with pytest.raises(InvalidTransition):
+        store.get_code_verifier(transaction_id)
+
+
+def test_code_verifier_is_cleared_on_processing_failure():
+    store, _, transaction_id, _, callback_state, _ = _store_with_code_verifier()
+    store.claim_callback(callback_state)
+
+    assert store.get_code_verifier(transaction_id) is not None
+    store.fail_processing(transaction_id)
+
+    assert store._transactions[transaction_id].code_verifier is None
+    with pytest.raises(InvalidTransition):
+        store.get_code_verifier(transaction_id)
+
+
+def test_code_verifier_is_cleared_after_token_ready():
+    store, _, transaction_id, _, callback_state, _ = _store_with_code_verifier()
+    store.claim_callback(callback_state)
+
+    store.make_token_ready(transaction_id, "credential-value")
+
+    assert store._transactions[transaction_id].code_verifier is None
+    with pytest.raises(InvalidTransition):
+        store.get_code_verifier(transaction_id)
+
+
+def test_code_verifier_is_cleared_on_acknowledged():
+    store, _, transaction_id, polling_secret, callback_state, _ = _store_with_code_verifier()
+    store.claim_callback(callback_state)
+    store.make_token_ready(transaction_id, "credential-value")
+    assert store.poll(transaction_id, polling_secret).credential == "credential-value"
+
+    assert store.acknowledge(transaction_id, polling_secret) is TransactionState.ACKNOWLEDGED
+
+    assert store._transactions[transaction_id].code_verifier is None
+    with pytest.raises(InvalidTransition):
+        store.get_code_verifier(transaction_id)
+
+
+def test_code_verifier_is_cleared_on_expiration():
+    store, clock, transaction_id, polling_secret, callback_state, _ = _store_with_code_verifier()
+    store.claim_callback(callback_state)
+    clock.advance(10)
+
+    result = store.poll(transaction_id, polling_secret)
+
+    assert result.state is TransactionState.EXPIRED
+    assert store._transactions[transaction_id].code_verifier is None
+    with pytest.raises(TransactionExpired):
+        store.get_code_verifier(transaction_id)
+
+
+def test_cleanup_clears_code_verifier_before_removing_transaction():
+    store, clock, transaction_id, _, _, _ = _store_with_code_verifier()
+    transaction = store._transactions[transaction_id]
+    clock.advance(10)
+
+    assert store.cleanup_expired() == 1
+    assert transaction.code_verifier is None
+    assert transaction_id not in store._transactions
+
+
+def test_create_without_code_verifier_still_succeeds():
+    store = TransactionStore()
+    polling_secret = generate_polling_secret()
+    callback_state = generate_callback_state()
+
+    transaction_id = store.create(hash_secret(polling_secret), callback_state)
+
+    assert store._transactions[transaction_id].code_verifier is None
+
+
+@pytest.mark.parametrize("code_verifier", ["", 123, b"verifier"])
+def test_create_rejects_invalid_code_verifier(code_verifier):
+    store = TransactionStore()
+    polling_hash = hash_secret(generate_polling_secret())
+    callback_state = generate_callback_state()
+
+    with pytest.raises(ValueError, match="code_verifier"):
+        store.create(polling_hash, callback_state, code_verifier=code_verifier)
 
 
 def test_ack_is_rejected_before_delivery_and_preserves_credential(store_and_secrets):
