@@ -124,5 +124,14 @@
 - **Причина:** Да не се кешират auth отговори и rate limiting-ът да ползва реалния клиентски IP зад локалния тунел.
 - **Изпълнени тестове:** `python -m pytest tests/test_auth_broker_api.py -q -p no:cacheprovider` → `17 passed`; `python -m pytest -q -p no:cacheprovider` → `350 passed, 1 warning`; ръчни проверки на 401, 404 и тунел 400 за четирите headers.
 - **Резултат:** Broker е рестартиран с новата конфигурация (PID 10640); `RateLimitConfig.from_env().trusted_proxies` е `('127.0.0.1', '::1')`.
-- **Оставащи проблеми:** Промените по код, скриптове и документация са неcommit-нати; реален GitHub login остава блокиран от placeholder credentials.
+- **Оставащи проблеми:** Промените по код и скриптове са commit-нати като `23f1226`; логите като `fa4a135`. Реален GitHub login остава блокиран от placeholder credentials.
+
+## 2026-11-14 04:04 - Commit на smoke-test и Broker hardening
+
+- **Извършена задача:** Commit на smoke-test скриптовете, Broker hardening промените и документацията.
+- **Променени файлове:** `auth_broker/app.py`, `tests/test_auth_broker_api.py`, `.env.example`, `README.md`, `scripts/start-smoke.ps1`, `scripts/stop-smoke.ps1`, `CURRENT_STATUS.md`, `DECISIONS.md`, `NEXT_STEPS.md`, `LOG_14-11-26.md`.
+- **Причина:** Запазване на тестваните промени в Git историята след изрично одобрение.
+- **Изпълнени тестове:** Последен пълен suite `350 passed, 1 warning`; няма нови кодови промени след него.
+- **Резултат:** Commit `23f1226` за код и скриптове; commit `fa4a135` за логи; последващ logging commit за тази бележка.
+- **Оставащи проблеми:** Реален GitHub login остава блокиран от placeholder credentials.
 

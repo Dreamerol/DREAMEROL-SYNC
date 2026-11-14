@@ -5,7 +5,7 @@
 - Преди това: smoke-test скриптове (2026-11-14 03:51), cloudflared и HTTPS tunnel (2026-11-14 03:42), commit на security промените (2026-11-14 03:29) и завършена Auth Broker интеграция (2026-11-13 17:14).
 
 ## Текущо състояние
-- Клон: `feature/github-app-auth`; HEAD: `4978956`.
+- Клон: `feature/github-app-auth`; последни commit-и: `23f1226` (код и скриптове) и `fa4a135` (логове).
 - Auth Broker интеграцията е реализирана и локално проверена.
 - `python -m pytest -q`: `350 passed, 1 warning` (2026-11-14 03:55).
 - `node --check web/app.js`: успешен.
@@ -20,7 +20,7 @@
 - `scripts/start-smoke.ps1` стартира трите процеса, обновява `BROKER_CALLBACK_URL`, проверява тунела и записва PID state; `scripts/stop-smoke.ps1` ги спира.
 
 ## Незавършени промени
-- Broker hardening промените (`auth_broker/app.py`, `tests/test_auth_broker_api.py`), скриптовете и документацията са неcommit-нати.
+- Няма неcommit-нати промени.
 - Не е извършен реален GitHub login, защото `.env` съдържа placeholder стойности за `GITHUB_APP_CLIENT_ID` и `GITHUB_APP_CLIENT_SECRET`.
 
 ## Известни грешки
