@@ -20,6 +20,23 @@
             <h2 id="sync-heading">Connect &amp; Sync</h2>
             <p class="subtitle">Preview every fork against upstream before synchronizing only repositories that are behind.</p>
 
+            <div class="auth-block">
+                <button type="button" id="broker-login-button">
+                    Sign in with GitHub
+                </button>
+                <button type="button" id="logout-button" class="link-button" hidden>
+                    Sign out
+                </button>
+                <p id="auth-status" class="auth-status" role="status" aria-live="polite">
+                    Not signed in.
+                </p>
+                <a id="broker-link" class="auth-link" target="_blank" rel="noopener noreferrer" hidden>
+                    Open GitHub authorization
+                </a>
+            </div>
+
+            <div class="divider"><span>or use a personal access token</span></div>
+
             <form id="sync-form">
                 <label for="github-token">GitHub personal access token</label>
                 <input
@@ -30,7 +47,6 @@
                     autocapitalize="none"
                     spellcheck="false"
                     aria-describedby="token-help"
-                    required
                 >
                 <p id="token-help" class="help-text">
                     The token is sent to this server for the request only; it is not saved by this page.

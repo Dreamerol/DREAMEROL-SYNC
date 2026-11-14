@@ -400,15 +400,24 @@ python main.py --account octocat
 
 ## 🌐 Web Dashboard
 
-The repository also includes a FastAPI-backed browser dashboard in `api/` with static files in `web/`.
+The repository also includes a FastAPI-backed browser dashboard in `api/` with static files in `web/`. It supports Auth Broker sign-in and a manual personal-access-token fallback.
+
+Start the Broker and the dashboard on separate local ports:
 
 ```bash
-uvicorn api.app:app --host 127.0.0.1 --port 8000
+uvicorn auth_broker.app:create_app --factory --host 127.0.0.1 --port 8000
+uvicorn api.app:app --host 127.0.0.1 --port 8001
 ```
 
-Open `http://127.0.0.1:8000` and paste a GitHub personal access token. The token is kept in browser memory for the request only and sent to the local server in the `Authorization` header. The dashboard previews forks against upstream and synchronizes only the forks shown as `behind`, after an explicit `SYNC` confirmation.
+The dashboard reads `BROKER_URL` from `.env` (default: `http://127.0.0.1:8000`). Open `http://127.0.0.1:8001` and click **Sign in with GitHub**.
 
-> ⚠️ The dashboard currently uses a manually supplied token. It does not yet sign in through the Auth Broker or use the saved-account keyring.
+The dashboard creates a server-side session, opens the Broker-generated GitHub authorization URL, and polls `/api/auth/status`. The API validates the returned credential with GitHub, keeps it in server memory, and acknowledges the Broker only after successful validation. The browser receives only an `HttpOnly`, `SameSite=Lax` session cookie; the GitHub token is never returned to browser JavaScript and is not read from the saved-account keyring.
+
+If the Broker is unavailable, paste a GitHub personal access token in the form instead. The manual token is kept in browser memory for the request only and sent to the local server in the `Authorization` header.
+
+The dashboard previews forks against upstream and synchronizes only the forks shown as `behind`, after an explicit `SYNC` confirmation.
+
+> ⚠️ Web sessions and credentials are stored in process memory for 10 minutes, are lost when the API restarts, and are not shared between multiple workers. Run a single API worker, or add shared session storage before scaling horizontally.
 
 ---
 
@@ -473,6 +482,7 @@ DREAMEROL-SYNC/
 │
 ├── api/
 │   ├── app.py
+│   ├── auth.py
 │   └── routes.py
 │
 ├── web/
@@ -505,6 +515,7 @@ DREAMEROL-SYNC/
 | `fork_sync/synchronizer.py` | Fork discovery, preview and upstream synchronization. |
 | `auth_broker/` | GitHub App OAuth Broker, transaction store and rate limiting. |
 | `api/` | FastAPI web/API backend for the browser dashboard. |
+| `api/auth.py` | Server-side Auth Broker sessions and credential handling for the dashboard. |
 | `web/` | Static browser dashboard. |
 | `backend/github_client.py` | Legacy GitHub client kept for compatibility tests. |
 | `tests/` | Automated test suite. |

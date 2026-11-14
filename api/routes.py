@@ -1,7 +1,15 @@
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from requests.exceptions import HTTPError, RequestException
 
+from api.auth import (
+    SESSION_COOKIE,
+    TERMINAL_STATES,
+    UnknownSession,
+    WebAuthError,
+    WebAuthManager,
+)
 from fork_sync.github import GitHubClient
 from fork_sync.synchronizer import ForkSynchronizer
 
@@ -27,26 +35,126 @@ class SyncResponse(BaseModel):
     results: list[SyncResult]
 
 
+class AuthStartResponse(BaseModel):
+    authorization_url: str
+
+
+class AuthStatusResponse(BaseModel):
+    state: str
+    account: str | None = None
+
+
+class LogoutResponse(BaseModel):
+    state: str
+
+
+def get_web_auth_manager(request: Request) -> WebAuthManager:
+    return request.app.state.auth_manager
+
+
+def _set_session_cookie(
+    response: Response,
+    request: Request,
+    manager: WebAuthManager,
+    session_id: str,
+) -> None:
+    response.set_cookie(
+        SESSION_COOKIE,
+        session_id,
+        max_age=max(1, int(manager.ttl_seconds)),
+        httponly=True,
+        samesite="lax",
+        secure=request.url.scheme == "https",
+        path="/",
+    )
+
+
+def _resolve_github_token(
+    request: Request,
+    authorization: str | None,
+    manager: WebAuthManager,
+) -> str:
+    if authorization is not None:
+        scheme, separator, token = authorization.partition(" ")
+        if scheme.lower() != "bearer" or not separator or not token.strip():
+            raise HTTPException(
+                status_code=401,
+                detail="Provide a GitHub token using the Bearer authorization scheme.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return token.strip()
+
+    token = manager.token(request.cookies.get(SESSION_COOKIE))
+    if token is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Sign in through the Auth Broker or provide a GitHub token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return token
+
+
+@router.post("/auth/start", response_model=AuthStartResponse)
+def start_web_authentication(
+    request: Request,
+    response: Response,
+    manager: WebAuthManager = Depends(get_web_auth_manager),
+):
+    """Start a server-side Broker login for the browser session."""
+    try:
+        session_id, authorization_url = manager.start()
+    except WebAuthError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from None
+
+    _set_session_cookie(response, request, manager, session_id)
+    return AuthStartResponse(authorization_url=authorization_url)
+
+
+@router.get("/auth/status", response_model=AuthStatusResponse)
+def web_authentication_status(
+    request: Request,
+    response: Response,
+    manager: WebAuthManager = Depends(get_web_auth_manager),
+):
+    """Report whether the browser session has completed Broker login."""
+    try:
+        result = manager.status(request.cookies.get(SESSION_COOKIE))
+    except UnknownSession:
+        error_response = JSONResponse(
+            status_code=401,
+            content={"detail": "Sign in through the Auth Broker first."},
+        )
+        error_response.delete_cookie(SESSION_COOKIE, path="/")
+        return error_response
+    except WebAuthError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from None
+
+    if result["state"] in TERMINAL_STATES:
+        response.delete_cookie(SESSION_COOKIE, path="/")
+    return AuthStatusResponse(**result)
+
+
+@router.post("/auth/logout", response_model=LogoutResponse)
+def logout_web_authentication(
+    request: Request,
+    response: Response,
+    manager: WebAuthManager = Depends(get_web_auth_manager),
+):
+    """Discard the server-side browser credential."""
+    manager.logout(request.cookies.get(SESSION_COOKIE))
+    response.delete_cookie(SESSION_COOKIE, path="/")
+    return LogoutResponse(state="SIGNED_OUT")
+
+
 @router.post("/sync", response_model=SyncResponse)
 def sync_repositories(
     request: SyncRequest,
+    http_request: Request,
     authorization: str | None = Header(default=None),
+    manager: WebAuthManager = Depends(get_web_auth_manager),
 ):
     """Preview fork status or sync only the explicitly confirmed, lagging forks."""
-    if not authorization:
-        raise HTTPException(
-            status_code=401,
-            detail="Provide a GitHub token using the Bearer authorization scheme.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    scheme, separator, token = authorization.partition(" ")
-    if scheme.lower() != "bearer" or not separator or not token.strip():
-        raise HTTPException(
-            status_code=401,
-            detail="Provide a GitHub token using the Bearer authorization scheme.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    token = _resolve_github_token(http_request, authorization, manager)
 
     if not request.dry_run:
         if request.confirmation != "SYNC":

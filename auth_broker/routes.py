@@ -280,12 +280,12 @@ def github_callback(
             )
         if error == "access_denied":
             return _browser_page(
-                "Authorization was cancelled. You can return to the CLI.",
+                "Authorization was cancelled. You can return to the application.",
                 status_code=400,
             )
         _record_failure(rate_limiter, rate_limit_config, failure_key)
         return _browser_page(
-            "Authentication failed. You can return to the CLI.",
+            "Authentication failed. You can return to the application.",
             status_code=400,
         )
 
@@ -296,7 +296,7 @@ def github_callback(
             pass
         _record_failure(rate_limiter, rate_limit_config, failure_key)
         return _browser_page(
-            "Authentication failed. You can return to the CLI.",
+            "Authentication failed. You can return to the application.",
             status_code=400,
         )
 
@@ -328,7 +328,7 @@ def github_callback(
         )
 
     return _browser_page(
-        "GitHub authorization is complete. You can return to the CLI.",
+        "GitHub authorization is complete. You can return to the application.",
         status_code=200,
     )
 

@@ -185,6 +185,42 @@ def test_login_retries_keyring_storage_and_acks_after_success():
     assert polling_secret not in combined_output
 
 
+def test_login_retries_keyring_storage_repeatedly_without_repolling():
+    events = []
+    auth = FakeAuthClient(
+        polls=[AuthPoll("DELIVERY_AUTHORIZED", "gho_secret", "bearer")],
+        events=events,
+    )
+    accounts = FakeAccounts(failures=2, events=events)
+    errors = []
+    prompts = []
+
+    def input_fn(prompt):
+        prompts.append(prompt)
+        return ""
+
+    result = main._run_broker_login(
+        SimpleNamespace(broker_url=None),
+        accounts,
+        auth_client=auth,
+        output=lambda _: None,
+        error=errors.append,
+        input_fn=input_fn,
+        sleep=lambda _: None,
+        clock=Mock(side_effect=[0, 0]),
+    )
+
+    polling_secret = auth.poll_calls[0][1]
+    assert result == 0
+    assert len(auth.poll_calls) == 1
+    assert accounts.tokens == ["gho_secret", "gho_secret", "gho_secret"]
+    assert events == ["store", "ack"]
+    assert auth.ack_calls == [("transaction-1", polling_secret)]
+    assert len(prompts) == 2
+    assert "gho_secret" not in "\n".join(prompts + errors)
+    assert polling_secret not in "\n".join(prompts + errors)
+
+
 def test_login_cancels_keyring_retry_when_input_is_unavailable():
     auth = FakeAuthClient(
         polls=[AuthPoll("DELIVERY_AUTHORIZED", "gho_secret", "bearer")],
