@@ -88,5 +88,14 @@
 - **Причина:** Да се намалят CSRF, cache leakage и session fixation рисковете около browser сесията и credential източниците.
 - **Изпълнени тестове:** `python -m pytest tests/test_web_auth.py -q -p no:cacheprovider`; `python -m pytest -q -p no:cacheprovider`.
 - **Резултат:** `30 passed` за web auth тестовете; пълният suite `349 passed, 1 warning in 1.65s`.
-- **Оставащи проблеми:** Няма отделен CSRF token — v1 разчита на `SameSite=Lax` и POST-only. Зад HTTPS proxy е нужен `--proxy-headers` за `Secure` cookie. Промяната не е commit-ната; реален GitHub login остава блокиран от placeholder credentials.
+- **Оставащи проблеми:** Няма отделен CSRF token — v1 разчита на `SameSite=Lax` и POST-only. Зад HTTPS proxy е нужен `--proxy-headers` за `Secure` cookie. Реален GitHub login остава блокиран от placeholder credentials.
+
+## 2026-11-14 03:29 - Commit на security промените
+
+- **Извършена задача:** Commit на security hardening промените след изрично одобрение.
+- **Променени файлове:** `api/app.py`, `tests/test_web_auth.py`, `README.md`, `DECISIONS.md`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_14-11-26.md`.
+- **Причина:** Запазване на прегледаните и тествани промени в Git историята.
+- **Изпълнени тестове:** Няма нови промени по код; последният пълен suite е `349 passed, 1 warning`.
+- **Резултат:** Commit `be41a0b`.
+- **Оставащи проблеми:** Реален GitHub login остава блокиран от placeholder credentials; няма отделен CSRF token.
 

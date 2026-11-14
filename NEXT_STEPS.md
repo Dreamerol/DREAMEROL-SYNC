@@ -17,6 +17,6 @@
 
 ## Приоритет 3 - След интеграцията
 - Broker зарежда `.env` автоматично при фабрично стартиране без явен конфиг; решението е документирано.
-- Security baseline е добавен: `no-store` за `/api/`, POST-only state changes, тестове за session fixation, Bearer precedence и Secure cookie.
+- Security baseline е добавен и commit-нат като `be41a0b`: `no-store` за `/api/`, POST-only state changes, тестове за session fixation, Bearer precedence и Secure cookie.
 - Ако dashboard-ът ще се пуска с повече от един worker, добави shared session store.
 - Добави реален end-to-end тест с GitHub App, ако средата позволява стабилни credentials и callback.
