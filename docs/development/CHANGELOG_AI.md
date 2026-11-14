@@ -63,3 +63,12 @@
 - **Резултат:** `.env` е игнориран от Git; GitHub App credentials и callback URL са placeholder; изисква се фиксиран HTTPS URL без wildcard/query/fragment и път `/auth/callback`.
 - **Оставащи проблеми:** Нужни са реални GitHub App credentials и публичен HTTPS callback; локален `127.0.0.1` не може да се използва директно от GitHub.
 
+## 2026-11-14 03:13 - Commit на Auth Broker web интеграцията
+
+- **Извършена задача:** Прегледан е diff-ът и Auth Broker web интеграцията е commit-ната.
+- **Променени файлове:** Всички файлове от интеграцията, документацията и тестовете; commit `92f5581`.
+- **Причина:** Да се фиксира стабилен checkpoint преди реален GitHub smoke test с външни credentials.
+- **Изпълнени тестове:** `python -m pytest -q -p no:cacheprovider` преди commit-а.
+- **Резултат:** `340 passed, 1 warning`; commit `92f5581` с 18 файла и 1336 insertions. `.env` не е включен.
+- **Оставащи проблеми:** Реалният GitHub login остава блокиран от placeholder credentials; последващите лог/статус записи са неcommit-нати.
+
