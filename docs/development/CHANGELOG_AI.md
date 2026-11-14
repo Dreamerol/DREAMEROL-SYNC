@@ -72,3 +72,12 @@
 - **Резултат:** `340 passed, 1 warning`; commit `92f5581` с 18 файла и 1336 insertions. `.env` не е включен.
 - **Оставащи проблеми:** Реалният GitHub login остава блокиран от placeholder credentials; последващите лог/статус записи са неcommit-нати.
 
+## 2026-11-14 03:16 - Автоматично зареждане на .env в Broker
+
+- **Извършена задача:** `create_app()` вече зарежда `.env` автоматично, когато не е подаден явен `BrokerConfig`.
+- **Променени файлове:** `auth_broker/app.py`, `tests/test_auth_broker_api.py`, `README.md`, `DECISIONS.md`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_14-11-26.md`.
+- **Причина:** Стартирането с `uvicorn auth_broker.app:create_app --factory` да работи директно с локалния `.env` без ръчно експортиране на променливи.
+- **Изпълнени тестове:** `python -m pytest tests/test_auth_broker_api.py -q -k dotenv`; `python -m pytest -q -p no:cacheprovider`.
+- **Резултат:** Целевите тестове `2 passed`; пълният suite `342 passed, 1 warning in 1.60s`.
+- **Оставащи проблеми:** Промяната не е commit-ната; реален GitHub login остава блокиран от placeholder credentials.
+

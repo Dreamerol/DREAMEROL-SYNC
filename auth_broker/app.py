@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from auth_broker.config import BrokerConfig, RateLimitConfig
@@ -21,6 +22,7 @@ def create_app(
 ) -> FastAPI:
     """Create the Broker app with explicit or environment-derived configuration."""
     if config is None:
+        load_dotenv()
         config = BrokerConfig.from_env()
     if transaction_store is None:
         transaction_store = TransactionStore()

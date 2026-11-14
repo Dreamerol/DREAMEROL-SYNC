@@ -352,6 +352,8 @@ Run the Broker with:
 uvicorn auth_broker.app:create_app --factory --host 0.0.0.0 --port 8000
 ```
 
+When started through the factory without an explicit configuration, the Broker loads variables from `.env` in the working directory. Passing a `BrokerConfig` to `create_app()` bypasses environment loading.
+
 Rate limits are enabled by default and stored in memory per process:
 
 | Variable | Default |

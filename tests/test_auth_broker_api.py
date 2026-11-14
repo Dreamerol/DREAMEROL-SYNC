@@ -411,3 +411,44 @@ def test_expired_transaction_cannot_be_polled_or_acked(config):
     assert expired_poll.json() == {"state": "EXPIRED"}
     assert expired_ack.status_code == 410
     assert expired_ack.json() == {"detail": "Transaction has expired."}
+
+
+def test_create_app_loads_dotenv_when_config_is_omitted(monkeypatch):
+    for name in (
+        "GITHUB_APP_CLIENT_ID",
+        "GITHUB_APP_CLIENT_SECRET",
+        "BROKER_CALLBACK_URL",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    def fake_load_dotenv():
+        monkeypatch.setenv("GITHUB_APP_CLIENT_ID", "dotenv-client-id")
+        monkeypatch.setenv("GITHUB_APP_CLIENT_SECRET", "dotenv-client-secret")
+        monkeypatch.setenv(
+            "BROKER_CALLBACK_URL",
+            "https://broker.test/auth/callback",
+        )
+
+    monkeypatch.setattr("auth_broker.app.load_dotenv", fake_load_dotenv)
+
+    app = create_app()
+
+    assert app.state.broker_config.client_id == "dotenv-client-id"
+    assert app.state.broker_config.client_secret == "dotenv-client-secret"
+    assert (
+        app.state.broker_config.callback_url
+        == "https://broker.test/auth/callback"
+    )
+
+
+def test_create_app_skips_dotenv_when_config_is_explicit(monkeypatch, config):
+    calls = []
+    monkeypatch.setattr(
+        "auth_broker.app.load_dotenv",
+        lambda: calls.append(True),
+    )
+
+    app = create_app(config)
+
+    assert calls == []
+    assert app.state.broker_config is config
