@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from auth_broker.config import BrokerConfig, RateLimitConfig
 from auth_broker.oauth import GitHubOAuthClient
@@ -44,6 +44,17 @@ def create_app(
     app.state.oauth_client = oauth_client
     app.state.rate_limit_config = rate_limit_config
     app.state.rate_limiter = rate_limiter
+
+    @app.middleware("http")
+    async def add_auth_security_headers(request: Request, call_next):
+        response = await call_next(request)
+        if request.url.path == "/auth" or request.url.path.startswith("/auth/"):
+            response.headers["Cache-Control"] = "no-store"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Referrer-Policy"] = "no-referrer"
+            response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
+
     app.include_router(router)
     return app
 

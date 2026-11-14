@@ -165,6 +165,9 @@ def test_poll_and_ack_require_matching_polling_secret(client):
     assert wrong_poll.status_code == 401
     assert missing_ack.status_code == 401
     assert wrong_ack.status_code == 401
+    for response in (missing_poll, wrong_poll, missing_ack, wrong_ack):
+        assert response.headers["cache-control"] == "no-store"
+        assert response.headers["pragma"] == "no-cache"
     assert "PENDING" not in wrong_poll.text
     assert "PENDING" not in wrong_ack.text
 
@@ -177,6 +180,18 @@ def test_start_rejects_invalid_polling_secret_hash(client):
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Invalid authentication request."}
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["pragma"] == "no-cache"
+
+
+def test_unknown_auth_path_has_no_store_headers(client):
+    response = client.get("/auth/unknown")
+
+    assert response.status_code == 404
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["pragma"] == "no-cache"
+    assert response.headers["referrer-policy"] == "no-referrer"
+    assert response.headers["x-content-type-options"] == "nosniff"
 
 
 def test_callback_success_delivers_token_and_ack_clears_it(client, post, config):
@@ -191,6 +206,9 @@ def test_callback_success_delivers_token_and_ack_clears_it(client, post, config)
     assert state not in callback_response.text
     assert config.client_secret not in callback_response.text
     assert callback_response.headers["cache-control"] == "no-store"
+    assert callback_response.headers["pragma"] == "no-cache"
+    assert callback_response.headers["referrer-policy"] == "no-referrer"
+    assert callback_response.headers["x-content-type-options"] == "nosniff"
     post.assert_called_once()
 
     call = post.call_args
@@ -263,6 +281,8 @@ def test_ack_before_delivery_is_rejected_without_changing_state(client):
     assert response.json() == {
         "detail": "ACK is allowed only after delivery is authorized."
     }
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["pragma"] == "no-cache"
     delivered = poll(client, transaction_id, secret)
     assert delivered.status_code == 200
     assert delivered.json()["access_token"] == VALID_ACCESS_TOKEN
@@ -411,6 +431,8 @@ def test_expired_transaction_cannot_be_polled_or_acked(config):
     assert expired_poll.json() == {"state": "EXPIRED"}
     assert expired_ack.status_code == 410
     assert expired_ack.json() == {"detail": "Transaction has expired."}
+    assert expired_ack.headers["cache-control"] == "no-store"
+    assert expired_ack.headers["pragma"] == "no-cache"
 
 
 def test_create_app_loads_dotenv_when_config_is_omitted(monkeypatch):

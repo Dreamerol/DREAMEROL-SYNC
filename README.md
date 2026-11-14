@@ -423,6 +423,17 @@ The dashboard previews forks against upstream and synchronizes only the forks sh
 
 > ⚠️ Web sessions and credentials are stored in process memory for 10 minutes, are lost when the API restarts, and are not shared between multiple workers. Run a single API worker, or add shared session storage before scaling horizontally.
 
+### One-command local smoke test (Windows)
+
+```powershell
+.\scripts\start-smoke.ps1
+.\scripts\stop-smoke.ps1
+```
+
+`start-smoke.ps1` starts the Broker on `8000`, the dashboard on `8001`, and a `cloudflared` quick tunnel, updates `BROKER_CALLBACK_URL` in `.env`, and prints the public callback URL. Use `-Force` to restart an existing run and `-DryRun` to check prerequisites only.
+
+Set `GITHUB_APP_CLIENT_ID` and `GITHUB_APP_CLIENT_SECRET` in `.env` before the real login. The quick tunnel URL changes on every restart, so update the GitHub App callback URL each time. For a local cloudflared tunnel, set `BROKER_TRUSTED_PROXIES=127.0.0.1,::1` so Broker rate limiting uses the forwarded client IP.
+
 ---
 
 ## 📊 Synchronization Results
