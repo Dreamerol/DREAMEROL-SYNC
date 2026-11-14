@@ -81,3 +81,12 @@
 - **Резултат:** Целевите тестове `2 passed`; пълният suite `342 passed, 1 warning in 1.60s`.
 - **Оставащи проблеми:** Промяната не е commit-ната; реален GitHub login остава блокиран от placeholder credentials.
 
+## 2026-11-14 03:21 - Security преглед на web auth сесията
+
+- **Извършена задача:** Направен е security преглед на web auth flow и са добавени `no-store` headers и regression тестове.
+- **Променени файлове:** `api/app.py`, `tests/test_web_auth.py`, `README.md`, `DECISIONS.md`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_14-11-26.md`.
+- **Причина:** Да се намалят CSRF, cache leakage и session fixation рисковете около browser сесията и credential източниците.
+- **Изпълнени тестове:** `python -m pytest tests/test_web_auth.py -q -p no:cacheprovider`; `python -m pytest -q -p no:cacheprovider`.
+- **Резултат:** `30 passed` за web auth тестовете; пълният suite `349 passed, 1 warning in 1.65s`.
+- **Оставащи проблеми:** Няма отделен CSRF token — v1 разчита на `SameSite=Lax` и POST-only. Зад HTTPS proxy е нужен `--proxy-headers` за `Secure` cookie. Промяната не е commit-ната; реален GitHub login остава блокиран от placeholder credentials.
+

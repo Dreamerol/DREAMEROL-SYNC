@@ -33,3 +33,8 @@
 - **Решение:** `create_app()` вика `load_dotenv()` само когато не е подаден явен `BrokerConfig`.
 - **Причина:** `uvicorn auth_broker.app:create_app --factory` да работи директно с локален `.env`, без ръчно експортиране на променливите.
 - **Последица:** При явен конфиг `.env` не се чете; тестовете и вграждането с собствен конфиг остават изолирани.
+
+### 2026-11-14 - Security baseline за web auth API
+- **Решение:** Всички `/api/` отговори са `Cache-Control: no-store`; state-changing endpoints приемат само `POST`; сесийната cookie е `HttpOnly`, `SameSite=Lax`, `Secure` при HTTPS; невалиден Bearer token не fallback-ва към cookie.
+- **Причина:** Намалява CSRF, cache leakage и случайно смесване на credential източници.
+- **Последица:** Няма отделен CSRF token във v1; защитата разчита на `SameSite=Lax` и POST-only. При публично exposure може да се добави token. Зад HTTPS proxy е нужен `--proxy-headers`, за да се маркира cookie-то като `Secure`.

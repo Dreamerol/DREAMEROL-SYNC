@@ -226,6 +226,18 @@ def test_invalid_session_ttl_is_rejected(ttl_seconds):
         WebAuthManager(ttl_seconds=ttl_seconds)
 
 
+def test_start_generates_distinct_session_ids():
+    broker = FakeBroker()
+    manager, _ = build_manager(broker, FakeGitHub(), lambda: 1000.0)
+
+    first_session_id, _ = manager.start()
+    second_session_id, _ = manager.start()
+
+    assert first_session_id != second_session_id
+    assert manager.token(first_session_id) is None
+    assert manager.token(second_session_id) is None
+
+
 class FakeManager:
     ttl_seconds = 600
 
@@ -285,6 +297,8 @@ def test_auth_start_sets_httponly_same_site_cookie(web_client):
     assert "HttpOnly" in cookie
     assert "Path=/" in cookie
     assert "SameSite=lax" in cookie
+    assert "Max-Age=600" in cookie
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_auth_status_requires_a_session_and_clears_stale_cookie(web_client):
@@ -295,6 +309,7 @@ def test_auth_status_requires_a_session_and_clears_stale_cookie(web_client):
 
     assert response.status_code == 401
     assert "Max-Age=0" in response.headers["set-cookie"]
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_auth_status_returns_authenticated_account(web_client):
@@ -309,6 +324,7 @@ def test_auth_status_returns_authenticated_account(web_client):
         "state": "AUTHENTICATED",
         "account": "demo-user",
     }
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_auth_status_clears_cookie_after_terminal_state(web_client):
@@ -321,6 +337,7 @@ def test_auth_status_clears_cookie_after_terminal_state(web_client):
     assert response.status_code == 200
     assert response.json() == {"state": "EXPIRED", "account": None}
     assert "Max-Age=0" in response.headers["set-cookie"]
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_auth_start_failure_returns_bad_gateway_without_cookie(web_client):
@@ -332,6 +349,7 @@ def test_auth_start_failure_returns_bad_gateway_without_cookie(web_client):
     assert response.status_code == 502
     assert response.json()["detail"] == "Broker unavailable"
     assert "set-cookie" not in response.headers
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_auth_status_failure_returns_bad_gateway(web_client):
@@ -343,6 +361,7 @@ def test_auth_status_failure_returns_bad_gateway(web_client):
 
     assert response.status_code == 502
     assert response.json()["detail"] == "Broker unavailable"
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_logout_discards_session_and_cookie(web_client):
@@ -355,6 +374,7 @@ def test_logout_discards_session_and_cookie(web_client):
     assert response.json() == {"state": "SIGNED_OUT"}
     assert manager.logout_sessions == ["browser-session"]
     assert "Max-Age=0" in response.headers["set-cookie"]
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_sync_uses_server_side_session_token(web_client, monkeypatch):
@@ -389,6 +409,7 @@ def test_sync_uses_server_side_session_token(web_client, monkeypatch):
     }
     assert tokens == ["session-token"]
     github.session.close.assert_called_once_with()
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_sync_requires_authentication(web_client):
@@ -397,3 +418,76 @@ def test_sync_requires_authentication(web_client):
     response = client.post("/api/sync", json={"dry_run": True})
 
     assert response.status_code == 401
+    assert response.headers["cache-control"] == "no-store"
+
+
+def test_bearer_token_takes_precedence_over_session_cookie(web_client, monkeypatch):
+    client, _ = web_client
+    client.post("/api/auth/start")
+
+    tokens = []
+    github = Mock()
+    github.session = Mock()
+    github.get_authenticated_user.return_value = {"login": "demo-user"}
+
+    def github_factory(token):
+        tokens.append(token)
+        return github
+
+    synchronizer = Mock()
+    synchronizer.preview_all.return_value = []
+    monkeypatch.setattr("api.routes.GitHubClient", github_factory)
+    monkeypatch.setattr("api.routes.ForkSynchronizer", lambda client: synchronizer)
+
+    response = client.post(
+        "/api/sync",
+        json={"dry_run": True},
+        headers={"Authorization": "Bearer explicit-token"},
+    )
+
+    assert response.status_code == 200
+    assert tokens == ["explicit-token"]
+
+
+def test_invalid_bearer_does_not_fall_back_to_session_cookie(web_client, monkeypatch):
+    client, _ = web_client
+    client.post("/api/auth/start")
+
+    factory = Mock(side_effect=AssertionError("GitHub client should not be created"))
+    monkeypatch.setattr("api.routes.GitHubClient", factory)
+
+    response = client.post(
+        "/api/sync",
+        json={"dry_run": True},
+        headers={"Authorization": "Basic abc"},
+    )
+
+    assert response.status_code == 401
+    factory.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["/api/auth/start", "/api/auth/logout", "/api/sync"],
+)
+def test_state_changing_endpoints_reject_get(web_client, path):
+    client, _ = web_client
+
+    response = client.get(path)
+
+    assert response.status_code == 405
+    assert response.headers["cache-control"] == "no-store"
+
+
+def test_auth_start_sets_secure_cookie_over_https():
+    original_manager = app.state.auth_manager
+    app.state.auth_manager = FakeManager()
+    try:
+        with TestClient(app, base_url="https://testserver") as client:
+            response = client.post("/api/auth/start")
+    finally:
+        app.state.auth_manager = original_manager
+
+    assert response.status_code == 200
+    assert "Secure" in response.headers["set-cookie"]
+    assert response.headers["cache-control"] == "no-store"

@@ -415,6 +415,8 @@ The dashboard reads `BROKER_URL` from `.env` (default: `http://127.0.0.1:8000`).
 
 The dashboard creates a server-side session, opens the Broker-generated GitHub authorization URL, and polls `/api/auth/status`. The API validates the returned credential with GitHub, keeps it in server memory, and acknowledges the Broker only after successful validation. The browser receives only an `HttpOnly`, `SameSite=Lax` session cookie; the GitHub token is never returned to browser JavaScript and is not read from the saved-account keyring.
 
+All `/api/` responses use `Cache-Control: no-store`, and state-changing endpoints accept only `POST`. If the dashboard runs behind an HTTPS reverse proxy or tunnel, start Uvicorn with `--proxy-headers` and the proxy address in `--forwarded-allow-ips` so the session cookie is marked `Secure`.
+
 If the Broker is unavailable, paste a GitHub personal access token in the form instead. The manual token is kept in browser memory for the request only and sent to the local server in the `Authorization` header.
 
 The dashboard previews forks against upstream and synchronizes only the forks shown as `behind`, after an explicit `SYNC` confirmation.
