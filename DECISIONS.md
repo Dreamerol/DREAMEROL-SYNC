@@ -38,3 +38,8 @@
 - **Решение:** Всички `/api/` отговори са `Cache-Control: no-store`; state-changing endpoints приемат само `POST`; сесийната cookie е `HttpOnly`, `SameSite=Lax`, `Secure` при HTTPS; невалиден Bearer token не fallback-ва към cookie.
 - **Причина:** Намалява CSRF, cache leakage и случайно смесване на credential източници.
 - **Последица:** Няма отделен CSRF token във v1; защитата разчита на `SameSite=Lax` и POST-only. При публично exposure може да се добави token. Зад HTTPS proxy е нужен `--proxy-headers`, за да се маркира cookie-то като `Secure`.
+
+### 2026-11-14 - Broker зад локален cloudflared
+- **Решение:** `BROKER_TRUSTED_PROXIES=127.0.0.1,::1` за локален cloudflared tunnel; всички `/auth/` отговори получават `no-store`, `Pragma: no-cache`, `Referrer-Policy: no-referrer` и `X-Content-Type-Options: nosniff`.
+- **Причина:** Правилен client IP за rate limiting и предотвратява caching на auth отговори.
+- **Последица:** `X-Forwarded-For` се доверява само от localhost; при друг proxy адресът трябва да се обнови.

@@ -99,3 +99,30 @@
 - **Резултат:** Commit `be41a0b`.
 - **Оставащи проблеми:** Реален GitHub login остава блокиран от placeholder credentials; няма отделен CSRF token.
 
+## 2026-11-14 03:42 - cloudflared и HTTPS tunnel за smoke test
+
+- **Извършена задача:** Инсталиран е `cloudflared` и е стартиран временен HTTPS tunnel към Broker за GitHub callback.
+- **Променени файлове:** `.env` (gitignored), `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_14-11-26.md`.
+- **Причина:** GitHub не може да извика `127.0.0.1`; нужен е публичен HTTPS callback за реален OAuth test.
+- **Изпълнени тестове:** `GET https://volt-mechanisms-shirts-routine.trycloudflare.com/auth/callback` → 400 (очаквано без state); `GET http://127.0.0.1:8001/` → 200; `/auth/start` връща `redirect_uri` с новия tunnel URL.
+- **Резултат:** `cloudflared 2026.11.0` инсталиран; Broker, dashboard и tunnel работят. Няма промяна по код и не е пускан нов pytest suite.
+- **Оставащи проблеми:** `.env` все още съдържа placeholder `GITHUB_APP_CLIENT_ID` и `GITHUB_APP_CLIENT_SECRET`; quick tunnel URL се променя при рестарт. Документацията от тази стъпка е неcommit-ната.
+
+## 2026-11-14 03:51 - Скриптове за стартиране и спиране на smoke test
+
+- **Извършена задача:** Добавени са PowerShell скриптове за автоматизиран локален smoke test с Broker, dashboard и cloudflared.
+- **Променени файлове:** `scripts/start-smoke.ps1`, `scripts/stop-smoke.ps1`, `README.md`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_14-11-26.md`.
+- **Причина:** Да се намали ръчната работа и да се избегне разминаване между ephemeral tunnel URL и `BROKER_CALLBACK_URL`.
+- **Изпълнени тестове:** PowerShell syntax check; `start-smoke.ps1 -DryRun`; реален старт с cloudflared; `GET /auth/callback` през тунела → 400; `GET http://127.0.0.1:8001/` → 200; `/auth/start` → правилен `redirect_uri`; `stop-smoke.ps1` спря всички процеси; `python -m pytest -q -p no:cacheprovider` → `349 passed, 1 warning`.
+- **Резултат:** Скриптовете работят end-to-end; активен tunnel `https://sealed-arguments-quality-stays.trycloudflare.com`, Broker PID 18608, dashboard PID 15192, cloudflared PID 14768.
+- **Оставащи проблеми:** Скриптовете и документацията са неcommit-нати; реален GitHub login остава блокиран от placeholder credentials.
+
+## 2026-11-14 03:55 - Broker hardening и trusted proxy
+
+- **Извършена задача:** Добавени са security headers за всички `/auth/` отговори и trusted proxy конфигурация за cloudflared.
+- **Променени файлове:** `auth_broker/app.py`, `tests/test_auth_broker_api.py`, `.env` (gitignored), `.env.example`, `README.md`, `scripts/start-smoke.ps1`, `DECISIONS.md`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_14-11-26.md`.
+- **Причина:** Да не се кешират auth отговори и rate limiting-ът да ползва реалния клиентски IP зад локалния тунел.
+- **Изпълнени тестове:** `python -m pytest tests/test_auth_broker_api.py -q -p no:cacheprovider` → `17 passed`; `python -m pytest -q -p no:cacheprovider` → `350 passed, 1 warning`; ръчни проверки на 401, 404 и тунел 400 за четирите headers.
+- **Резултат:** Broker е рестартиран с новата конфигурация (PID 10640); `RateLimitConfig.from_env().trusted_proxies` е `('127.0.0.1', '::1')`.
+- **Оставащи проблеми:** Промените по код, скриптове и документация са неcommit-нати; реален GitHub login остава блокиран от placeholder credentials.
+
