@@ -1,6 +1,7 @@
 param(
     [switch]$Force,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$Watchdog
 )
 
 $ErrorActionPreference = "Stop"
@@ -48,46 +49,24 @@ function Wait-ForPort {
     throw "Timed out waiting for port $Port."
 }
 
-function Wait-ForTunnelUrl {
+function Wait-ForBrokerHealth {
     param(
-        [string]$LogPath,
-        [int]$TimeoutSeconds = 40
-    )
-    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
-    while ((Get-Date) -lt $deadline) {
-        if (Test-Path -LiteralPath $LogPath) {
-            $text = Get-Content -LiteralPath $LogPath -Raw -ErrorAction SilentlyContinue
-            if ($text) {
-                $match = [regex]::Match($text, "https://[a-z0-9-]+\.trycloudflare\.com")
-                if ($match.Success) {
-                    return $match.Value
-                }
-            }
-        }
-        Start-Sleep -Milliseconds 500
-    }
-    throw "Timed out waiting for the cloudflared tunnel URL."
-}
-
-function Wait-ForTunnel {
-    param(
-        [string]$CallbackUrl,
-        [int]$TimeoutSeconds = 40
+        [string]$Url,
+        [int]$TimeoutSeconds = 20
     )
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
         try {
-            Invoke-WebRequest -Uri $CallbackUrl -UseBasicParsing -TimeoutSec 15 | Out-Null
-        }
-        catch {
-            $response = $_.Exception.Response
-            if ($response -and [int]$response.StatusCode -eq 400) {
+            $response = Invoke-RestMethod -Uri $Url -TimeoutSec 5
+            if ($response.status -eq "ok") {
                 return
             }
         }
-        Start-Sleep -Seconds 1
+        catch {
+        }
+        Start-Sleep -Milliseconds 250
     }
-    throw "Timed out waiting for the tunnel to reach the Broker."
+    throw "Timed out waiting for Broker health at $Url."
 }
 
 function Stop-StartedProcesses {
@@ -104,26 +83,23 @@ if (-not $python) {
     throw "python was not found in PATH."
 }
 
-$cloudflared = (Get-Command cloudflared -ErrorAction SilentlyContinue).Source
-if (-not $cloudflared) {
-    $candidates = @(
-        "C:\Program Files (x86)\cloudflared\cloudflared.exe",
-        "C:\Program Files\cloudflared\cloudflared.exe"
-    )
-    $cloudflared = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
-}
-if (-not $cloudflared) {
-    throw "cloudflared was not found. Install it with: winget install --id Cloudflare.cloudflared -e"
-}
-
 if (-not (Test-Path -LiteralPath $envPath)) {
     throw ".env was not found. Copy .env.example to .env first."
+}
+
+$envText = [System.IO.File]::ReadAllText($envPath)
+$callbackMatch = [regex]::Match($envText, "(?m)^BROKER_CALLBACK_URL=(.+)$")
+if (-not $callbackMatch.Success) {
+    throw ".env does not contain BROKER_CALLBACK_URL."
+}
+$callbackUrl = $callbackMatch.Groups[1].Value.Trim()
+if (-not $callbackUrl) {
+    throw "BROKER_CALLBACK_URL is empty."
 }
 
 $expectedProcesses = @{
     broker = "python"
     dashboard = "python"
-    cloudflared = "cloudflared"
 }
 
 if (Test-Path -LiteralPath $statePath) {
@@ -150,18 +126,13 @@ foreach ($port in 8000, 8001) {
     }
 }
 
-$originalEnv = [System.IO.File]::ReadAllText($envPath)
-if ($originalEnv -notmatch "(?m)^BROKER_CALLBACK_URL=") {
-    throw ".env does not contain BROKER_CALLBACK_URL."
-}
-if ($originalEnv -notmatch "(?m)^BROKER_TRUSTED_PROXIES=.*127\.0\.0\.1") {
-    Write-Warning "BROKER_TRUSTED_PROXIES does not include 127.0.0.1; cloudflared clients will share one rate-limit bucket."
-}
-
 if ($DryRun) {
     Write-Host "Dry run: prerequisites are available."
-    Write-Host "Would update BROKER_CALLBACK_URL in $envPath."
-    Write-Host "Would start Broker on http://127.0.0.1:8000, dashboard on http://127.0.0.1:8001, and a cloudflared quick tunnel."
+    Write-Host "Would start Broker on http://127.0.0.1:8000 and dashboard on http://127.0.0.1:8001."
+    Write-Host "Callback: $callbackUrl"
+    if ($Watchdog) {
+        Write-Host "Would also start the Broker/dashboard watchdog."
+    }
     return
 }
 
@@ -171,75 +142,68 @@ $brokerOut = Join-Path $logDir "broker.out.log"
 $brokerErr = Join-Path $logDir "broker.err.log"
 $dashboardOut = Join-Path $logDir "dashboard.out.log"
 $dashboardErr = Join-Path $logDir "dashboard.err.log"
-$cloudflaredLog = Join-Path $logDir "cloudflared.log"
 
-Remove-Item -LiteralPath $brokerOut, $brokerErr, $dashboardOut, $dashboardErr, $cloudflaredLog -ErrorAction SilentlyContinue
+Remove-Item -LiteralPath $brokerOut, $brokerErr, $dashboardOut, $dashboardErr -ErrorAction SilentlyContinue
 
-$cloudflaredProcess = $null
 $brokerProcess = $null
 $dashboardProcess = $null
-$callbackUpdated = $false
+$watchdogProcess = $null
 
 try {
-    Write-Step "Starting cloudflared quick tunnel"
-    $cloudflaredArgs = @(
-        "tunnel",
-        "--url", "http://127.0.0.1:8000",
-        "--no-autoupdate",
-        "--protocol", "http2",
-        "--logfile", "`"$cloudflaredLog`"",
-        "--loglevel", "info"
-    )
-    $cloudflaredProcess = Start-Process -FilePath $cloudflared -ArgumentList $cloudflaredArgs -PassThru -WindowStyle Hidden -WorkingDirectory $logDir
-    $tunnelUrl = Wait-ForTunnelUrl -LogPath $cloudflaredLog -TimeoutSeconds 40
-    $callbackUrl = "$tunnelUrl/auth/callback"
-
-    Write-Step "Updating BROKER_CALLBACK_URL"
-    $updatedEnv = [regex]::Replace($originalEnv, "(?m)^BROKER_CALLBACK_URL=.*$", "BROKER_CALLBACK_URL=$callbackUrl")
-    [System.IO.File]::WriteAllText($envPath, $updatedEnv, $utf8NoBom)
-    $callbackUpdated = $true
-
     Write-Step "Starting Broker on port 8000"
     $brokerArgs = @("-m", "uvicorn", "auth_broker.app:create_app", "--factory", "--host", "127.0.0.1", "--port", "8000")
     $brokerProcess = Start-Process -FilePath $python -ArgumentList $brokerArgs -PassThru -WindowStyle Hidden -WorkingDirectory $repoRoot -RedirectStandardOutput $brokerOut -RedirectStandardError $brokerErr
     Wait-ForPort -Port 8000 -TimeoutSeconds 20
+    Wait-ForBrokerHealth -Url "http://127.0.0.1:8000/healthz" -TimeoutSeconds 20
 
     Write-Step "Starting dashboard on port 8001"
     $dashboardArgs = @("-m", "uvicorn", "api.app:app", "--host", "127.0.0.1", "--port", "8001")
     $dashboardProcess = Start-Process -FilePath $python -ArgumentList $dashboardArgs -PassThru -WindowStyle Hidden -WorkingDirectory $repoRoot -RedirectStandardOutput $dashboardOut -RedirectStandardError $dashboardErr
     Wait-ForPort -Port 8001 -TimeoutSeconds 20
 
-    Write-Step "Verifying tunnel and dashboard"
+    Write-Step "Verifying dashboard"
     $dashboardResponse = Invoke-WebRequest -Uri "http://127.0.0.1:8001/" -UseBasicParsing -TimeoutSec 15
     if ($dashboardResponse.StatusCode -ne 200) {
         throw "Dashboard returned HTTP $($dashboardResponse.StatusCode)."
     }
 
-    Wait-ForTunnel -CallbackUrl "$tunnelUrl/auth/callback" -TimeoutSeconds 40
-
     $state = [ordered]@{
         broker = $brokerProcess.Id
         dashboard = $dashboardProcess.Id
-        cloudflared = $cloudflaredProcess.Id
-        tunnel_url = $tunnelUrl
         callback_url = $callbackUrl
         started_at = (Get-Date).ToString("o")
     }
     [System.IO.File]::WriteAllText($statePath, ($state | ConvertTo-Json), $utf8NoBom)
 
+    if ($Watchdog) {
+        $watchdogScript = Join-Path $PSScriptRoot "watch-smoke.ps1"
+        $watchdogOut = Join-Path $logDir "watchdog.out.log"
+        $watchdogErr = Join-Path $logDir "watchdog.err.log"
+        Remove-Item -LiteralPath $watchdogOut, $watchdogErr -ErrorAction SilentlyContinue
+        $watchdogProcess = Start-Process -FilePath "powershell.exe" -ArgumentList @(
+            "-NoProfile",
+            "-ExecutionPolicy", "Bypass",
+            "-File", "`"$watchdogScript`"",
+            "-IntervalSeconds", "5",
+            "-Quiet"
+        ) -PassThru -WindowStyle Hidden -WorkingDirectory $repoRoot -RedirectStandardOutput $watchdogOut -RedirectStandardError $watchdogErr
+        $state["watchdog"] = $watchdogProcess.Id
+        [System.IO.File]::WriteAllText($statePath, ($state | ConvertTo-Json), $utf8NoBom)
+    }
+
     Write-Host ""
     Write-Host "Broker:    http://127.0.0.1:8000 (PID $($brokerProcess.Id))"
     Write-Host "Dashboard: http://127.0.0.1:8001 (PID $($dashboardProcess.Id))"
-    Write-Host "Tunnel:    $tunnelUrl (PID $($cloudflaredProcess.Id))"
+    if ($Watchdog) {
+        Write-Host "Watchdog:  PID $($watchdogProcess.Id)"
+    }
     Write-Host "Callback:  $callbackUrl"
     Write-Host ""
-    Write-Host "Set the callback in the GitHub App settings, then run .\scripts\stop-smoke.ps1 to stop."
+    Write-Host "Open http://127.0.0.1:8001 and sign in with GitHub."
+    Write-Host "The GitHub App callback must match the callback above; no tunnel is started."
 }
 catch {
-    if ($callbackUpdated) {
-        [System.IO.File]::WriteAllText($envPath, $originalEnv, $utf8NoBom)
-    }
-    Stop-StartedProcesses -Processes @($dashboardProcess, $brokerProcess, $cloudflaredProcess)
+    Stop-StartedProcesses -Processes @($watchdogProcess, $dashboardProcess, $brokerProcess)
     $errorLog = Join-Path $logDir "start-smoke.error.log"
     [System.IO.File]::WriteAllText($errorLog, ($_ | Out-String), $utf8NoBom)
     throw

@@ -256,3 +256,11 @@ credentials.json
 token.json
 *.pem
 *.key
+
+.env
+.env.*
+!.env.example
+
+
+# Persisted sync history (local)
+data/sync_history.json

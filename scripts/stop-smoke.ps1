@@ -8,10 +8,22 @@ if (-not (Test-Path -LiteralPath $statePath)) {
 }
 
 $state = [System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json
-$expectedProcesses = @{
-    broker = "python"
+
+if ($state.watchdog) {
+    $watchdog = Get-Process -Id ([int]$state.watchdog) -ErrorAction SilentlyContinue
+    if ($watchdog -and $watchdog.ProcessName -in @("powershell", "pwsh")) {
+        Stop-Process -Id $watchdog.Id -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 500
+        Write-Host "Stopped watchdog (PID $($watchdog.Id))."
+    }
+    elseif ($watchdog) {
+        Write-Warning "Skipping watchdog PID $($state.watchdog) because it is $($watchdog.ProcessName)."
+    }
+}
+
+$expectedProcesses = [ordered]@{
     dashboard = "python"
-    cloudflared = "cloudflared"
+    broker = "python"
 }
 
 foreach ($name in $expectedProcesses.Keys) {
@@ -19,7 +31,7 @@ foreach ($name in $expectedProcesses.Keys) {
     if (-not $processId) {
         continue
     }
-    $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
+    $process = Get-Process -Id ([int]$processId) -ErrorAction SilentlyContinue
     if (-not $process) {
         continue
     }

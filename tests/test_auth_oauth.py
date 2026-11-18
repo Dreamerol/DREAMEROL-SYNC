@@ -244,7 +244,30 @@ def test_broker_config_from_env_rejects_invalid_timeout():
 @pytest.mark.parametrize(
     "callback_url",
     [
+        "https://broker.example.com/callback",
+        "http://127.0.0.1:8000/auth/callback",
+        "http://localhost:8000/auth/callback",
+        "http://[::1]:8000/auth/callback",
+    ],
+)
+def test_broker_config_accepts_fixed_https_or_loopback_http_callback(callback_url):
+    config = BrokerConfig(
+        client_id="client-id",
+        client_secret="client-secret",
+        callback_url=callback_url,
+    )
+
+    assert config.callback_url == callback_url
+
+
+@pytest.mark.parametrize(
+    "callback_url",
+    [
         "http://broker.example.com/callback",
+        "http://192.168.1.10:8000/auth/callback",
+        "http://0.0.0.0:8000/auth/callback",
+        "http://127.0.0.1.evil.example/auth/callback",
+        "http://localhost.evil.example/auth/callback",
         "ftp://broker.example.com/callback",
         "broker.example.com/callback",
         "https://broker.example.com/callback?dynamic=1",
@@ -319,6 +342,26 @@ def test_create_authorization_request_uses_github_pkce_and_fixed_callback(
     assert "scope" not in params
     assert "offline_access" not in params
     assert request.code_verifier not in repr(request)
+
+
+def test_loopback_callback_is_used_for_authorization_and_token_exchange():
+    callback_url = "http://127.0.0.1:8000/auth/callback"
+    config = BrokerConfig(
+        client_id="test-client-id",
+        client_secret="test-client-secret",
+        callback_url=callback_url,
+    )
+
+    request = GitHubOAuthClient(config).create_authorization_request()
+    params = parse_qs(urlsplit(request.authorization_url).query)
+    assert params["redirect_uri"] == [callback_url]
+
+    post = Mock(return_value=FakeResponse(valid_payload()))
+    GitHubOAuthClient(config, post=post).exchange_code(
+        code="auth-code",
+        code_verifier="test-code-verifier",
+    )
+    assert post.call_args.kwargs["data"]["redirect_uri"] == callback_url
 
 
 def test_create_authorization_request_generates_fresh_values(broker_config):

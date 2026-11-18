@@ -135,3 +135,146 @@
 - **Резултат:** Commit `23f1226` за код и скриптове; commit `fa4a135` за логи; последващ logging commit за тази бележка.
 - **Оставащи проблеми:** Реален GitHub login остава блокиран от placeholder credentials.
 
+## 2026-11-14 04:06 - Възстановяване на Broker процеса
+
+- **Извършена задача:** Открито е, че Broker PID 10640 е спрял, и процесът е стартиран отново на същия порт и тунел.
+- **Променени файлове:** `CURRENT_STATUS.md`, `LOG_14-11-26.md`, `docs/development/CHANGELOG_AI.md` (само документация).
+- **Причина:** Тунелът връщаше 502, защото на порт 8000 нямаше listener.
+- **Изпълнени тестове:** `python -m pytest -q -p no:cacheprovider` → `350 passed, 1 warning`; `curl` към `/auth/unknown` → 404 с `no-store`, `Pragma`, `Referrer-Policy` и `nosniff`; тунелът към `/auth/callback` → 400.
+- **Резултат:** Broker работи като PID 24436; state файлът е обновен; dashboard PID 15192 и cloudflared PID 14768 продължават да работят.
+- **Оставащи проблеми:** Причината за спирането на PID 10640 не е установена; документацията от тази стъпка е неcommit-ната.
+
+## 2026-11-14 04:12 - Mock GitHub OAuth E2E и Broker health endpoint
+
+- **Извършена задача:** Добавен е fake GitHub OAuth provider за пълен E2E тест и `GET /healthz` към Broker.
+- **Променени файлове:** `tests/test_auth_mock_oauth_e2e.py`, `auth_broker/app.py`, `tests/test_auth_broker_api.py`.
+- **Причина:** Да се тества целият OAuth flow с PKCE без реални GitHub credentials и да има health endpoint за watchdog.
+- **Изпълнени тестове:** `python -m pytest tests/test_auth_mock_oauth_e2e.py tests/test_auth_broker_api.py -q -p no:cacheprovider` → `21 passed`; `python -m pytest -q -p no:cacheprovider` → `354 passed, 1 warning`.
+- **Резултат:** Успешният flow, `access_denied` и token exchange failure са покрити; `/healthz` връща `{"status":"ok"}` с `no-store`.
+- **Оставащи проблеми:** Fake provider-ът не замества реален GitHub smoke test; промените не са commit-нати.
+
+## 2026-11-14 04:17 - Broker watchdog и smoke скриптове
+
+- **Извършена задача:** Добавен е `watch-smoke.ps1`, `-Watchdog` в `start-smoke.ps1` и спиране на watchdog-а в `stop-smoke.ps1`.
+- **Променени файлове:** `scripts/watch-smoke.ps1`, `scripts/start-smoke.ps1`, `scripts/stop-smoke.ps1`, `README.md`, `DECISIONS.md`.
+- **Причина:** Broker може да спре неочаквано и да остави тунела с 502; рестартът на cloudflared би сменил callback URL.
+- **Изпълнени тестове:** PowerShell parser check; `watch-smoke.ps1 -Once` при здрав Broker → exit 0; kill на Broker → watchdog го рестартира; `stop-smoke.ps1` спря watchdog, cloudflared, dashboard и Broker.
+- **Резултат:** Watchdog-ът рестартира само Broker-а на същия порт и тунел; `start-smoke.ps1` чака `/healthz` и до 90 секунди за тунела.
+- **Оставащи проблеми:** Dashboard и cloudflared не се рестартират автоматично; при техен проблем е нужен ръчен `start-smoke.ps1`. Промените не са commit-нати.
+
+## 2026-11-14 04:26 - Lifecycle проверка с нов тунел
+
+- **Извършена задача:** Тестван е пълният lifecycle `start-smoke.ps1 -Watchdog` → `stop-smoke.ps1` → нов старт с watchdog.
+- **Променени файлове:** `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `DECISIONS.md`, `LOG_14-11-26.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Да се потвърди, че новите health/watchdog промени работят с реални процеси и cloudflared.
+- **Изпълнени тестове:** `GET http://127.0.0.1:8000/healthz` → 200 `{"status":"ok"}`; dashboard → 200; тунел `/auth/callback` → 400; kill на Broker → watchdog рестарт в рамките на 5 секунди; `stop-smoke.ps1` → всички процеси спрени.
+- **Резултат:** Активен тунел `https://female-sender-lenders-usr.trycloudflare.com`; Broker PID 23424, dashboard PID 15884, cloudflared PID 20656, watchdog PID 19892.
+- **Оставащи проблеми:** Реален GitHub login остава блокиран от placeholder credentials; документацията и кодът от 04:12-04:26 са неcommit-нати.
+
+## 2026-11-14 04:41 - Разширен CI и локален check скрипт
+
+- **Извършена задача:** CI вече проверява Ubuntu и Windows, Python/JS/PowerShell синтаксис и `pip check`; добавен е локален `scripts/check.ps1`.
+- **Променени файлове:** `.github/workflows/tests.yml`, `scripts/check.ps1`, `LOG_14-11-26.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Да се хващат проблеми в скриптовете и на Windows още в CI и да има една локална команда за проверка.
+- **Изпълнени тестове:** `powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\check.ps1` → `All checks passed`; pytest `354 passed, 1 warning`.
+- **Резултат:** Локалните и CI проверките са синхронизирани; Windows job-ът покрива PowerShell скриптовете.
+- **Оставащи проблеми:** Промените не са commit-нати; Windows CI job-ът ще се потвърди при push.
+
+## 2026-11-15 03:24 - Локален loopback callback вместо Quick Tunnel
+
+- **Извършена задача:** GitHub App callback-ът е преминат към фиксиран `http://127.0.0.1:8000/auth/callback`; HTTP се допуска само за loopback hosts, а smoke скриптовете вече не стартират cloudflared.
+- **Променени файлове:** `auth_broker/config.py`, `tests/test_auth_oauth.py`, `tests/test_auth_broker_api.py`, `tests/test_auth_mock_oauth_e2e.py`, `.env` (gitignored), `.env.example`, `README.md`, `docs/GITHUB_APP_AUTH_SPEC.md`, `DECISIONS.md`, `scripts/start-smoke.ps1`, `scripts/stop-smoke.ps1`, `scripts/watch-smoke.ps1`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_15-11-26.md`.
+- **Причина:** Quick Tunnel URL-ът се сменя при всеки рестарт и изисква ръчна промяна в GitHub App; фиксираният loopback callback премахва `redirect_uri_mismatch` и dead callback проблема без rewrite на OAuth логиката.
+- **Изпълнени тестове:** `python -m pytest tests/test_auth_broker_api.py tests/test_auth_mock_oauth_e2e.py -q -p no:cacheprovider` → `21 passed, 1 warning`; `python -m pytest -q -p no:cacheprovider` → `364 passed, 1 warning`; `node --check web/app.js`; PowerShell parser check; `scripts/check.ps1` → `All checks passed`; `start-smoke.ps1 -DryRun`; start/stop без watchdog; start с watchdog и kill на Broker → автоматичен рестарт; `/healthz` 200, dashboard 200, `/auth/callback` без state 400.
+- **Резултат:** Loopback config-ът, E2E mock flow-ът и smoke lifecycle-ът работят. Първият targeted run хвана стар assert за `https` callback; тестът беше коригиран да сравнява с конфигурирания `CALLBACK_URL`, след което мина. `git diff --check` показва само CRLF предупреждения и съществуващ празен ред в края на `.gitignore`, който не е променян в тази задача.
+- **Оставащи проблеми:** Реалният GitHub login не е изпълнен; GitHub App callback/wildcard/token expiration/installation настройките са ръчни. Ако token expiration не е opted out, login ще върне `502`. Промените не са commit-нати.
+
+## 2026-11-15 03:52 - Проверка на GitHub callback и smoke тест
+
+- **Извършена задача:** Проверен е GitHub authorization URL-ът, който dashboard-ът генерира, и е изпълнен smoke check на стартираните услуги.
+- **Променени файлове:** `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_15-11-26.md`, `docs/development/CHANGELOG_AI.md` (само документация).
+- **Причина:** Да се потвърди, че Broker използва точния loopback callback и че услугите са здрави преди реален login.
+- **Изпълнени тестове:** `POST http://127.0.0.1:8001/api/auth/start` → authorization URL с `redirect_uri=http://127.0.0.1:8000/auth/callback`; GitHub authorize endpoint → `302` към login; контролна заявка с грешен callback → също `302`, т.е. pre-login проверката не е достатъчна; `watch-smoke.ps1 -Once` → Broker PID 22792 и dashboard PID 23492 здрави, exit 0; `scripts/check.ps1` → `364 passed, 1 warning`, `All checks passed`.
+- **Резултат:** Локалната OAuth конфигурация и услугите са коректни. GitHub App callback настройката не може да се потвърди без реален sign-in.
+- **Оставащи проблеми:** Нужен е ръчен GitHub login, preview, sync и logout; услугите продължават да работят.
+
+## 2026-11-15 04:03 - Диагностика на 502 при /auth/callback
+
+- **Извършена задача:** Проверен е реалният callback след GitHub authorize и е локализиран етапът на грешката.
+- **Променени файлове:** `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `LOG_15-11-26.md`, `docs/development/CHANGELOG_AI.md` (само документация).
+- **Причина:** Broker логът показва callback с code/state → `502 Bad Gateway`; state-ът е обработен и е стигнало до token exchange. Широкият `except Exception` в `auth_broker/routes.py` скрива точния тип на изключението. Контролен token request с dummy code върна `bad_verification_code`, което показва, че client ID/secret и redirect URI се приемат.
+- **Изпълнени тестове:** `POST /api/auth/start` + контролиран callback с dummy code → 502 страница с 160-байтов HTML; `/api/auth/status` за същата сесия → `FAILED`; headless Chrome на dashboard-а → без console errors; `curl` на callback без валиден state → 400 HTML.
+- **Резултат:** Няма грешка при redirect към dashboard; callback-ът връща HTML статус страница, а dashboard получава терминално `FAILED`. Най-вероятната конкретна причина е включен user-to-server token expiration, при който token response съдържа `expires_in`/`refresh_token` и се отхвърля от token policy.
+- **Оставащи проблеми:** Нужно е потвърждение на GitHub App expiration настройката или безопасно логване на token exchange изключението; uvicorn access log-ът записва пълния callback query string с code/state и трябва да се редактира; не са променяни конфигурации, код или Git.
+
+## 2026-11-17 18:10 - Редизайн на Dashboard и строги fork counters
+
+- **Извършена задача:** Реализиран е одобреният frontend редизайн с тъмна адаптивна тема, бранд/акаунт/connection state, точни бутони `CHECK FORKED REPOS` и `SYNC`, прогрес индикатори, четири counters, търсене/филтри, финално резюме, sync резюме и сгъваеми results/history. Добавени са строги helper-и за неизвестни състояния, upstream metadata и sync резултати.
+- **Променени файлове:** `DASHBOARD/index.html`, `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `DASHBOARD/dashboard.css`, `tests/test_api.py`, нов `tests/test_dashboard_strict_counts.py`, `docs/WORKLOG/LOG_17-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Да се премахне остарелият визуален стил и да се запазят само одобрените термини и надеждното броене само на реални fork-ове, без промяна в auth, discovery, класификация или synchronization логиката.
+- **Изпълнени тестове:** `node --check DASHBOARD/app.js`; `node --check DASHBOARD/utils.js`; `python -m pytest tests/test_api.py tests/test_dashboard_strict_counts.py -q`; `python -m pytest -q --ignore=tests/test_dashboard_progress.py`.
+- **Резултат:** Първоначалният targeted run хвана 2 пропуска (`up_to_date = 0`) поради липсваща изрична `synced` ветка; след поправката targeted тестовете са `23 passed, 1 warning`, а широкият suite е `395 passed, 1 warning` (StarletteDeprecationWarning). Node syntax checks минаха. Няма реален sync, merge, commit или push; предходните uncommitted промени са запазени.
+- **Оставащи проблеми:** Визуална проверка в браузър и live OAuth сесия не са извършени. `tests/test_dashboard_progress.py` остава блокиран от предходен `SyntaxError` на ред 223 и не е пипан. Upstream/parent данни се показват само ако вече са в API отговора; няма нови backend промени.
+
+## 2026-11-17 18:18 - Фаза 3: строги числови fork counters
+
+- **Извършена задача:** Доведена е до краен вид логиката за броене само на реални GitHub fork-ове. `computeDashboardCounts()` използва `fork === true`, изключва `fork === false`, третира липсващ/невалиден fork флаг като data грешка, дедублира по repository name и класифицира чрез `ahead_by`/`behind_by`: `0/0` → UP TO DATE, `0/>0` → TO BE SYNCED, `>0/>0` и `>0/0` → UNSYNCABLE, грешките при инспекция също са UNSYNCABLE. Четирите counters винаги се събират до TOTAL FORKS.
+- **Променени файлове:** `api/routes.py`, `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `tests/test_api.py`, `tests/test_web_auth.py`, `tests/test_dashboard_strict_counts.py`, `docs/WORKLOG/LOG_17-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Предишният API отговор не излъчваше `ahead_by`, макар че синхронизаторът го изчислява; без него не можеха да се докажат числовите дефиниции. Добавено е само read-only поле в отговора, а липсващ/невалиден fork флаг вече не се превръща принудително в `false`, за да може да се докладва като data грешка. Няма промяна в discovery, класификация, synchronization safety, OAuth или PAT конфигурацията.
+- **Изпълнени тестове:** `node --check DASHBOARD/app.js`; `node --check DASHBOARD/utils.js`; `python -m pytest tests/test_api.py tests/test_dashboard_strict_counts.py -q`; `python -m pytest -q --ignore=tests/test_dashboard_progress.py`; `python -m compileall -q api/routes.py`; `git diff --check`.
+- **Резултат:** Targeted тестовете са `35 passed, 1 warning`, широкият suite е `407 passed, 1 warning` (StarletteDeprecationWarning), compileall мина, `git diff --check` дава само CRLF предупреждения. Първоначалният широк run хвана остарял expected response shape в `tests/test_web_auth.py`; след добавяне на `ahead_by` в очакването всички тестове минаха. Mock проверките за акаунтите дават architectquant `34 / 30 / 4 / 0` и GabrielRules `36 / 34 / 0 / 2`.
+- **Оставащи проблеми:** Реална live проверка не е извършена: broker/dashboard отговарят 200, но `/api/auth/status` е 401, т.е. липсва наличен OAuth сесионен контекст. Не е използван PAT и не е стартиран login. `tests/test_dashboard_progress.py` остава блокиран от предходен `SyntaxError` на ред 223. Няма реален sync, merge, commit или push.
+
+## 2026-11-17 18:31 - Фаза 4: визуална корекция на Dashboard
+- **Извършена задача:** Dashboard-ът е доведен до завършен космически визуален стил: хедърът съдържа sky с crescent moon и звезди, акаунтът и connection статусът са под заглавието, основните бутони са в action bar под тях, статистическите карти са по-големи, а repo списъкът и адаптивните правила са преработени за 1440px, 1024px и 390px. Генерирани са реални screenshot-и на статичния shell в трите ширини.
+- **Променени файлове:** `DASHBOARD/index.html`, `DASHBOARD/dashboard.css`, `DASHBOARD/app.js`, `docs/screenshots/dashboard-1440.png`, `docs/screenshots/dashboard-1024.png`, `docs/screenshots/dashboard-390.png`, `docs/WORKLOG/LOG_17-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Да се отстрани остарелият и претрупан визуален вид без промяна в одобрената логика за броене, auth, discovery, класификация или synchronization. Снимките са направени с блокиран `app.js` само за да се избегне неавторизираното пренасочване; не са добавени fake данни.
+- **Изпълнени тестове:** `node --check DASHBOARD/app.js`; `node --check DASHBOARD/utils.js`; `python -m compileall -q api/routes.py`; `python -m pytest tests/test_api.py tests/test_dashboard_strict_counts.py tests/test_web_auth.py -q`; `python -m pytest -q --ignore=tests/test_dashboard_progress.py`; `git diff --check`; headless Chrome/CDP screenshot и layout метрики при 1440px, 1024px и 390px.
+- **Резултат:** Node syntax checks и compileall минаха; targeted тестовете са `68 passed, 1 warning`, широкият suite е `407 passed, 1 warning` (StarletteDeprecationWarning), `git diff --check` дава само CRLF предупреждения. Screenshot-ите са създадени; метриките показват `scrollWidth = innerWidth` и `4/4/2` колонки за counters съответно при 1440/1024/390px. Няма реален sync, merge, commit или push.
+- **Оставащи проблеми:** Screenshot-ите покриват статичния shell, не авторизирани редове с реални данни. Live проверката остава блокирана от липсваща OAuth сесия (`/api/auth/status` → 401); не е използван PAT. `tests/test_dashboard_progress.py` остава блокиран от предходен `SyntaxError` на ред 223.
+
+## 2026-11-17 20:01 - Критичен fork флаг и финален SYNC UI
+
+- **Извършена задача:** Диагностициран и отстранен е дефектът, при който Dashboard-ът получаваше 36 записа, но отхвърляше всички като `missing/invalid fork flag` и показваше `0/0/0/0`. Коренната причина беше стар dashboard API процес (PID 22768, стартиран 16:00), докато текущият `api/routes.py` вече излъчва реалното GitHub булево поле `fork`; фронтендът правилно изисква `fork === true`. Рестартиран е само процесът на порт 8001 (нов PID 11000). Добавен е regression тест, който минава през реалния `ForkSynchronizer` и потвърждава, че fork редовете носят `fork: true`, а оригиналите се изключват. Финалният UI е проверен: само един `SYNC` бутон в hero банера, без `CHECK FORKED REPOS`, с автоматична проверка след вход и запазени safety проверки.
+- **Променени файлове:** `tests/test_api.py`, `docs/WORKLOG/LOG_17-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`; рестартиран dashboard процесът на 8001. Предходните `DASHBOARD/index.html`, `DASHBOARD/dashboard.css`, `DASHBOARD/app.js` и `DASHBOARD/dreamerol-sync-hero.png` са запазени без нови UI промени.
+- **Причина:** Старият зареден Python код не съдържаше сериализацията на `fork`, а новият frontend вече третира липсващия флаг като data грешка. Не е направен fallback или предположение, който да скрие проблема; използва се само реалното GitHub метаполе.
+- **Изпълнени тестове:** `node --check DASHBOARD/app.js`; `node --check DASHBOARD/utils.js`; `python -m compileall -q api/routes.py fork_sync/synchronizer.py tests/test_api.py`; focused `python -m pytest tests/test_api.py::test_dry_run_list_serializes_github_fork_flag_from_discovery tests/test_api.py::test_dry_run_list_exposes_existing_fork_property tests/test_api.py::test_dry_run_list_keeps_missing_or_invalid_fork_flags_reportable tests/test_api.py::test_dry_run_list_36_unique_repositories_total_36 tests/test_dashboard_strict_counts.py -q`; `python -m pytest -q --ignore=tests/test_dashboard_progress.py`; read-only TestClient Preview; headless Chrome/CDP layout проверки при 1440/1024/390px.
+- **Резултат:** Node syntax checks и compileall минаха. Focused тестовете са `19 passed, 1 warning`; широкият suite е `408 passed, 1 warning` (StarletteDeprecationWarning). Read-only Preview върна HTTP 200 с ключове `account`, `total`, `results`, `diagnostics`; 36 реда, всички с `fork: true`, diagnostics `36/36/36/0`; frontend helper-ите дадоха 0 fork flag грешки и reconcile `36 = 34 + 0 + 2` за проверения статусен сценарий. Публичните GitHub метаданни за GabrielRules показват 36 репозитории, 36 с `fork: true` и 36 с валиден `parent`. CDP проверките потвърдиха един `SYNC` бутон, нулеви `CHECK FORKED REPOS`, центриране в hero и липса на horizontal overflow при трите ширини. Няма реален sync, merge, commit или push.
+- **Оставащи проблеми:** Няма валидна OAuth сесия (`/api/auth/status` → 401), затова не е уловен реален авторизиран Network payload; проверката е чрез публични GitHub метаданни и read-only TestClient Preview. По-ранната бележка за 34 fork-а и 2 оригинала не е потвърдена от текущите публични метаданни. `tests/test_dashboard_progress.py` остава блокиран от предходен `SyntaxError` на ред 223.
+
+## 2026-11-17 20:30 - Корекция: failed checks не са UNSYNCABLE
+
+- **Извършена задача:** Отстранена е причината за обратния вид на GabrielRules броячите (`2 UP TO DATE / 34 UNSYNCABLE` вместо очакваните `34 / 2`). Неуспешните или непотвърдените per-repo проверки вече са отделно състояние `CHECK FAILED / UNVERIFIED`, не се влагат в потвърдено `UNSYNCABLE`, и не позволяват показване на финалните четири числа. Последното известно успешно състояние остава видимо като `(LAST KNOWN)`, но също маркира числата като непълни.
+- **Променени файлове:** `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `DASHBOARD/dashboard.css`, `tests/test_dashboard_strict_counts.py`, `tests/test_dashboard_progress.py`, `docs/WORKLOG/LOG_17-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Коренната причина не беше разместена асиметрия в `ahead_by`/`behind_by` или обърнат aggregation, а това, че list режимът връща `pending` без сравнителни данни, а последващите `preview_error`/`unknown`/`error` проверки се влагаха в `UNSYNCABLE`. Това превръщаше временни проверки/permissions/rate-limit грешки в погрешно потвърдени UNSYNCABLE fork-ове.
+- **Изпълнени тестове:** `node --check DASHBOARD/app.js`; `node --check DASHBOARD/utils.js`; `git diff --check -- DASHBOARD/app.js DASHBOARD/dashboard.css DASHBOARD/utils.js tests/test_dashboard_strict_counts.py tests/test_dashboard_progress.py`; `python -m pytest -q`; inline `node --input-type=module` helper проверка за пълни данни и за 34 неуспешни проверки.
+- **Резултат:** Node syntax checks и `git diff --check` минаха. `python -m pytest -q` → `428 passed, 1 warning` (StarletteDeprecationWarning); предходният SyntaxError в `tests/test_dashboard_progress.py` е отстранен и целият suite вече се изпълнява. Inline проверката даде `36 / 34 UP TO DATE / 0 TO BE SYNCED / 2 UNSYNCABLE, complete=true` при пълни числови данни и `36 / 0 / 0 / 2` с `34 check errors, complete=false` при масови неуспешни проверки. Няма промени в OAuth, API contract, discovery, Compare/Merge или synchronization логиката; няма реален Sync, commit или push.
+- **Оставащи проблеми:** Реална авторизирана проверка все още не е извършена — `/api/auth/status` връща 401, затова историческото `34/2` не е потвърдено срещу live per-repo comparison payload в тази сесия. Нужна е ръчна браузърна проверка с валидна OAuth сесия; при timeout/401/429/502 редовете трябва да са `CHECK FAILED / UNVERIFIED`, не `UNSYNCABLE`.
+
+## 2026-11-18 03:11 - Security hardening преди публичен release
+
+- **Извършена задача:** Приложен е одобреният minimal release-hardening пакет след Phase 2 security audit: конфигурируем `COOKIE_SECURE`, CSRF Origin/Referer проверка за state-changing `/api/*` POST заявки, redaction на OAuth callback `code`/`state` в uvicorn access логовете, periodic cleanup на изтекли Broker транзакции, `openapi_url=None`, browser security headers и премахване на hardcoded `http://127.0.0.1:8001` URL-и от frontend-а.
+- **Променени файлове:** `api/app.py`, `api/routes.py`, `auth_broker/app.py`, `web/app.js`, `DASHBOARD/app.js`, `DASHBOARD/index.html`, `.env.example`, `tests/test_web_auth.py`, `tests/test_auth_broker_api.py`, `docs/WORKLOG/LOG_18-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `DECISIONS.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Audit-ът установи публично-достъпни слаби места в cookie Secure логиката, липсваща CSRF проверка, HTTP downgrade и експозиция на callback secrets в access логовете; целта беше минимална корекция без промяна на одобрения Dashboard и безrewrite на OAuth/sync логиката.
+- **Изпълнени тестове:** `python -m pytest -q`; `node --check web/app.js`; `node --check DASHBOARD/app.js`; `git diff --check`; CDP `verify-dropdown-result.cjs`, `verify-brand-link.cjs`, `verify-branding.cjs`, `measure-status-alignment.cjs`.
+- **Резултат:** `python -m pytest -q` → `434 passed, 1 warning` (StarletteDeprecationWarning); node syntax checks → OK; `git diff --check` → само LF→CRLF warnings; CDP проверките → всички checks `true`, включително `signInHrefOriginRelative`. Няма реален Sync, commit или push.
+- **Оставащи проблеми:** Няма валидна OAuth сесия (`/api/auth/status` → 401), затова live browser flow не е повторен след hardening-а. Реалните GitHub App permissions, callback и installation трябва да се потвърдят в GitHub UI; Phase 3 synchronization safety review остава неизпълнен.
+
+## 2026-11-18 04:02 - Phase 6 Release readiness корекции
+
+- **Извършена задача:** Приложени са одобрените release readiness корекции: стандартен MIT `LICENSE` без не-мит лицензионен текст, неутрализиран текст за собственост в `COPYRIGHT.md`, Python 3.11 минимум в README/`scripts/check.ps1` и CI matrix 3.11/3.12, разширени JS syntax checks в CI и премахнати подвеждащи PAT fallback инструкции за браузъра от README.
+- **Променени файлове:** `LICENSE`, `COPYRIGHT.md`, `README.md`, `.github/workflows/tests.yml`, `scripts/check.ps1`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `DECISIONS.md`, `docs/WORKLOG/WORKLOG.md`, `docs/WORKLOG/LOG_18-11-26.md`, `docs/development/CHANGELOG_AI.md`. Локално е създаден само игнорираният `.venv`.
+- **Причина:** Публичният release изисква MIT-only лиценз, съвместимост с `httpx2==2.16.0`, последователни проверки и коректна документация без втора браузърна authentication mechanism.
+- **Изпълнени тестове:** `.venv\Scripts\python.exe -m pip check`; `.venv\Scripts\python.exe -c "import httpx2; print(...)"`; `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider`; tokenize-aware Python compile на 39 файла; `node --check web/app.js`; `node --check DASHBOARD/app.js`; `node --check DASHBOARD/utils.js`; PowerShell AST parse на `scripts/*.ps1`; `git diff --check`.
+- **Резултат:** `pip check` → `No broken requirements found`; `httpx2==2.16.0` → импортиран успешно; pytest → `453 passed in 5.40s` без warnings; Python compile → OK за 39 файла; JS checks → OK; PowerShell parse → OK; `git diff --check` → само LF→CRLF предупреждения, без whitespace грешки. Няма commit, push или реален Sync.
+- **Оставащи проблеми:** Няма валидна OAuth сесия; реални GitHub App callback/permissions/installation и реален Sync остават непроверени. `.env` съдържа credential типове, които изискват ръчна ротация без показване на стойности. Сесиите са in-memory, липсва отделен CSRF token, token expiration изисква потвърден opt-out или refresh-token работа.
+
+## 2026-11-18 05:12 - Две sync действия в Dashboard
+
+- **Извършена задача:** Добавени са green `SYNC CHOSEN` и red `SYNC ALL` в компактна responsive група. `SYNC ALL` е с възстановени оригинален текст и размер (32px desktop / 26px mobile); добавени са брояч на `READY TO SYNC` forks, отделни потвърждения, празни selection guard-и и блокиране на двата бутона по време на preview/sync.
+- **Променени файлове:** `DASHBOARD/index.html`, `DASHBOARD/dashboard.css`, `DASHBOARD/app.js`, `tests/test_dashboard_progress.py`, `docs/WORKLOG/END_OF_DAY_2026-11-18.md`, `docs/WORKLOG/WORKLOG.md`, `docs/WORKLOG/LOG_18-11-26.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Потребителят поиска отделни действия за избрани и за всички eligible fork-ове, с по-compakt подредба и запазени съществуващи sync safeguards.
+- **Изпълнени тестове:** `python -m pytest tests/test_dashboard_progress.py -q`; `python -m pytest -q`; `node --check DASHBOARD/app.js`; `node --check DASHBOARD/utils.js`; `git diff --check`; CDP `verify-sync-action-group.cjs` при 1440×1200 и 390×844.
+- **Резултат:** targeted `23 passed`; пълен pytest `457 passed, 1 warning in 5.71s`; JS syntax OK; `scripts/check.ps1 -SkipTests` → `All checks passed`; `git diff --check` без whitespace грешки (само CRLF предупреждения). CDP проверките за етикети, ред, брояч, 32/26px, еднакви височини, 12px desktop gap, mobile stacking, green/red палитри, 7-слоен текст-сянка, липса на stroke и липса на overflow са `true`. Няма реален Sync, commit или push.
+- **Оставащи проблеми:** Няма валидна OAuth сесия; реалният OAuth поток, read-only preview и реален Sync остават непроверени. Моделът не може визуално да инспектира screenshot-ите; потребителят трябва да потвърди крайния вид на око. `.env`, GitHub App настройките и credentials не са променяни.
+

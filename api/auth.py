@@ -42,6 +42,7 @@ class _Session:
     state: str = "PENDING"
     access_token: str | None = field(default=None, repr=False)
     account: str | None = None
+    avatar_url: str | None = None
 
 
 class WebAuthManager:
@@ -128,7 +129,7 @@ class WebAuthManager:
             raise WebAuthError("The Broker did not return a credential.")
 
         try:
-            account = self._resolve_account(result.access_token)
+            account, avatar_url = self._resolve_account(result.access_token)
         except WebAuthError:
             with self._lock:
                 session.state = "FAILED"
@@ -138,6 +139,7 @@ class WebAuthManager:
         with self._lock:
             session.access_token = result.access_token
             session.account = account
+            session.avatar_url = avatar_url
             session.state = AUTHENTICATED
             polling_secret = session.polling_secret
             session.polling_secret = ""
@@ -175,7 +177,7 @@ class WebAuthManager:
                 raise UnknownSession("The web authentication session has expired.")
             return session
 
-    def _resolve_account(self, token: str) -> str:
+    def _resolve_account(self, token: str) -> tuple[str, str | None]:
         github = self._github_client_factory(token)
         try:
             user = github.get_authenticated_user()
@@ -189,7 +191,10 @@ class WebAuthManager:
         account = user.get("login") if isinstance(user, dict) else None
         if not isinstance(account, str) or not account.strip():
             raise WebAuthError("GitHub returned an invalid account profile.")
-        return account.strip()
+        avatar_url = user.get("avatar_url") if isinstance(user, dict) else None
+        if not isinstance(avatar_url, str) or not avatar_url.strip():
+            avatar_url = None
+        return account.strip(), avatar_url.strip() if isinstance(avatar_url, str) else avatar_url
 
     def _acknowledge(
         self,
@@ -205,10 +210,11 @@ class WebAuthManager:
         finally:
             client.close()
 
-    def _authenticated_response(self, session: _Session) -> dict[str, str]:
-        response = {"state": AUTHENTICATED}
+    def _authenticated_response(self, session: _Session) -> dict[str, str | None]:
+        response: dict[str, str | None] = {"state": AUTHENTICATED}
         if session.account is not None:
             response["account"] = session.account
+        response["avatar_url"] = session.avatar_url
         return response
 
     def _new_session_id_locked(self) -> str:

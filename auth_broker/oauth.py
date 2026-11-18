@@ -72,6 +72,7 @@ class GitHubOAuthClient:
             "state": state,
             "code_challenge": code_challenge,
             "code_challenge_method": "S256",
+            "prompt": "select_account",
         }
         return f"{GITHUB_AUTHORIZATION_ENDPOINT}?{urlencode(params)}"
 

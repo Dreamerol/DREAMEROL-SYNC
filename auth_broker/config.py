@@ -18,12 +18,14 @@ class BrokerConfig:
     client_secret: str = field(repr=False)
     callback_url: str
     request_timeout: float = 30.0
+    dashboard_url: str | None = None
 
     def __post_init__(self) -> None:
         _require_non_empty_string(self.client_id, "client_id")
         _require_non_empty_string(self.client_secret, "client_secret")
         _validate_callback_url(self.callback_url)
         _validate_timeout(self.request_timeout)
+        _validate_dashboard_url(self.dashboard_url)
 
     @classmethod
     def from_env(cls, environ: Mapping[str, str] | None = None) -> "BrokerConfig":
@@ -51,11 +53,15 @@ class BrokerConfig:
                 "BROKER_REQUEST_TIMEOUT must be a positive finite number"
             ) from None
 
+        dashboard_url = env.get("BROKER_DASHBOARD_URL")
+        if dashboard_url is not None:
+            dashboard_url = dashboard_url.strip() or None
         return cls(
             client_id=values["client_id"],
             client_secret=values["client_secret"],
             callback_url=values["callback_url"],
             request_timeout=timeout,
+            dashboard_url=dashboard_url,
         )
 
 
@@ -147,7 +153,9 @@ def _require_non_empty_string(value: object, name: str) -> None:
 
 def _validate_callback_url(value: object) -> None:
     if not isinstance(value, str) or not value or any(ch.isspace() for ch in value):
-        raise ValueError("callback_url must be a fixed HTTPS URL")
+        raise ValueError(
+            "callback_url must be a fixed HTTPS URL or loopback HTTP URL"
+        )
     if "*" in value:
         raise ValueError("callback_url must not contain wildcards")
 
@@ -156,17 +164,70 @@ def _validate_callback_url(value: object) -> None:
         _ = parsed.port
         hostname = parsed.hostname
     except ValueError:
-        raise ValueError("callback_url must be a fixed HTTPS URL") from None
+        raise ValueError(
+            "callback_url must be a fixed HTTPS URL or loopback HTTP URL"
+        ) from None
 
+    scheme = parsed.scheme.lower()
+    scheme_allowed = scheme == "https" or (
+        scheme == "http"
+        and hostname is not None
+        and _is_loopback_hostname(hostname)
+    )
     if (
-        parsed.scheme.lower() != "https"
+        not scheme_allowed
         or not hostname
         or parsed.username is not None
         or parsed.password is not None
         or parsed.query
         or parsed.fragment
     ):
-        raise ValueError("callback_url must be a fixed HTTPS URL")
+        raise ValueError(
+            "callback_url must be a fixed HTTPS URL or loopback HTTP URL"
+        )
+
+
+def _is_loopback_hostname(hostname: str) -> bool:
+    try:
+        return ipaddress.ip_address(hostname).is_loopback
+    except ValueError:
+        return hostname.lower() == "localhost"
+
+
+def _validate_dashboard_url(value: object) -> None:
+    if value is None:
+        return
+    if not isinstance(value, str) or not value or any(ch.isspace() for ch in value):
+        raise ValueError(
+            "dashboard_url must be a fixed HTTPS URL or loopback HTTP URL"
+        )
+    if "*" in value:
+        raise ValueError("dashboard_url must not contain wildcards")
+    try:
+        parsed = urlsplit(value)
+        _ = parsed.port
+        hostname = parsed.hostname
+    except ValueError:
+        raise ValueError(
+            "dashboard_url must be a fixed HTTPS URL or loopback HTTP URL"
+        ) from None
+    scheme = parsed.scheme.lower()
+    scheme_allowed = scheme == "https" or (
+        scheme == "http"
+        and hostname is not None
+        and _is_loopback_hostname(hostname)
+    )
+    if (
+        not scheme_allowed
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError(
+            "dashboard_url must be a fixed HTTPS URL or loopback HTTP URL"
+        )
 
 
 def _validate_timeout(value: object) -> None:

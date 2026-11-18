@@ -116,6 +116,7 @@ def test_status_polls_validates_stores_and_acknowledges_credential():
     assert manager.status(session_id) == {
         "state": "AUTHENTICATED",
         "account": "demo-user",
+        "avatar_url": None,
     }
 
     polling_secret = broker.polls[0][1]
@@ -127,6 +128,7 @@ def test_status_polls_validates_stores_and_acknowledges_credential():
     assert manager.status(session_id) == {
         "state": "AUTHENTICATED",
         "account": "demo-user",
+        "avatar_url": None,
     }
     assert len(broker.polls) == 2
 
@@ -315,7 +317,7 @@ def test_auth_status_requires_a_session_and_clears_stale_cookie(web_client):
 def test_auth_status_returns_authenticated_account(web_client):
     client, manager = web_client
     client.post("/api/auth/start")
-    manager.status_result = {"state": "AUTHENTICATED", "account": "demo-user"}
+    manager.status_result = {"state": "AUTHENTICATED", "account": "demo-user", "avatar_url": None}
 
     response = client.get("/api/auth/status")
 
@@ -323,6 +325,7 @@ def test_auth_status_returns_authenticated_account(web_client):
     assert response.json() == {
         "state": "AUTHENTICATED",
         "account": "demo-user",
+        "avatar_url": None,
     }
     assert response.headers["cache-control"] == "no-store"
 
@@ -335,7 +338,7 @@ def test_auth_status_clears_cookie_after_terminal_state(web_client):
     response = client.get("/api/auth/status")
 
     assert response.status_code == 200
-    assert response.json() == {"state": "EXPIRED", "account": None}
+    assert response.json() == {"state": "EXPIRED", "account": None, "avatar_url": None}
     assert "Max-Age=0" in response.headers["set-cookie"]
     assert response.headers["cache-control"] == "no-store"
 
@@ -403,8 +406,16 @@ def test_sync_uses_server_side_session_token(web_client, monkeypatch):
     assert response.json() == {
         "account": "demo-user",
         "total": 1,
+        "diagnostics": None,
         "results": [
-            {"repository": "demo/fork", "status": "behind", "message": None, "behind_by": 2}
+            {
+                "repository": "demo/fork",
+                "status": "behind",
+                "message": None,
+                "ahead_by": None,
+                "behind_by": 2,
+                "last_successful_sync": None,
+            }
         ],
     }
     assert tokens == ["session-token"]
@@ -491,3 +502,190 @@ def test_auth_start_sets_secure_cookie_over_https():
     assert response.status_code == 200
     assert "Secure" in response.headers["set-cookie"]
     assert response.headers["cache-control"] == "no-store"
+
+
+def test_auth_start_rejects_cross_site_origin(web_client):
+    client, _ = web_client
+
+    response = client.post(
+        "/api/auth/start",
+        headers={"Origin": "https://evil.example"},
+    )
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Origin not allowed."}
+    assert response.headers["cache-control"] == "no-store"
+
+
+def test_auth_start_allows_same_site_origin(web_client):
+    client, _ = web_client
+
+    response = client.post(
+        "/api/auth/start",
+        headers={"Origin": "http://testserver"},
+    )
+
+    assert response.status_code == 200
+
+
+def test_sync_rejects_cross_site_origin(web_client):
+    client, _ = web_client
+
+    response = client.post(
+        "/api/sync",
+        json={"dry_run": True},
+        headers={"Origin": "https://evil.example"},
+    )
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Origin not allowed."}
+
+
+def test_cookie_secure_can_be_forced(monkeypatch, web_client):
+    client, _ = web_client
+    monkeypatch.setenv("COOKIE_SECURE", "true")
+
+    response = client.post("/api/auth/start")
+
+    assert "Secure" in response.headers["set-cookie"]
+
+
+def test_cookie_secure_can_be_disabled_over_https(monkeypatch):
+    original_manager = app.state.auth_manager
+    app.state.auth_manager = FakeManager()
+    monkeypatch.setenv("COOKIE_SECURE", "false")
+    try:
+        with TestClient(app, base_url="https://testserver") as client:
+            response = client.post("/api/auth/start")
+    finally:
+        app.state.auth_manager = original_manager
+
+    assert "Secure" not in response.headers["set-cookie"]
+
+
+def test_switch_discards_session_and_cookie(web_client):
+
+    client, manager = web_client
+    client.post("/api/auth/start")
+
+    response = client.post("/api/auth/switch")
+
+    assert response.status_code == 200
+    assert response.json() == {"state": "SIGNED_OUT"}
+    assert manager.logout_sessions == ["browser-session"]
+    assert "Max-Age=0" in response.headers["set-cookie"]
+    assert response.headers["cache-control"] == "no-store"
+
+
+def test_switch_allows_new_session_for_different_account(monkeypatch):
+    from api.auth import WebAuthManager
+
+    broker = FakeBroker()
+    users = [{"login": "account-a"}, {"login": "account-b"}]
+
+    def github_factory(token):
+        user = users.pop(0) if users else {"login": "unknown"}
+        return FakeGitHub(user=user)
+
+    manager = WebAuthManager(
+        "http://127.0.0.1:8000",
+        ttl_seconds=600,
+        clock=lambda: 1000.0,
+        broker_client_factory=lambda url: broker,
+        github_client_factory=github_factory,
+    )
+    original_manager = app.state.auth_manager
+    app.state.auth_manager = manager
+    try:
+        with TestClient(app) as client:
+            resp = client.post("/api/auth/start")
+            assert resp.status_code == 200
+            broker.poll_results = [AuthPoll("DELIVERY_AUTHORIZED", access_token="token-a", token_type="bearer")]
+            status_a = client.get("/api/auth/status")
+            assert status_a.json()["account"] == "account-a"
+
+            switch = client.post("/api/auth/switch")
+            assert switch.status_code == 200
+            assert "Max-Age=0" in switch.headers["set-cookie"]
+
+            broker.poll_results = [AuthPoll("DELIVERY_AUTHORIZED", access_token="token-b", token_type="bearer")]
+            resp2 = client.post("/api/auth/start")
+            assert resp2.status_code == 200
+            status_b = client.get("/api/auth/status")
+            assert status_b.json()["account"] == "account-b"
+    finally:
+        app.state.auth_manager = original_manager
+
+def test_preview_after_account_switch_returns_only_new_account_data_and_history_isolated(monkeypatch, tmp_path):
+    from api.auth import WebAuthManager
+    from api.sync_history import SyncHistoryStore
+
+    store = SyncHistoryStore(tmp_path / "sync_history.json")
+    store.record_success("account-a", "account-a/repo1")
+
+    broker = FakeBroker()
+    users = [{"login": "account-a"}, {"login": "account-b"}]
+
+    def github_factory(token):
+        user = users.pop(0) if users else {"login": "unknown"}
+        gh = FakeGitHub(user=user)
+        gh.session = Mock()
+        return gh
+
+    manager = WebAuthManager(
+        "http://127.0.0.1:8000",
+        ttl_seconds=600,
+        clock=lambda: 1000.0,
+        broker_client_factory=lambda url: broker,
+        github_client_factory=github_factory,
+    )
+    original_manager = app.state.auth_manager
+    original_history = getattr(app.state, "sync_history", None)
+    app.state.auth_manager = manager
+    app.state.sync_history = store
+    try:
+        with TestClient(app) as client:
+            # account A
+            client.post("/api/auth/start")
+            broker.poll_results = [AuthPoll("DELIVERY_AUTHORIZED", access_token="token-a", token_type="bearer")]
+            assert client.get("/api/auth/status").json()["account"] == "account-a"
+
+            sync_a = Mock()
+            sync_a.preview_all.return_value = [
+                {"repository": "account-a/repo1", "status": "up-to-date", "behind_by": 0},
+                {"repository": "account-a/repo2", "status": "behind", "behind_by": 1},
+            ]
+            with monkeypatch.context() as m:
+                m.setattr("api.routes.GitHubClient", lambda token: FakeGitHub(user={"login": "account-a"}))
+                m.setattr("api.routes.ForkSynchronizer", lambda c: sync_a)
+                resp_a = client.post("/api/sync", json={"dry_run": True})
+            assert resp_a.status_code == 200
+            data_a = resp_a.json()
+            assert data_a["account"] == "account-a"
+            assert [r["repository"] for r in data_a["results"]] == ["account-a/repo1", "account-a/repo2"]
+            assert data_a["results"][0]["last_successful_sync"] is not None
+
+            # switch -> account B
+            client.post("/api/auth/switch")
+            broker.poll_results = [AuthPoll("DELIVERY_AUTHORIZED", access_token="token-b", token_type="bearer")]
+            client.post("/api/auth/start")
+            assert client.get("/api/auth/status").json()["account"] == "account-b"
+
+            sync_b = Mock()
+            sync_b.preview_all.return_value = [
+                {"repository": "account-b/only", "status": "behind", "behind_by": 3},
+            ]
+            with monkeypatch.context() as m:
+                m.setattr("api.routes.GitHubClient", lambda token: FakeGitHub(user={"login": "account-b"}))
+                m.setattr("api.routes.ForkSynchronizer", lambda c: sync_b)
+                resp_b = client.post("/api/sync", json={"dry_run": True})
+            assert resp_b.status_code == 200
+            data_b = resp_b.json()
+            assert data_b["account"] == "account-b"
+            assert [r["repository"] for r in data_b["results"]] == ["account-b/only"]
+            assert all(r.get("last_successful_sync") is None for r in data_b["results"])
+            assert store.get_map("account-a") == {"account-a/repo1": store.get_map("account-a")["account-a/repo1"]}
+            assert store.get_map("account-b") == {}
+    finally:
+        app.state.auth_manager = original_manager
+        app.state.sync_history = original_history

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#10141d">
-    <title>DREAMEROL | FORK SYNC</title>
+    <title>DREAMEROL SYNC</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="/static/app.js" defer></script>
 </head>
@@ -12,64 +12,22 @@
     <main class="login-container">
         <div class="brand">
             <div class="brand-mark" aria-hidden="true">D</div>
-            <h1>DREAMEROL</h1>
-            <p>GITHUB FORK SYNCHRONIZATION</p>
+            <h1>DREAMEROL SYNC</h1>
+            <p>GitHub fork synchronization</p>
         </div>
 
-        <section class="sync-panel" aria-labelledby="sync-heading">
-            <h2 id="sync-heading">Connect &amp; Sync</h2>
-            <p class="subtitle">Preview every fork against upstream before synchronizing only repositories that are behind.</p>
+        <section class="sync-panel" aria-labelledby="welcome-heading">
+            <h2 id="welcome-heading">Welcome</h2>
+            <p class="subtitle">Sign in with GitHub to preview and synchronize your forks securely.</p>
 
             <div class="auth-block">
-                <button type="button" id="broker-login-button">
-                    Sign in with GitHub
-                </button>
-                <button type="button" id="logout-button" class="link-button" hidden>
-                    Sign out
-                </button>
-                <p id="auth-status" class="auth-status" role="status" aria-live="polite">
-                    Not signed in.
-                </p>
-                <a id="broker-link" class="auth-link" target="_blank" rel="noopener noreferrer" hidden>
-                    Open GitHub authorization
-                </a>
+                <button type="button" id="broker-login-button">Sign in with GitHub</button>
+                <p id="auth-status" class="auth-status" role="status" aria-live="polite">Not signed in.</p>
+                <a id="broker-link" class="auth-link" target="_blank" rel="noopener noreferrer" hidden>Open GitHub authorization</a>
             </div>
-
-            <div class="divider"><span>or use a personal access token</span></div>
-
-            <form id="sync-form">
-                <label for="github-token">GitHub personal access token</label>
-                <input
-                    type="password"
-                    id="github-token"
-                    placeholder="ghp_… or github_pat_…"
-                    autocomplete="off"
-                    autocapitalize="none"
-                    spellcheck="false"
-                    aria-describedby="token-help"
-                >
-                <p id="token-help" class="help-text">
-                    The token is sent to this server for the request only; it is not saved by this page.
-                    Use this page over HTTPS and grant only the permissions needed to update your forks.
-                </p>
-
-                <button type="submit" id="preview-button">
-                    <span id="button-text">Preview forks</span>
-                </button>
-            </form>
-
-            <button type="button" id="sync-button" class="secondary-button" hidden>
-                SYNC lagging forks
-            </button>
-
-            <div id="sync-status" role="status" aria-live="polite">
-                Ready to preview.
-            </div>
-
-            <div id="sync-results" aria-live="polite"></div>
         </section>
 
-        <footer>DREAMEROL · FORK SYNC</footer>
+        <footer>DREAMEROL SYNC</footer>
     </main>
 </body>
 </html>

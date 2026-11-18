@@ -1,5 +1,6 @@
 """End-to-end tests for the authentication Broker HTTP endpoints."""
 
+import logging
 from unittest.mock import Mock
 from urllib.parse import parse_qs, urlsplit
 
@@ -7,7 +8,7 @@ import pytest
 import requests
 from fastapi.testclient import TestClient
 
-from auth_broker.app import create_app
+from auth_broker.app import _CallbackAccessRedactor, create_app
 from auth_broker.config import BrokerConfig, RateLimitConfig
 from auth_broker.oauth import GITHUB_TOKEN_ENDPOINT, GitHubOAuthClient
 from auth_broker.rate_limit import InMemoryRateLimiter
@@ -182,6 +183,16 @@ def test_start_rejects_invalid_polling_secret_hash(client):
     assert response.json() == {"detail": "Invalid authentication request."}
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["pragma"] == "no-cache"
+
+
+def test_healthz_reports_ok_without_exposing_config(client, config):
+    response = client.get("/healthz")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["pragma"] == "no-cache"
+    assert config.client_secret not in response.text
 
 
 def test_unknown_auth_path_has_no_store_headers(client):
@@ -448,7 +459,7 @@ def test_create_app_loads_dotenv_when_config_is_omitted(monkeypatch):
         monkeypatch.setenv("GITHUB_APP_CLIENT_SECRET", "dotenv-client-secret")
         monkeypatch.setenv(
             "BROKER_CALLBACK_URL",
-            "https://broker.test/auth/callback",
+            "http://127.0.0.1:8000/auth/callback",
         )
 
     monkeypatch.setattr("auth_broker.app.load_dotenv", fake_load_dotenv)
@@ -459,7 +470,7 @@ def test_create_app_loads_dotenv_when_config_is_omitted(monkeypatch):
     assert app.state.broker_config.client_secret == "dotenv-client-secret"
     assert (
         app.state.broker_config.callback_url
-        == "https://broker.test/auth/callback"
+        == "http://127.0.0.1:8000/auth/callback"
     )
 
 
@@ -474,3 +485,35 @@ def test_create_app_skips_dotenv_when_config_is_explicit(monkeypatch, config):
 
     assert calls == []
     assert app.state.broker_config is config
+
+
+def test_auth_broker_sets_browser_security_headers(client):
+    response = client.get("/healthz")
+
+    assert response.headers["content-security-policy"].startswith("default-src 'self'")
+    assert response.headers["x-frame-options"] == "DENY"
+    assert response.headers["referrer-policy"] == "no-referrer"
+
+
+def test_access_log_redactor_hides_callback_secrets():
+    record = logging.LogRecord(
+        name="uvicorn.access",
+        level=logging.INFO,
+        pathname=__file__,
+        lineno=1,
+        msg='%s - "%s %s HTTP/%s" %d',
+        args=(
+            "127.0.0.1:1234",
+            "GET",
+            "/auth/callback?code=abc&state=xyz",
+            "1.1",
+            200,
+        ),
+        exc_info=None,
+    )
+
+    _CallbackAccessRedactor().filter(record)
+
+    assert "abc" not in record.args[2]
+    assert "xyz" not in record.args[2]
+    assert "[REDACTED]" in record.args[2]

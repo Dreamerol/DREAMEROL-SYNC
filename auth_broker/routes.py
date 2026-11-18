@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from auth_broker.config import RateLimitConfig
@@ -66,6 +66,10 @@ def get_rate_limit_config(request: Request) -> RateLimitConfig:
 
 def get_rate_limiter(request: Request) -> InMemoryRateLimiter:
     return request.app.state.rate_limiter
+
+
+def get_broker_config(request: Request):
+    return getattr(request.app.state, "broker_config", None)
 
 
 def _no_store(response: Response) -> None:
@@ -327,6 +331,19 @@ def github_callback(
             status_code=502,
         )
 
+    config = get_broker_config(request)
+    dashboard_url = getattr(config, "dashboard_url", None) if config else None
+    if dashboard_url:
+        response = RedirectResponse(
+            url=dashboard_url,
+            status_code=303,
+            headers={
+                "Cache-Control": "no-store",
+                "Pragma": "no-cache",
+                "Referrer-Policy": "no-referrer",
+            },
+        )
+        return response
     return _browser_page(
         "GitHub authorization is complete. You can return to the application.",
         status_code=200,

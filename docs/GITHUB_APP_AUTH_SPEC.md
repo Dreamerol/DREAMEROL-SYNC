@@ -13,7 +13,7 @@ The implementation consists of two components:
 
 GitHub remains the identity and authorization provider.
 
-The Broker is a single HTTPS service for v1.
+The Broker is a single service for v1. Local single-user deployments use HTTP on loopback; remote deployments use HTTPS.
 
 ## 2. Authentication flow
 
@@ -22,14 +22,14 @@ The Broker is a single HTTPS service for v1.
 3. Broker creates a transaction and returns its transaction ID and browser authorization URL.
 4. CLI retains the plaintext polling secret in memory for subsequent requests.
 5. User completes GitHub authorization in the browser.
-6. GitHub redirects to the Broker's fixed HTTPS callback.
+6. GitHub redirects to the Broker's fixed callback: HTTP loopback for local use, HTTPS for remote use.
 7. Broker validates `state` and atomically moves the transaction from `PENDING` to `PROCESSING` before token exchange.
 8. Broker exchanges the authorization code and validates the token response.
 9. Broker makes the credential available and moves the transaction to `TOKEN_READY`.
-10. CLI polls `POST /auth/poll`. The transaction ID is in the JSON request body; the polling secret is in a dedicated HTTPS authentication header.
+10. CLI polls `POST /auth/poll`. The transaction ID is in the JSON request body; the polling secret is in a dedicated authentication header. Remote deployments use HTTPS; local loopback may use HTTP.
 11. On the first authorized poll in `TOKEN_READY`, Broker atomically snapshots the response payload for that request and moves the transaction to `DELIVERY_AUTHORIZED`. The response contains the credential. Repeated authorized polls before ACK return the same credential payload.
 12. CLI writes the credential to the OS Keyring.
-13. **Only after the Keyring write succeeds**, CLI sends `POST /auth/ack`, using the transaction ID in the JSON body and polling secret in the same HTTPS authentication header.
+13. **Only after the Keyring write succeeds**, CLI sends `POST /auth/ack`, using the transaction ID in the JSON body and polling secret in the same dedicated authentication header.
 14. Broker atomically marks the transaction `ACKNOWLEDGED` and removes the temporary credential material.
 
 If the Keyring write fails, CLI must not send ACK. It may retry the Keyring write or poll again while the transaction remains valid.
@@ -45,7 +45,7 @@ If the Keyring write fails, CLI must not send ACK. It may retry the Keyring writ
 
 The request/response contracts in the approved specification are normative. They must be implemented as approved. Any contract change requires review and explicit approval; do not silently reinterpret or extend the contracts.
 
-For `/auth/poll` and `/auth/ack`, the transaction ID is sent in the JSON body and the polling secret only in the dedicated HTTPS authentication header. Neither secret nor credential may appear in a URL.
+For `/auth/poll` and `/auth/ack`, the transaction ID is sent in the JSON body and the polling secret only in the dedicated authentication header. Use HTTPS for remote deployments; loopback HTTP is allowed only for local single-user use. Neither secret nor credential may appear in a URL.
 
 ## 4. Polling secret and transaction security
 
@@ -53,7 +53,7 @@ For `/auth/poll` and `/auth/ack`, the transaction ID is sent in the JSON body an
 - CLI retains the plaintext secret in memory only.
 - `/auth/start` receives only the secret's cryptographic hash.
 - Broker stores the hash, not the plaintext secret.
-- `/auth/poll` and `/auth/ack` require the plaintext secret in a dedicated HTTPS header.
+- `/auth/poll` and `/auth/ack` require the plaintext secret in a dedicated authentication header.
 - Transaction ID alone must never authorize token retrieval or ACK.
 - Compare secret hashes safely; do not expose secrets in logs, URLs, or error messages.
 - Apply transaction expiration and cleanup.
@@ -65,7 +65,8 @@ For `/auth/poll` and `/auth/ack`, the transaction ID is sent in the JSON body an
 - The Broker generates a cryptographically random `code_verifier` for each transaction, stores it only in that transaction's temporary state, and sends the corresponding `code_challenge` with `code_challenge_method=S256` in the GitHub authorization request. The Broker supplies the same verifier during the token exchange. The CLI never receives or stores the verifier.
 - If the selected GitHub authorization flow cannot satisfy the PKCE S256 requirement, authentication must fail. Do not fall back to a flow without PKCE.
 - OAuth `state` validation is mandatory.
-- Callback URL must be a fixed HTTPS redirect URI, with wildcard callback matching disabled.
+- Callback URL must be a fixed redirect URI. HTTP is allowed only for loopback hosts (`127.0.0.1`, `::1`, or `localhost`); all other deployments must use HTTPS. Wildcard callback matching must be disabled.
+- For the local single-user deployment, the approved callback is `http://127.0.0.1:8000/auth/callback`. Use the literal `127.0.0.1`; do not use an ephemeral Quick Tunnel as the registered callback.
 - Authorization URLs are generated only by the Broker for the exact `github.com` host. Do not accept caller-supplied callback URLs or implement open redirects.
 - A missing or invalid `state` must not modify or advance any transaction. Reject the callback and return a generic safe browser error.
 - After successful `state` validation, the matching transaction must atomically transition from `PENDING` to `PROCESSING` **before** token exchange begins.
@@ -169,7 +170,7 @@ Authentication changes must preserve existing synchronization behavior. Do not r
 
 ## 12. Broker implementation constraints — v1
 
-- One HTTPS Broker instance.
+- One Broker instance. Use loopback HTTP for local single-user deployment and HTTPS for remote deployment.
 - In-memory transaction storage.
 - No database.
 - No Redis.
@@ -197,7 +198,7 @@ CLI must:
 
 - Generate and retain the polling secret in memory.
 - Start authentication and display or open the Broker-generated browser authorization URL.
-- Poll using the transaction ID in the request body and polling secret in the dedicated HTTPS header.
+- Poll using the transaction ID in the request body and polling secret in the dedicated authentication header.
 - Handle pending, processing, token-ready, delivery-authorized, expired, failed, and cancelled outcomes.
 - Write the credential to the OS Keyring.
 - Send ACK only after successful Keyring storage.
@@ -224,7 +225,7 @@ Implementation is ready for review when all of the following are true:
 1. CLI generates the polling secret and sends only its hash to `/auth/start`.
 2. Transaction ID alone cannot retrieve a credential or authorize ACK.
 3. PKCE S256 is enforced with no fallback; Broker generates and retains the verifier per transaction and sends the matching S256 challenge.
-4. Callback uses a fixed HTTPS redirect URI with wildcard matching disabled.
+4. Callback uses a fixed redirect URI with wildcard matching disabled; loopback HTTP is allowed only for local use.
 5. Missing or invalid `state` cannot modify an arbitrary transaction.
 6. Valid callback atomically transitions the transaction to `PROCESSING` before token exchange.
 7. OAuth denial and other callback errors terminate the associated transaction safely and do not leave it pending indefinitely.
