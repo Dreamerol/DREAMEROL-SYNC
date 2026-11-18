@@ -1,6 +1,13 @@
 # AI Development Changelog
 
-## 2026-11-18 17:55 - Phase 7 release preparation и финален UI
+## 2026-11-18 22:58 - PR #1 е merge-нат в architectquant/DREAMEROL-SYNC
+
+- **Извършена задача:** Поправката за web auth/403 от `GabrielRules:feature/github-app-auth` е прехвърлена в `architectquant/DREAMEROL-SYNC:main` чрез PR #1.
+- **Променени файлове:** `README.md` от merge resolve; `docs/WORKLOG/LOG_18-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Потребителят изрично одобри PR към своя fork и последващ merge. Първоначалният опит с `GabrielRules` credential върна `404` защото правата бяха само `pull`; повторен с наличния `architectquant` credential (`admin/push`) беше успешен.
+- **Изпълнени тестове:** targeted pytest `72 passed`; пълен pytest `461 passed, 1 warning`; `scripts/check.ps1` → `All checks passed`; live dry-run `HTTP 200 behind_by:3`; реален Sync `HTTP 200 synced`; финален preview `37` репозитория `35/0/2`; локален `git merge-tree` без конфликти; GitHub API потвърди `merged:true`.
+- **Резултат:** PR #1 е `closed/merged`, `merge_commit_sha:b16c977776793c92bef7681c297e8e322974be9a`; `architectquant/main` сочи същия SHA. Няма push извън този PR, нов реален Sync или промени в GitHub App настройките.
+- **Оставащи проблеми:** In-memory сесиите, липсата на автоматичен refresh/rotation на токени и евентуален PR към `Dreamerol` остават извън тази задача. Реалният preview показва 2 diverged fork-а, които съзнателно не се синхронизират автоматично.
 
 - **Извършена задача:** Финализирана е визуалната група `SYNC CHOSEN` / `SYNC ALL`, извършен е read-only release preparation review и са приложени одобрените document-only корекции.
 - **Променени файлове:** `DASHBOARD/dashboard.css`, `DASHBOARD/index.html`, `tests/test_dashboard_progress.py`, `README.md`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `docs/WORKLOG/LOG_18-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
