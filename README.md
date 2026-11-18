@@ -1,6 +1,6 @@
 <div align="center">
 
-<a href="https://dreamerol.github.io/MIHAELA-KOSEVA-AI/">
+<a href="https://github.com/apps/dreamerol-sync">
   <img
     src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/2f8a8a9df20d90363b9a46c718a970013ee7b8e8/assets/dreamerol-sync-hero.png"
     width="100%"
@@ -21,7 +21,7 @@
 
 <div align="center">
 
-<a href="https://github.com/Dreamerol/CARDFOLIO">
+<a href="https://github.com/apps/dreamerol-sync">
 
 <img
 src="https://raw.githubusercontent.com/Dreamerol/Dreamerol/main/mihaela%20koseva-PYTHON-22.jpg"
@@ -150,26 +150,11 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 <h1 align="center">
-  🌙 <a href="https://github.com/Dreamerol/DREAMEROL-SYNC"
+  🌙 <a href="https://github.com/apps/dreamerol-sync"
      title="GitHub Fork Synchronization Center — DREAMEROL SYNC">
     <b>𝗗𝗥𝗘𝗔𝗠𝗘𝗥𝗢𝗟 𝗦𝗬𝗡𝗖</b>
   </a>
 </h1>
-
-
-
-<br>
-
-
-
-<p align="center">
-  <a href="https://github.com/apps/dreamerol-sync" target="_blank">
-    <img src="https://img.shields.io/badge/%F0%9F%93%A5%20GitHub%20App-Install%20%2F%20Open-2EA44F?style=for-the-badge&amp;logo=github" alt="Install or open the DREAMEROL SYNC GitHub App" />
-  </a>
-</p>
-
-
-<div>
 
 
 
