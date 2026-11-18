@@ -36,7 +36,7 @@
 <table>
 <tr>
 
-<td align="center"><span style="font-size:1.3em;">│</span></td>
+
 
 <td align="center" width="12%">
 <span style="font-size:1.55em;">🌐</span><br>
