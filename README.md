@@ -1,4 +1,4 @@
-=<div align="center">
+<div align="center">
 
 <a href="https://github.com/apps/dreamerol-sync">
   <img
@@ -146,9 +146,6 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 <br>
 
 
-**[𝗗𝗥𝗘𝗔𝗠𝗘𝗥𝗢𝗟 𝗦𝗬𝗡𝗖](https://github.com/apps/dreamerol-sync?utm_source=chatgpt.com) - [DOWNLOAD](https://github.com/apps/dreamerol-sync)**
-
-
 <h1 align="center">
   🌙 <a href="https://github.com/apps/dreamerol-sync"
      title="GitHub Fork Synchronization Center — DREAMEROL SYNC">
@@ -160,6 +157,17 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 <br>
+
+
+
+<div align="center">
+
+[DOWNLOAD](https://github.com/apps/dreamerol-sync)**
+
+<div>
+
+
+  
 <br>
 
 
