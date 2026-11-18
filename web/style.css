@@ -4,6 +4,10 @@
     padding: 0;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 body {
     min-height: 100vh;
     background: #10141d;
@@ -69,6 +73,81 @@ body {
     margin: 12px 0 28px;
 }
 
+.auth-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-block button {
+    width: 100%;
+}
+
+.auth-status {
+    color: #98a3b5;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 12px;
+}
+
+.auth-status[data-state="success"] {
+    color: #8fe3bd;
+}
+
+.auth-status[data-state="pending"] {
+    color: #d6c27a;
+}
+
+.auth-status[data-state="error"] {
+    color: #ff9a9a;
+}
+
+.auth-link {
+    display: block;
+    color: #8bb2ff;
+    text-align: center;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+.auth-link:hover {
+    color: #b4ceff;
+}
+
+.link-button {
+    background: transparent;
+    color: #8bb2ff;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 8px;
+    padding: 10px;
+    text-decoration: underline;
+}
+
+.link-button:hover:not(:disabled) {
+    background: rgba(139, 178, 255, .1);
+    color: #b4ceff;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #667286;
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin: 20px 0;
+    text-transform: uppercase;
+}
+
+.divider::before,
+.divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #293344;
+}
+
 form {
     display: flex;
     flex-direction: column;
@@ -92,7 +171,8 @@ input {
 }
 
 input:focus-visible,
-button:focus-visible {
+button:focus-visible,
+a:focus-visible {
     outline: 3px solid #8bb2ff;
     outline-offset: 3px;
 }

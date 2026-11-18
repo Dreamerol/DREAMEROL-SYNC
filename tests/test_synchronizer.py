@@ -81,6 +81,60 @@ def test_get_forks_rejects_invalid_response(synchronizer, github):
         synchronizer.get_forks()
 
 
+def test_get_forks_exposes_read_only_diagnostics(synchronizer, github):
+    github.list_repositories.return_value = [
+        {"full_name": "user/original", "fork": False},
+        {
+            "full_name": "user/fork",
+            "fork": True,
+            "parent": {
+                "full_name": "original/fork",
+                "default_branch": "main",
+            },
+        },
+        {"full_name": "user/no-parent", "fork": True},
+    ]
+    github.get_repository.return_value = {
+        "full_name": "user/no-parent",
+        "fork": True,
+        "parent": {
+            "full_name": "original/no-parent",
+            "default_branch": "main",
+        },
+    }
+
+    result = synchronizer.get_forks()
+
+    assert [repo["full_name"] for repo in result] == ["user/fork", "user/no-parent"]
+    assert synchronizer.get_last_diagnostics() == {
+        "owned_repositories": 3,
+        "fork_candidates": 2,
+        "valid_forks": 2,
+        "unavailable_forks": 0,
+    }
+
+
+def test_get_forks_skips_stale_fork_with_404(synchronizer, github):
+    github.list_repositories.return_value = [
+        {"full_name": "user/stale", "fork": True},
+        {
+            "full_name": "user/fork",
+            "fork": True,
+            "parent": {
+                "full_name": "original/fork",
+                "default_branch": "main",
+            },
+        },
+    ]
+    response = Mock(status_code=404)
+    github.get_repository.side_effect = requests.HTTPError("Not Found", response=response)
+
+    result = synchronizer.get_forks()
+
+    assert [repo["full_name"] for repo in result] == ["user/fork"]
+    assert synchronizer.get_last_diagnostics()["unavailable_forks"] == 1
+
+
 def test_sync_fork_when_up_to_date(synchronizer, github, fork):
     github.compare_upstream.return_value = {
         "ahead_by": 0,
@@ -213,6 +267,21 @@ def test_sync_fork_handles_github_api_error(synchronizer, github, fork):
     github.merge_upstream.assert_not_called()
 
 
+def test_preview_fork_reports_stale_404_without_syncing(synchronizer, github, fork):
+    response = Mock(status_code=404)
+    response.json.return_value = {"message": "Not Found"}
+    response.text = "Not Found"
+    github.compare_upstream.side_effect = requests.HTTPError(
+        "Not Found", response=response
+    )
+
+    result = synchronizer.preview_fork(fork)
+
+    assert result["status"] == "error"
+    assert "HTTP 404" in result["message"]
+    github.merge_upstream.assert_not_called()
+
+
 def test_sync_all_continues_after_repository_error(synchronizer, github, fork):
     second_fork = {
         "full_name": "Dreamerol/PORTFOLIO",
@@ -253,3 +322,72 @@ def test_sync_all_dry_run_does_not_merge(synchronizer, github, fork):
     assert results[0]["status"] == "dry-run"
     github.compare_upstream.assert_not_called()
     github.merge_upstream.assert_not_called()
+
+
+def test_get_forks_ignores_truthy_non_boolean_fork_flags(synchronizer, github):
+    parent = {"full_name": "original/repo", "default_branch": "main"}
+    github.list_repositories.return_value = [
+        {"full_name": "user/string", "fork": "true", "parent": parent},
+        {"full_name": "user/integer", "fork": 1, "parent": parent},
+        {"full_name": "user/valid", "fork": True, "parent": parent},
+    ]
+
+    forks = synchronizer.get_forks()
+
+    assert [fork["full_name"] for fork in forks] == ["user/valid"]
+
+
+def test_sync_fork_maps_merge_403_to_error(synchronizer, github, fork):
+    github.compare_upstream.return_value = {
+        "ahead_by": 0,
+        "behind_by": 2,
+        "status": "behind",
+    }
+    response = Mock()
+    response.status_code = 403
+    response.json.return_value = {"message": "Resource not accessible by integration"}
+    response.text = "Resource not accessible by integration"
+    github.merge_upstream.side_effect = requests.HTTPError("Forbidden", response=response)
+
+    result = synchronizer.sync_fork(fork)
+
+    assert result["status"] == "error"
+    assert "HTTP 403" in result["message"]
+    github.merge_upstream.assert_called_once()
+
+
+def test_sync_fork_maps_merge_timeout_to_ambiguous(synchronizer, github, fork):
+    merge_error = requests.Timeout("GitHub timed out")
+    github.compare_upstream.return_value = {
+        "ahead_by": 0,
+        "behind_by": 2,
+        "status": "behind",
+    }
+    github.merge_upstream.side_effect = merge_error
+
+    result = synchronizer.sync_fork(fork)
+
+    assert result["status"] == "ambiguous"
+    assert "timed out" in result["message"]
+    assert "Preview again before retrying" in result["message"]
+    github.merge_upstream.assert_called_once()
+
+
+def test_sync_fork_maps_merge_5xx_to_ambiguous(synchronizer, github, fork):
+    github.compare_upstream.return_value = {
+        "ahead_by": 0,
+        "behind_by": 2,
+        "status": "behind",
+    }
+    response = Mock()
+    response.status_code = 503
+    response.json.return_value = {"message": "Service Unavailable"}
+    response.text = "Service Unavailable"
+    github.merge_upstream.side_effect = requests.HTTPError("Bad Gateway", response=response)
+
+    result = synchronizer.sync_fork(fork)
+
+    assert result["status"] == "ambiguous"
+    assert "HTTP 503" in result["message"]
+    assert "Preview again before retrying" in result["message"]
+    github.merge_upstream.assert_called_once()
