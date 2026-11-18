@@ -4,19 +4,29 @@
 
 </div>
 
-<h1 align="center">DREAMEROL SYNC</h1>
+<h1 align="center">🚀 DREAMEROL SYNC ✨</h1>
 
-<p align="center"><strong>GitHub Fork Synchronization Center</strong></p>
+<p align="center"><strong>🧙‍♂️ GitHub Fork Synchronization Center</strong></p>
 
 <p align="center">
   A Python command-line tool that automatically discovers GitHub forks owned by an authenticated account and requests upstream synchronization through the official GitHub API.
 </p>
 
 <p align="center">
-  Designed to make fork management easier, faster and more convenient.
+  Designed to make fork management easier, faster and more convenient. 🧩⚡
 </p>
 
-<p align="center"><em>Simple workflow. Secure authentication. Reliable synchronization.</em></p>
+<p align="center"><em>Simple workflow. Secure authentication. Reliable synchronization. And a tiny bit of magic ✨</em></p>
+
+<p align="center">
+  <a href="https://github.com/apps/dreamerol-sync" target="_blank">
+    <img src="https://img.shields.io/badge/%F0%9F%93%A5%20GitHub%20App-Install%20%2F%20Open-2EA44F?style=for-the-badge&amp;logo=github" alt="Install or open the DREAMEROL SYNC GitHub App" />
+  </a>
+</p>
+
+<p align="center">
+  📥 <a href="https://github.com/apps/dreamerol-sync" target="_blank">Download / open the GitHub App</a>
+</p>
 
 ---
 
@@ -24,6 +34,7 @@
 
 <table>
 <tr>
+<td align="center"><a href="https://github.com/apps/dreamerol-sync" target="_blank">🤖 GITHUB APP</a></td>
 <td align="center"><a href="https://dreamerol.github.io/MIHAELA-KOSEVA-AI/" target="_blank">WEBSITE</a></td>
 <td align="center"><a href="https://github.com/Dreamerol/AI-STUDIO" target="_blank">AI STUDIO</a></td>
 <td align="center"><a href="https://github.com/Dreamerol/PORTFOLIO" target="_blank">PORTFOLIO</a></td>
@@ -40,13 +51,15 @@
 
 ---
 
-## Requirements and Installation
+## 🧰 Requirements and Installation 🛠️
 
 Before getting started, make sure you have:
 
-- **Python 3.11+**
-- **GitHub Personal Access Token** with access to the repositories being synchronized and permission to update them.
-- **Operating-system keyring backend** required for saved accounts.
+- 🐍 **Python 3.11+**
+- 🔑 **GitHub Personal Access Token** with access to the repositories being synchronized and permission to update them.
+- 🔐 **Operating-system keyring backend** required for saved accounts.
+
+No cape required. 🦸
 
 ### Clone the repository
 
@@ -83,7 +96,7 @@ pip install -r requirements.txt
 
 ---
 
-## GitHub Authentication and Saved Accounts
+## 🔐 GitHub Authentication and Saved Accounts
 
 Create a `.env` file in the project root and configure your GitHub token.
 
@@ -231,7 +244,7 @@ python main.py --repo octocat/project-fork
 
 ---
 
-## Web Dashboard
+## 🌐 Web Dashboard
 
 The repository also includes a FastAPI-backed browser dashboard in `api/`, with static assets in `DASHBOARD/` and welcome-page assets in `web/`. It supports Auth Broker sign-in.
 
@@ -417,4 +430,4 @@ Mihaela Koseva · Sofia University · SMG (СМГ) · Sofia · AI Engineer · So
 
 © 2026 Mihaela Koseva (Михаела Косева) · Софийски университет · Original portfolio design.
 
-[Website](https://dreamerol.github.io/MIHAELA-KOSEVA-AI/) · [AI Studio](https://github.com/Dreamerol/AI-STUDIO) · [Portfolio](https://github.com/Dreamerol/PORTFOLIO) · [Repositories](https://github.com/Dreamerol/CARDFOLIO) · [Stats](https://github.com/Dreamerol/ALLSTATS) · [Resume](https://github.com/Dreamerol/RESUME) · [LinkedIn](https://www.linkedin.com/in/mihaela-koseva-software-engineer) · [Contact](https://raw.githubusercontent.com/Dreamerol/Dreamerol/main/MIHAELA_KOSEVA_VIZITKA.jpg) · [GitHub](https://github.com/Dreamerol)
+[📥 GitHub App](https://github.com/apps/dreamerol-sync) · [Website](https://dreamerol.github.io/MIHAELA-KOSEVA-AI/) · [AI Studio](https://github.com/Dreamerol/AI-STUDIO) · [Portfolio](https://github.com/Dreamerol/PORTFOLIO) · [Repositories](https://github.com/Dreamerol/CARDFOLIO) · [Stats](https://github.com/Dreamerol/ALLSTATS) · [Resume](https://github.com/Dreamerol/RESUME) · [LinkedIn](https://www.linkedin.com/in/mihaela-koseva-software-engineer) · [Contact](https://raw.githubusercontent.com/Dreamerol/Dreamerol/main/MIHAELA_KOSEVA_VIZITKA.jpg) · [GitHub](https://github.com/Dreamerol)
