@@ -1,5 +1,14 @@
 # AI Development Changelog
 
+## 2026-11-18 17:55 - Phase 7 release preparation и финален UI
+
+- **Извършена задача:** Финализирана е визуалната група `SYNC CHOSEN` / `SYNC ALL`, извършен е read-only release preparation review и са приложени одобрените document-only корекции.
+- **Променени файлове:** `DASHBOARD/dashboard.css`, `DASHBOARD/index.html`, `tests/test_dashboard_progress.py`, `README.md`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `docs/WORKLOG/LOG_18-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** да се придаде завършен, ясен и поддържан вид на двете sync действия и да се синхронизира документацията с реалното състояние на release кандидата.
+- **Изпълнени тестове:** `.\.venv\Scripts\python.exe -m pytest -q`; `scripts/check.ps1`; `compileall`; `node --check` за `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `web/app.js`; PowerShell Parser; `pip check`; `git diff --check`; smoke стек `scripts/stop-smoke.ps1` + `scripts/start-smoke.ps1 -Force`; headless Chrome/CDP при 1440×1200 и 390×844.
+- **Резултат:** pytest `457 passed` (в `scripts/check.ps1`: `457 passed, 1 warning` – StarletteDeprecationWarning); всички syntax/parse/package checks OK; `git diff --check` exit 0 само с CRLF предупреждения; Broker `/healthz` 200, dashboard `/` 200, `/auth/callback` без state 400, `/api/auth/status` без сесия 401; CDP потвърди цветовете `#C93BFF`/`#10EFA2`, размерите 70/62px, desktop side-by-side и mobile stacked без horizontal overflow. Конзолата показва само очаквани 401 и benign 404 за `favicon.ico`.
+- **Оставащи проблеми:** Няма валидна OAuth сесия и реален GitHub smoke test; GitHub App token expiration Opt-out, callback/wildcard/installation и продукционният access-log redaction трябва да се потвърдят от GitHub UI/инфраструктурата. Остават in-memory сесиите, липсата на отделен CSRF token и cookie Secure зад TLS proxy. Реален Sync, push и промени в GitHub App настройки не са извършвани.
+
 ## 2026-11-13 17:14 - Web dashboard Auth Broker интеграция
 
 - **Извършена задача:** Добавен е server-side Auth Broker login към web dashboard-а, с HTTP-only session cookie, автоматично preview след вход и запазен ръчен PAT fallback.

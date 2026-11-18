@@ -379,7 +379,7 @@ def test_dashboard_syncable_status_label_is_ready_to_sync():
     }
 
 
-def test_dashboard_sync_action_group_has_green_chosen_and_red_all():
+def test_dashboard_sync_action_group_has_purple_chosen_and_green_all():
     out = run_node(
         r"""
         import {readFileSync} from 'node:fs';
@@ -415,8 +415,8 @@ def test_dashboard_sync_action_group_has_green_chosen_and_red_all():
             mobileLetterSpacing: num(mobileMatch[1],'letter-spacing'),
             flexWrap: actionMatch[1].includes('flex-wrap: wrap'),
             mobileFullWidth: mobileMatch[1].includes('flex: 1 1 100%'),
-            green: baseMatch[1].includes('#3BEE7E'),
-            red: allMatch[1].includes('#FF6470'),
+            purple: baseMatch[1].includes('#C93BFF'),
+            green: allMatch[1].includes('#10EFA2'),
             stroke: (titleMatch[1].match(/-webkit-text-stroke:\s*\d+px\s*rgba?\([^)]*\)/) || [''])[0],
             shadowLayers: (shadow.match(/\b0\s+-?\d+px/g) || []).length,
         }));
@@ -426,19 +426,19 @@ def test_dashboard_sync_action_group_has_green_chosen_and_red_all():
         "labels": True,
         "order": True,
         "countElement": True,
-        "desktopFontSize": 32,
-        "desktopIconSize": 32,
-        "fontWeight": 800,
+        "desktopFontSize": 26,
+        "desktopIconSize": 27,
+        "fontWeight": 750,
         "desktopLetterSpacing": 0.1,
-        "mobileFontSize": 26,
-        "mobileIconSize": 28,
+        "mobileFontSize": 22,
+        "mobileIconSize": 24,
         "mobileLetterSpacing": 0.08,
         "flexWrap": True,
         "mobileFullWidth": True,
+        "purple": True,
         "green": True,
-        "red": True,
         "stroke": "",
-        "shadowLayers": 7,
+        "shadowLayers": 1,
     }
 
 

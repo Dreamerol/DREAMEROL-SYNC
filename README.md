@@ -190,7 +190,7 @@ python main.py --account octocat
 
 ## CLI Usage and Synchronization Modes
 
-DREAMEROL SYNC FORK provides two synchronization modes:
+DREAMEROL SYNC provides two synchronization modes:
 
 - **Dry Run** — preview selected repositories without making changes.
 - **Live Sync** — request actual upstream synchronization through GitHub.

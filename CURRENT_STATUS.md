@@ -1,11 +1,19 @@
 # CURRENT_STATUS
 
-## Актуално състояние (2026-11-18 04:02)
+## Актуално състояние (2026-11-18 17:34)
+- **Клон/HEAD:** `feature/github-app-auth @ 857f342`, проверено чрез `git status` и `git rev-parse --short HEAD`. Локални commit-и са правени по-рано (`7fb24b7`, `857f342`), но push няма.
+- **Последна завършена задача:** Phase 7 read-only release preparation review и одобрените document-only корекции. Потвърдени са бутоните `SYNC CHOSEN` (`#C93BFF`, топъл магента-лилав с червен нюанс) и `SYNC ALL` (`#10EFA2`), изборът и диалозите за потвърждение, премахнатото текстово сияние и responsive поведението при 1440×1200 и 390×844. MIT лицензирането е последователно.
+- **Запазване:** Няма промени в auth/OAuth, API, backend, sync логика, counters или Git история. Няма реален Sync, credential rotation, смяна на GitHub App настройки или push. Credentials не са показвани. Локалният commit е одобрен и се създава в тази стъпка.
+- **Тестове:** `.\.venv\Scripts\python.exe -m pytest -q` → `457 passed in 6.13s`; `scripts/check.ps1` → `All checks passed` и pytest `457 passed, 1 warning` (StarletteDeprecationWarning); `compileall`, `node --check` за `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `web/app.js`, PowerShell Parser и `pip check` → OK; `git diff --check` → exit 0, само LF→CRLF предупреждения. Smoke стекът е рестартиран: Broker `/healthz` 200, dashboard `/` 200, `/auth/callback` без state 400, `/api/auth/status` без сесия 401, логовете без runtime грешки. Headless Chrome/CDP: точни цветове/размери/етикети, без horizontal overflow, desktop side-by-side и mobile stacked; конзолата показва само очакваните 401 и benign 404 за `favicon.ico`.
+- **Ограничения / release blockers:** нужен е жив GitHub App smoke test с реални credentials и публичен HTTPS callback; в GitHub UI трябва да се потвърди token expiration Opt-out; cookie `Secure` зад TLS proxy изисква `COOKIE_SECURE=true` или `--proxy-headers`; няма отделен CSRF token; сесиите и Broker транзакциите са in-memory (само един процес); нужно е потвърждение, че продукционният logger redaction покрива callback `code`/`state`.
+- **Следваща стъпка:** потвърждаване на GitHub App настройките и валидна OAuth сесия; read-only preview/smoke проверка само с изрично одобрение; commit/push само след изрично одобрение.
+
+## Предходно състояние (2026-11-18 04:02)
 - **Клон/HEAD:** `feature/github-app-auth @ 629afbb`, проверено чрез `git status` и `git rev-parse`. Няма commit или push.
 - **Последна завършена задача:** Phase 6 release readiness корекции: `LICENSE` е стандартен MIT; премахнати са не-мит лицензионният текст и неподкрепеното твърдение за собственост в `COPYRIGHT.md`; минималната поддържана версия е Python 3.11; CI matrix-ът проверява 3.11 и 3.12, а environment проверката изисква >=3.11; CI проверява `web/app.js`, `DASHBOARD/app.js` и `DASHBOARD/utils.js`; премахнати са подвеждащите PAT fallback инструкции за браузъра.
 - **Запазване:** Всички съществуващи tracked/untracked промени са непокътнати; `.env` не е променян или commit-ван; локалният `.venv` е игнориран от Git.
 - **Зависимости:** Създаден е локален `.venv` без глобални инсталации; `httpx2==2.16.0` е инсталиран и проверен; `pip check` → `No broken requirements found`.
-- **Тестове:** `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` → `453 passed in 5.40s` без warnings; tokenize-aware Python compile на 39 файла → OK; `node --check` за трите JS файла → OK; PowerShell parse → OK; `git diff --check` → само LF→CRLF предупреждения, без whitespace грешки.
+- **Тестове:** `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` → `453 passed in 5.40s` (тогава записано без warnings; по-късно в този файл е отбелязан `StarletteDeprecationWarning`); tokenize-aware Python compile на 39 файла → OK; `node --check` за трите JS файла → OK; PowerShell parse → OK; `git diff --check` → само LF→CRLF предупреждения, без whitespace грешки.
 - **Ограничения:** Няма валидна OAuth сесия; реален callback/permissions/installation, реален Sync, in-memory сесии, липсващ CSRF token и token expiration остават непотвърдени или нерешени. Credentials в `.env` изискват ръчна ротация на `GITHUB_TOKEN` и `GITHUB_APP_CLIENT_SECRET`; стойностите не са показвани.
 - **Следваща стъпка:** Потвърждение на GitHub App настройки и валидна OAuth сесия; commit/push само след изрично одобрение; без реален Sync без одобрение.
 
@@ -25,18 +33,18 @@
 - **Известни ограничения:** Няма валидна OAuth сесия: `/api/auth/status` връща 401, затова реалният avatar URL, авторизираният GabrielRules payload и реалните `36 / 34 / 0 / 2` числа не са потвърдени в браузър. Реален GitHub login/callback, preview и sync не са изпълнени в тази сесия.
 - **Отстоящи въпроси:** GitHub App настройките (callback `http://127.0.0.1:8000/auth/callback`, wildcard off, token expiration opt-out, installation) остават за потвърждение. Uvicorn access log-ът за `/auth/callback` все още може да записва OAuth code/state. Пълният pytest suite и `scripts/check.ps1` не са повторени след последните presentation-only промени.
 
-## Точни следващи стъпки от актуалното състояние
+## Следващи стъпки от състоянието на 2026-11-18 04:02 (запазено)
 1. Ръчна браузърна проверка с валидна OAuth сесия: малък кръгъл avatar, подравняване с username/`Sign out`, `SYNC ALL` без вторичен текст, disabled tooltip/sheen, гравиран текст, `Restoring session...` в status зоната и реални fork counters.
 2. Потвърди GitHub App settings: точен loopback callback, wildcard callback изключен, user-to-server token expiration opt-out и инсталация върху акаунта/организацията с fork-овете.
 3. Изпълни реален smoke test: login → preview на тестов fork → sync само на fork със статус `to be synced` → logout; след това спри услугите.
-4. Преди всякакъв commit: `python -m pytest -q`, `node --check web/app.js`, `scripts/check.ps1` и targeted `git diff --check`; едва след изрично одобрение commit/push.
+4. Преди всякакъв commit: `python -m pytest -q`, `node --check web/app.js`, `node --check DASHBOARD/app.js`, `node --check DASHBOARD/utils.js`, `scripts/check.ps1` и targeted `git diff --check`; едва след изрично одобрение commit/push.
 5. Отделни последващи задачи: redaction на OAuth callback access log, refresh-token support ако expiration не може да се изключи, shared session store за повече workers и CSRF токен при публично exposure.
 
 ## Историческо състояние от 2026-11-15 (запазено, не е актуално)
 - 2026-11-15 03:24: GitHub App callback-ът е преминат от ephemeral Quick Tunnel към фиксиран локален loopback `http://127.0.0.1:8000/auth/callback`; Broker и dashboard слушат само на `127.0.0.1`, а smoke скриптовете вече не стартират cloudflared.
 - Преди това: mock GitHub OAuth E2E тестове, Broker `/healthz` и watchdog (2026-11-14 04:26).
 
-## Текущо състояние
+## Историческо състояние от 2026-11-15 (запазено, не е актуално)
 - Клон: `feature/github-app-auth`; последни commit-и: `23f1226`, `fa4a135`, `629afbb`.
 - `BROKER_CALLBACK_URL` в `.env` е `http://127.0.0.1:8000/auth/callback`; GitHub App credentials са непразни и не са очевидни placeholder стойности, но не са отпечатвани.
 - `auth_broker/config.py` допуска HTTPS навсякъде и HTTP само за loopback hosts (`127.0.0.1`, `::1`, `localhost`); публичен HTTP, LAN IP, `0.0.0.0`, wildcard, query, fragment и userinfo се отхвърлят.
@@ -54,20 +62,20 @@
 - Broker връща `Cache-Control: no-store`, `Pragma: no-cache`, `Referrer-Policy: no-referrer` и `X-Content-Type-Options: nosniff` за `/auth/` отговорите.
 - Mock OAuth E2E тестовете вече използват loopback callback и покриват success, `access_denied` и token exchange failure.
 
-## Незавършени промени
+## Исторически незавършени промени (2026-11-15; виж актуалния checkpoint по-горе)
 - Промените по `auth_broker/config.py`, тестовете, `.env`, скриптовете и документацията са неcommit-нати.
 - Не е извършен реален GitHub login след смяната на callback-а.
 - GitHub App настройките (callback, wildcard, token expiration, installation) не могат да се проверят от repository-то.
 
-## Известни грешки
+## Исторически известни грешки (2026-11-15; част от тях са актуални – виж checkpoint-а по-горе)
 - Има един `StarletteDeprecationWarning` за `httpx`/`starlette.testclient`; тестовете минават.
 - Сесиите са в паметта на един процес и не се споделят между workers.
 - GitHub user-to-server tokens изтичат по подразбиране; `auth_broker/token_policy.py` отхвърля отговори с `expires_in`/`refresh_token`. Ако expiration не е opted out, реален login ще върне Broker `502`.
 - Ако GitHub App callback-ът не е точно loopback URL-ът, login ще върне `redirect_uri_mismatch`.
-- Uvicorn access log-ът на Broker записва пълния `/auth/callback` query string, включително OAuth code/state; нужна е redaction или изключване на access log за този endpoint.
+- Исторически Broker access log-ът записваше пълния `/auth/callback` query string, включително OAuth code/state; в текущия код `auth_broker/app.py` добавя redaction за `uvicorn.access`, но продукционният/proxy logger трябва да се потвърди отделно.
 - Няма поддръжка за отдалечен достъп; за него е нужен стабилен named HTTPS tunnel/proxy.
 
-## Точна следваща стъпка
+## Историческа следваща стъпка (2026-11-15)
 1. В GitHub App settings задай callback `http://127.0.0.1:8000/auth/callback`, изключи wildcard callback matching и потвърди/opt-out на user-to-server token expiration.
 2. Увери се, че GitHub App е инсталиран на акаунта/организацията, която притежава fork-овете.
 3. Пусни `.\scripts\start-smoke.ps1 -Watchdog` и отвори `http://127.0.0.1:8001`.

@@ -1,13 +1,20 @@
 # NEXT_STEPS
 
-## Актуални стъпки (2026-11-18 04:02)
+## Актуални стъпки (2026-11-18 17:34)
+1. Потвърди в GitHub UI: callback `http://127.0.0.1:8000/auth/callback`, wildcard callback matching изключен, user-to-server token expiration Opt-out и инсталация върху акаунта/организацията с fork-овете.
+2. Потвърди продукционния/proxy access log redaction за callback `code`/`state`; за TLS terminating proxy задай `COOKIE_SECURE=true` или `--proxy-headers`.
+3. С валидна OAuth сесия направи само read-only preview проверка; не стартирай реален Sync без изрично одобрение.
+4. Commit/push само след изрично одобрение. Преди това повтори пълния pytest, `node --check` за трите JS файла, `scripts/check.ps1` и `git diff --check`.
+5. Отделни задачи при публично exposure: CSRF token, shared session store за повече workers, refresh-token support само ако expiration не може да се изключи.
+
+## Предходни стъпки (2026-11-18 04:02)
 1. Потвърди в GitHub UI: callback `http://127.0.0.1:8000/auth/callback`, wildcard callback matching изключен, user-to-server token expiration opt-out и инсталация върху акаунта с fork-овете.
 2. Ротирай ръчно `GITHUB_TOKEN` и `GITHUB_APP_CLIENT_SECRET` в `.env` (и GitHub App client secret), без отпечатване, копиране или commit на стойности.
 3. С валидна OAuth сесия направи само read-only preview проверка; не стартирай реален Sync без изрично одобрение.
 4. След одобрение направи commit/push; тестовете вече са изпълнени в локалния `.venv`, но `git diff --check` трябва да се повтори ако има нови промени.
 5. Отделни задачи: shared session store, CSRF token, refresh-token support и изясняване на desktop разположението на repo статусните badges.
 
-## Актуални стъпки (2026-11-17 21:36)
+## Предходни стъпки (2026-11-17 21:36)
 1. Ръчна проверка в браузър с валидна OAuth сесия: потвърди `GabrielRules`, малък кръгъл GitHub аватар (`40px` desktop / `36px` mobile), green indicator, `Sign out` без `Sign in`, `SYNC ALL` като единствен бутон без вторичен текст, `Restoring session...` само в status зоната, Disabled tooltip/sheen и гравиран 3D текст без натиснат вид на бутона.
 2. Потвърди реалните броячи след успешна проверка: `36 / 34 / 0 / 2`; при неуспешни проверки очаквай `CHECK FAILED / UNVERIFIED` и задържане на крайните числа, не погрешно `34 UNSYNCABLE`. Не стартирай реален Sync по време на тази проверка.
 3. В GitHub App settings задай точно `http://127.0.0.1:8000/auth/callback`, изключи wildcard callback matching, потвърди user-to-server token expiration opt-out и инсталацията върху акаунта/организацията с fork-овете.
@@ -31,7 +38,7 @@
 - Uvicorn access log-ът записва пълния `/auth/callback` query string с OAuth code/state; добави redaction или изключи access log за този endpoint, без да логваш token/code/state.
 
 ## Приоритет 2 - Commit и CI
-- Пълният suite е `364 passed, 1 warning`; `node --check web/app.js` и PowerShell parser check минават.
+- Пълният suite тогава е бил `364 passed, 1 warning`; `node --check web/app.js` и PowerShell parser check минават.
 - Commit-ни loopback промените, тестовете, скриптовете и документацията само след изрично одобрение.
 - След push провери Windows и Ubuntu CI job-овете, включително `scripts/check.ps1`.
 
@@ -40,4 +47,4 @@
 - За отдалечен достъп използвай стабилен named HTTPS tunnel/proxy и HTTPS callback; не използвай Quick Tunnel за регистриран callback.
 - Ако dashboard-ът ще се пуска с повече от един worker, добави shared session store.
 - При публично exposure добави CSRF token; v1 разчита на `SameSite=Lax` и POST-only.
-- Подмени остарелия `httpx`/`starlette.testclient` warning с `httpx2` в отделна задача.
+- Вече изпълнено: `httpx2==2.16.0` е инсталиран и проверен с `pip check`.
