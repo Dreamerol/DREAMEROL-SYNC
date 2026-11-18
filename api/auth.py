@@ -157,7 +157,27 @@ class WebAuthManager:
         with self._lock:
             self._cleanup_locked(now)
             session = self._sessions.get(session_id)
-            return session.access_token if session is not None else None
+            if session is None:
+                return None
+            session.expires_at = now + self._ttl_seconds
+            return session.access_token
+
+    def credentials(self, session_id: str | None) -> tuple[str, str | None] | None:
+        """Return the credential and validated account for a live browser session."""
+        if not session_id:
+            return None
+        now = self._clock()
+        with self._lock:
+            self._cleanup_locked(now)
+            session = self._sessions.get(session_id)
+            if (
+                session is None
+                or session.state != AUTHENTICATED
+                or session.access_token is None
+            ):
+                return None
+            session.expires_at = now + self._ttl_seconds
+            return session.access_token, session.account
 
     def logout(self, session_id: str | None) -> None:
         """Discard a browser session and its in-memory credential."""
@@ -175,6 +195,7 @@ class WebAuthManager:
             session = self._sessions.get(session_id)
             if session is None:
                 raise UnknownSession("The web authentication session has expired.")
+            session.expires_at = now + self._ttl_seconds
             return session
 
     def _resolve_account(self, token: str) -> tuple[str, str | None]:

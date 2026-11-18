@@ -2,6 +2,8 @@ from unittest.mock import Mock
 
 import pytest
 from fastapi.testclient import TestClient
+from requests.exceptions import HTTPError
+
 
 from api.app import app
 from api.auth import (
@@ -200,6 +202,32 @@ def test_expired_session_is_discarded():
     assert manager.token(session_id) is None
 
 
+def test_session_expiry_extends_when_session_is_used():
+    now = [1000.0]
+    broker = FakeBroker(
+        poll_results=[
+            AuthPoll(
+                "DELIVERY_AUTHORIZED",
+                access_token="github-token",
+                token_type="bearer",
+            )
+        ]
+    )
+    manager, _ = build_manager(broker, FakeGitHub(), lambda: now[0])
+    session_id, _ = manager.start()
+
+    assert manager.status(session_id)["state"] == "AUTHENTICATED"
+    original_expiry = manager._sessions[session_id].expires_at
+
+    now[0] += manager.ttl_seconds - 1
+    assert manager.credentials(session_id) == ("github-token", "demo-user")
+    assert manager._sessions[session_id].expires_at == now[0] + manager.ttl_seconds
+
+    now[0] += manager.ttl_seconds - 1
+    assert manager.status(session_id)["state"] == "AUTHENTICATED"
+    assert manager._sessions[session_id].expires_at > original_expiry
+
+
 def test_logout_discards_session():
     broker = FakeBroker()
     manager, _ = build_manager(broker, FakeGitHub(), lambda: 1000.0)
@@ -267,6 +295,11 @@ class FakeManager:
     def token(self, session_id):
         if session_id == "browser-session":
             return self.token_value
+        return None
+
+    def credentials(self, session_id):
+        if session_id == "browser-session":
+            return self.token_value, self.status_result.get("account")
         return None
 
     def logout(self, session_id):
@@ -421,6 +454,72 @@ def test_sync_uses_server_side_session_token(web_client, monkeypatch):
     assert tokens == ["session-token"]
     github.session.close.assert_called_once_with()
     assert response.headers["cache-control"] == "no-store"
+
+
+def test_sync_uses_cached_session_account_without_github_user_lookup(
+    web_client, monkeypatch
+):
+    client, manager = web_client
+    client.post("/api/auth/start")
+    manager.status_result = {
+        "state": "AUTHENTICATED",
+        "account": "cached-user",
+        "avatar_url": None,
+    }
+
+    github = Mock()
+    github.session = Mock()
+    github.get_authenticated_user.side_effect = AssertionError("unexpected /user lookup")
+    synchronizer = Mock()
+    synchronizer.preview_all.return_value = []
+    monkeypatch.setattr("api.routes.GitHubClient", lambda token: github)
+    monkeypatch.setattr("api.routes.ForkSynchronizer", lambda client: synchronizer)
+
+    response = client.post("/api/sync", json={"dry_run": True})
+
+    assert response.status_code == 200
+    assert response.json()["account"] == "cached-user"
+    github.get_authenticated_user.assert_not_called()
+    assert f"{SESSION_COOKIE}=browser-session" in response.headers["set-cookie"]
+
+
+def test_sync_401_clears_session_and_cookie(web_client, monkeypatch):
+    client, manager = web_client
+    client.post("/api/auth/start")
+    manager.status_result = {
+        "state": "AUTHENTICATED",
+        "account": "demo-user",
+        "avatar_url": None,
+    }
+
+    github = Mock()
+    github.session = Mock()
+    synchronizer = Mock()
+    synchronizer.get_forks.side_effect = HTTPError(
+        "GitHub returned 401", response=Mock(status_code=401)
+    )
+    monkeypatch.setattr("api.routes.GitHubClient", lambda token: github)
+    monkeypatch.setattr("api.routes.ForkSynchronizer", lambda client: synchronizer)
+
+    response = client.post("/api/sync", json={"dry_run": True, "mode": "list"})
+
+    assert response.status_code == 401
+    assert response.json() == {
+        "state": "REAUTH_REQUIRED",
+        "detail": "The GitHub token is invalid.",
+    }
+    assert manager.logout_sessions == ["browser-session"]
+    assert "Max-Age=0" in response.headers["set-cookie"]
+
+
+def test_auth_status_refreshes_session_cookie(web_client):
+    client, _ = web_client
+    client.post("/api/auth/start")
+
+    response = client.get("/api/auth/status")
+
+    assert response.status_code == 200
+    assert f"{SESSION_COOKIE}=browser-session" in response.headers["set-cookie"]
 
 
 def test_sync_requires_authentication(web_client):

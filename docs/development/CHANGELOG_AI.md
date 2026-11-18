@@ -287,3 +287,30 @@
 - **Резултат:** targeted `23 passed`; пълен pytest `457 passed, 1 warning in 5.71s`; JS syntax OK; `scripts/check.ps1 -SkipTests` → `All checks passed`; `git diff --check` без whitespace грешки (само CRLF предупреждения). CDP проверките за етикети, ред, брояч, 32/26px, еднакви височини, 12px desktop gap, mobile stacking, green/red палитри, 7-слоен текст-сянка, липса на stroke и липса на overflow са `true`. Няма реален Sync, commit или push.
 - **Оставащи проблеми:** Няма валидна OAuth сесия; реалният OAuth поток, read-only preview и реален Sync остават непроверени. Моделът не може визуално да инспектира screenshot-ите; потребителят трябва да потвърди крайния вид на око. `.env`, GitHub App настройките и credentials не са променяни.
 
+## 2026-11-18 20:00 - Минимална поправка на сесията и 403 при `/api/sync`
+
+- **Извършена задача:** Премахнато е излишното `GET /user` при всяко `/api/sync`; използва се вече валидираният акаунт от сесията. Сесията и browser cookie-то се удължават при активност, а GitHub 401 изчиства сървърната сесия/cookie и връща `REAUTH_REQUIRED` чрез структурирана грешка.
+- **Променени файлове:** `api/auth.py`, `api/routes.py`, `tests/test_web_auth.py`, `docs/WORKLOG/LOG_18-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** След валиден OAuth login targeted dry-run за `GabrielRules/TEST` връщаше 403 именно от `GET /user` преди сравнението, въпреки че акаунтът вече е потвърден при login. Целта беше най-малката безопасна промяна без GitHub App настройки, нови credentials или реален Sync.
+- **Изпълнени тестове:** targeted `python -m pytest -q -p no:cacheprovider tests/test_web_auth.py tests/test_api.py`; пълен `python -m pytest -q -p no:cacheprovider`; `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/check.ps1`; `git status`, `git diff --check`, `git diff --stat`.
+- **Резултат:** targeted `72 passed`; пълен pytest `461 passed in 4.62s`; `scripts/check.ps1` → `All checks passed` с `461 passed, 1 warning` (StarletteDeprecationWarning); `git diff --check` → само LF→CRLF предупреждения. Няма commit, push, реален Sync или промяна в GitHub App/credentials.
+- **Оставащи проблеми:** Live ефектът върху 403 не е проверен след промяната — нужен е нов targeted `dry_run:true` през контролирания Chrome. Ако 403 остане при сравнението, следващата стъпка са Installation Access Tokens с App private key, което изисква отделно одобрение.
+
+## 2026-11-18 20:11 - Live потвърждение на поправката за 403
+
+- **Извършена задача:** Рестартиран е smoke стекът с `-Force`, стартиран е контролираният Chrome на CDP порт `9224`, направен е нов OAuth login и е изпълнен само read-only targeted `dry_run:true` за `GabrielRules/TEST`.
+- **Променени файлове:** `docs/WORKLOG/LOG_18-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Да се потвърди на живо, че премахнатото `GET /user` в `/api/sync` е решило 403, наблюдаван след валиден OAuth login.
+- **Изпълнени тестове:** `verify-login.mjs`; `targeted-test-preview.mjs`; `check-test-current-state.mjs`. По-рано в същата задача: targeted pytest `72 passed`, пълен pytest `461 passed`, `scripts/check.ps1` → `All checks passed`.
+- **Резултат:** `/api/auth/status` → `200 AUTHENTICATED` с очакван акаунт; targeted preview → HTTP `200`, `status: behind`, `message: 3 upstream commit(s) available.`, `behind_by: 3`, `ahead_by: 0`. Commit-ите остават `0c82ac0` (original) и `42212b1` (fork). Няма реален Sync, commit, push или GitHub App промени.
+- **Оставащи проблеми:** Реалният Sync (`dry_run:false`) не е изпълван и изисква отделно изрично одобрение. Installation Access Tokens не са нужни за този конкретен 403, но остават опция при future token expiration/401.
+
+## 2026-11-18 20:14 - Реален Sync за GabrielRules/TEST
+
+- **Извършена задача:** След изрично одобрение е изпълнен реален Sync (`dry_run:false`) само за избрания fork `GabrielRules/TEST`, с валидна OAuth сесия.
+- **Променени файлове:** `docs/WORKLOG/LOG_18-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`.
+- **Причина:** Да се потвърди, че поправката в `/api/sync` работи не само за read-only preview, но и за одобрения мутиращ Sync път.
+- **Изпълнени тестове:** `live-sync-test.mjs` (guard за `AUTHENTICATED` + `account === 'GabrielRules'`), `check-test-current-state.mjs`, преглед на `broker.err.log` и `dashboard.err.log`.
+- **Резултат:** API върна HTTP `200`, `status: synced`, `message: Synced 3 upstream commits.`, `behind_by: 3`, `ahead_by: 0`, `last_successful_sync: 2026-11-18T18:13:46Z`. GitHub UI показва fork-а на `0c82ac0` и `This branch is up to date with architectquant/TEST:main.`; originalът остава `0c82ac0`. Няма локален commit, push или GitHub App промени; логовете са без грешки.
+- **Оставащи проблеми:** Локално остават 6 uncommitted файла от поправката и документацията. Commit/push изискват отделно одобрение; допълнителен Sync — само след нов одобрен dry-run.
+

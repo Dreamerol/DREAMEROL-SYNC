@@ -3,7 +3,7 @@ import os
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, model_serializer
-from requests.exceptions import HTTPError, RequestException
+from requests.exceptions import RequestException
 
 from api.auth import (
     SESSION_COOKIE,
@@ -117,11 +117,11 @@ def _set_session_cookie(
     )
 
 
-def _resolve_github_token(
+def _resolve_github_credentials(
     request: Request,
     authorization: str | None,
     manager: WebAuthManager,
-) -> str:
+) -> tuple[str, str | None, str | None]:
     if authorization is not None:
         scheme, separator, token = authorization.partition(" ")
         if scheme.lower() != "bearer" or not separator or not token.strip():
@@ -130,16 +130,24 @@ def _resolve_github_token(
                 detail="Provide a GitHub token using the Bearer authorization scheme.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return token.strip()
+        return token.strip(), None, None
 
-    token = manager.token(request.cookies.get(SESSION_COOKIE))
-    if token is None:
+    session_id = request.cookies.get(SESSION_COOKIE)
+    credentials = manager.credentials(session_id)
+    if credentials is None:
         raise HTTPException(
             status_code=401,
             detail="Sign in through the Auth Broker or provide a GitHub token.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return token
+    token, account = credentials
+    return token, session_id, account
+
+
+def _github_http_status(error: RequestException) -> int | None:
+    response = getattr(error, "response", None)
+    status = getattr(response, "status_code", None)
+    return status if isinstance(status, int) else None
 
 
 @router.post("/auth/start", response_model=AuthStartResponse)
@@ -177,8 +185,11 @@ def web_authentication_status(
     except WebAuthError as error:
         raise HTTPException(status_code=502, detail=str(error)) from None
 
+    session_id = request.cookies.get(SESSION_COOKIE)
     if result["state"] in TERMINAL_STATES:
         response.delete_cookie(SESSION_COOKIE, path="/")
+    elif session_id:
+        _set_session_cookie(response, request, manager, session_id)
     return AuthStatusResponse(**result)
 
 
@@ -210,12 +221,44 @@ def switch_web_authentication(
 def sync_repositories(
     request: SyncRequest,
     http_request: Request,
+    response: Response,
     authorization: str | None = Header(default=None),
     manager: WebAuthManager = Depends(get_web_auth_manager),
     sync_history: SyncHistoryStore = Depends(get_sync_history),
 ):
     """Preview fork status or sync only the explicitly confirmed, lagging forks."""
-    token = _resolve_github_token(http_request, authorization, manager)
+    token, session_id, account = _resolve_github_credentials(
+        http_request, authorization, manager
+    )
+
+    def _github_error(error: RequestException, *, discovery: bool = False) -> JSONResponse:
+        status = _github_http_status(error)
+        if status == 401:
+            if session_id:
+                manager.logout(session_id)
+            error_response = JSONResponse(
+                status_code=401,
+                content={
+                    "state": "REAUTH_REQUIRED",
+                    "detail": "The GitHub token is invalid.",
+                },
+            )
+            error_response.delete_cookie(SESSION_COOKIE, path="/")
+            return error_response
+        if discovery:
+            return JSONResponse(
+                status_code=502,
+                content={"detail": _github_discovery_error(error)},
+            )
+        if status == 403:
+            return JSONResponse(
+                status_code=403,
+                content={"detail": "The GitHub token does not have sufficient permissions."},
+            )
+        return JSONResponse(
+            status_code=502,
+            content={"detail": "Could not reach GitHub."},
+        )
 
     if not request.dry_run:
         if request.confirmation != "SYNC":
@@ -235,24 +278,17 @@ def sync_repositories(
 
     client = GitHubClient(token.strip())
     try:
-        try:
-            user = client.get_authenticated_user()
-        except HTTPError as error:
-            status_code = error.response.status_code if error.response is not None else None
-            if status_code == 401:
-                raise HTTPException(status_code=401, detail="The GitHub token is invalid.") from error
-            if status_code == 403:
-                raise HTTPException(
-                    status_code=403,
-                    detail="The GitHub token does not have sufficient permissions.",
-                ) from error
-            raise HTTPException(status_code=502, detail="GitHub authentication failed.") from error
-        except RequestException as error:
-            raise HTTPException(status_code=502, detail="Could not reach GitHub.") from error
-
-        account = user.get("login") if isinstance(user, dict) else None
         if not isinstance(account, str) or not account.strip():
-            raise HTTPException(status_code=502, detail="GitHub returned an invalid account profile.")
+            try:
+                user = client.get_authenticated_user()
+            except RequestException as error:
+                return _github_error(error)
+            account = user.get("login") if isinstance(user, dict) else None
+            if not isinstance(account, str) or not account.strip():
+                raise HTTPException(status_code=502, detail="GitHub returned an invalid account profile.")
+
+        if session_id:
+            _set_session_cookie(response, http_request, manager, session_id)
 
         def _dedupe_forks_by_name(forks):
             seen = set()
@@ -287,10 +323,7 @@ def sync_repositories(
                 try:
                     current_forks = _dedupe_forks_by_name(synchronizer.get_forks())
                 except RequestException as error:
-                    raise HTTPException(
-                        status_code=502,
-                        detail=_github_discovery_error(error),
-                    ) from error
+                    return _github_error(error, discovery=True)
                 get_last_diagnostics = getattr(synchronizer, "get_last_diagnostics", None)
                 if callable(get_last_diagnostics):
                     candidate = get_last_diagnostics()
@@ -316,10 +349,7 @@ def sync_repositories(
                 try:
                     current_forks = _dedupe_forks_by_name(synchronizer.get_forks())
                 except RequestException as error:
-                    raise HTTPException(
-                        status_code=502,
-                        detail=_github_discovery_error(error),
-                    ) from error
+                    return _github_error(error, discovery=True)
                 forks_by_name = {
                     fork.get("full_name"): fork
                     for fork in current_forks
@@ -342,10 +372,7 @@ def sync_repositories(
             try:
                 current_forks = _dedupe_forks_by_name(synchronizer.get_forks())
             except RequestException as error:
-                raise HTTPException(
-                    status_code=502,
-                    detail=_github_discovery_error(error),
-                ) from error
+                return _github_error(error, discovery=True)
 
             available = {
                 fork.get("full_name")
@@ -411,5 +438,7 @@ def sync_repositories(
             results=enriched,
             diagnostics=diagnostics,
         )
+    except RequestException as error:
+        return _github_error(error)
     finally:
         client.session.close()
