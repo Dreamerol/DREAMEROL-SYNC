@@ -146,7 +146,7 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 <br>
 
 
-
+**[𝗗𝗥𝗘𝗔𝗠𝗘𝗥𝗢𝗟 𝗦𝗬𝗡𝗖](https://github.com/apps/dreamerol-sync?utm_source=chatgpt.com) - [DOWNLOAD](https://github.com/apps/dreamerol-sync)**
 
 
 <h1 align="center">
