@@ -1,4 +1,4 @@
-<div align="center">
+=<div align="center">
 
 <a href="https://github.com/apps/dreamerol-sync">
   <img
@@ -159,6 +159,7 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
+<br>
 <br>
 
 
