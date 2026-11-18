@@ -149,10 +149,6 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 </h1>
 
 
-<h1 align="center">
-<span style="font-size:1.55em;"></span><br>
-<span style="font-size:1.4em;"><a href="https://github.com/apps/dreamerol-sync">𝗚𝗜𝗧𝗛𝗨𝗕 𝗔𝗣𝗣</a></span>
-</h1>
 
 
 <br>
