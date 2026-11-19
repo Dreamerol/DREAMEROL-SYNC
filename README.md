@@ -176,6 +176,11 @@ No blind merges. No hidden actions. Just a more thoughtful way to keep your open
 
 
 
+
+---
+
+
+
 ### ⚡ Keep your GitHub forks synchronized effortlessly.
 
 A Python command-line tool that automatically discovers GitHub forks owned by an authenticated account and requests upstream synchronization through the official GitHub API.
