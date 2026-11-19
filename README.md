@@ -2,6 +2,8 @@
 
 
 
+
+
 <div align="center">
 
 <a href="https://github.com/Dreamerol">
@@ -18,6 +20,10 @@
 
 
 
+
+
+
+<br>
 
 <br>
 
@@ -109,7 +115,7 @@
 
 
 
-
+<br>
 <br>
 
 
@@ -134,6 +140,9 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
+
+
+<br>
 <br>
 
 
@@ -151,28 +160,11 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 <br>
+
+ 
 <br>
 
 
-
-## 🌙 About DREAMEROL SYNC
-
-Open-source projects are always moving. A fork that was perfectly in sync yesterday can quietly fall behind tomorrow — and keeping track of every repository, account, and upstream change can become a task of its own.
-
-**DREAMEROL SYNC was created to make that work simpler.**
-
-Built with Python and the GitHub API, it discovers eligible forks across authenticated accounts, previews their status, and requests upstream synchronization when it is safe to do so.
-
-From a straightforward CLI to a browser-based dashboard, every part of the workflow is designed around clarity, control, and secure authentication.
-
-No blind merges. No hidden actions. Just a more thoughtful way to keep your open-source work connected.
-
-**DREAMEROL SYNC — Keep your forks close to their source, and your workflow moving forward.**
-
-
-
-
----
 
 
 
@@ -366,10 +358,6 @@ You can also use the built-in saved account manager described below.
 > Never share your credentials or commit your `.env` file.
 > The `.env` file is ignored by Git.
 
-
----
-
-
 ### ➕ Add an account
 
 ```bash
@@ -377,10 +365,6 @@ python main.py --add-account
 ```
 
 Tokens are entered without echo and securely stored using your operating system's keyring.
-
-
----
-
 
 ### 🔑 Sign in through the Auth Broker
 
@@ -396,15 +380,9 @@ python main.py --login --broker-url https://broker.example.com
 
 The CLI keeps the polling secret in memory, displays the Broker-generated GitHub authorization URL, stores the returned credential in the system keyring, and acknowledges the credential only after storage succeeds. If keyring storage fails, the CLI does not acknowledge the credential and offers a safe retry while the transaction remains valid.
 
----
-
-
 ### 🚀 Deploy the Auth Broker
 
 The Broker is the FastAPI application in `auth_broker/`. Configure the GitHub App client and callback URL:
-
-<br>
-
 
 | Variable | Required | Description |
 |:---|:---|:---|
@@ -412,10 +390,6 @@ The Broker is the FastAPI application in `auth_broker/`. Configure the GitHub Ap
 | `GITHUB_APP_CLIENT_SECRET` | Yes | GitHub App client secret. |
 | `BROKER_CALLBACK_URL` | Yes | Fixed callback URL. Local default: `http://127.0.0.1:8000/auth/callback`; remote deployments must use HTTPS. |
 | `BROKER_REQUEST_TIMEOUT` | No | GitHub token-exchange timeout in seconds. Default: `30`. |
-
-
-<br>
-
 
 Run the Broker with:
 
@@ -429,10 +403,6 @@ When started through the factory without an explicit configuration, the Broker l
 
 Rate limits are enabled by default and stored in memory per process:
 
-
-<br>
-
-
 | Variable | Default |
 |:---|:---|
 | `BROKER_RATE_LIMIT_ENABLED` | `true` |
@@ -445,19 +415,11 @@ Rate limits are enabled by default and stored in memory per process:
 | `BROKER_RATE_LIMIT_ACK_PER_TRANSACTION` | `10` |
 | `BROKER_RATE_LIMIT_FAILURES_PER_IP` | `30` |
 
-
-<br>
-
-
 Blocked requests receive `429 Too Many Requests` with a `Retry-After` header; the browser callback returns an HTML `429` page. Invalid polling secrets and callback state/code values count toward `BROKER_RATE_LIMIT_FAILURES_PER_IP`; poll and ACK also have per-transaction limits.
 
 Set `BROKER_TRUSTED_PROXIES` to a comma-separated list of reverse-proxy IPs or CIDRs that are allowed to supply `X-Forwarded-For`. Leave it empty when clients connect directly. When configured, the Broker uses the rightmost untrusted forwarded address for per-IP limits.
 
 Rate-limit counters are local to each process and are not shared between workers. Adjust the limits for shared NAT environments, or deploy a shared limiter if strict global limits are required.
-
-
----
-
 
 ### 📋 List saved accounts
 
@@ -465,26 +427,17 @@ Rate-limit counters are local to each process and are not shared between workers
 python main.py --list-accounts
 ```
 
-
----
-
-
 ### 🔍 Preview account repositories
 
 ```bash
 python main.py --dry-run --account octocat
 ```
 
----
-
-
 ### ⚡ Synchronize an account
 
 ```bash
 python main.py --account octocat
 ```
-
----
 
 ### 💡 Account selection
 
@@ -521,10 +474,6 @@ Select multiple forks by repeating `--repo`:
 python main.py --dry-run --repo octocat/project-fork --repo octocat/another-fork
 ```
 
-
----
-
-
 ### ⚡ Live synchronization
 
 To perform an actual synchronization, simply omit `--dry-run`.
@@ -538,7 +487,6 @@ Or synchronize a specific repository:
 ```bash
 python main.py --repo octocat/project-fork
 ```
-
 
 ---
 
@@ -565,10 +513,6 @@ The dashboard shows fork-only counters — `TOTAL FORKS`, `UP TO DATE`, `TO BE S
 
 > Web sessions and credentials are stored in process memory for 10 minutes, are lost when the API restarts, and are not shared between multiple workers. Run a single API worker, or add shared session storage before scaling horizontally.
 
-
----
-
-
 ### 🧪 One-command local smoke test (Windows)
 
 ```powershell
@@ -582,10 +526,6 @@ With `-Watchdog`, `start-smoke.ps1` also starts `watch-smoke.ps1`. The watchdog 
 
 Set `GITHUB_APP_CLIENT_ID` and `GITHUB_APP_CLIENT_SECRET` in `.env` before the real login.
 
-
----
-
-
 #### GitHub App installation requirements
 
 1. **Callback URL:** set once to `http://127.0.0.1:8000/auth/callback` (local default). Disable wildcard callback matching.
@@ -593,10 +533,6 @@ Set `GITHUB_APP_CLIENT_ID` and `GITHUB_APP_CLIENT_SECRET` in `.env` before the r
 3. **Repository permissions:** grant **Contents: Read and write** and **Metadata: Read-only** required for preview and `merge-upstream` sync.
 4. **Installation/account access:** install the app on the account/organization that owns the forks and grant access to the repositories, all or selected, you intend to sync. The signed-in user must have write access to each fork; diverged forks are never auto-synced.
 5. **Network:** leave `BROKER_TRUSTED_PROXIES` empty for direct loopback access; configure it only behind a trusted reverse proxy.
-
-
----
-
 
 #### When re-authorization is required
 
@@ -620,9 +556,6 @@ Each repository receives a status describing the synchronization result.
 | ⚠️ `conflict` | GitHub reported a synchronization conflict (HTTP 409). |
 | ❌ `error` | Repository data was invalid or an API request failed. |
 
----
-
-
 > 📌 Exit status
 >
 > The CLI exits with a non-zero status if any repository reports `error` or `conflict`.
@@ -641,8 +574,8 @@ Repository filters match the exact `owner/repository` name among forks belonging
 
 
 
----
 
+---
 
 ## 🧪 Tests and Project Structure
 
@@ -676,9 +609,6 @@ DREAMEROL-SYNC/
 └── README.md
 ```
 
----
-
-
 ### 🧩 Core Components
 
 | File | Description |
@@ -695,8 +625,6 @@ DREAMEROL-SYNC/
 | `scripts/` | Local checks, smoke test startup/shutdown and watchdog. |
 | `backend/github_client.py` | Legacy GitHub client kept for compatibility tests. |
 | `tests/` | Automated test suite. |
-
-
 
 ---
 
@@ -735,7 +663,7 @@ Synchronize your forks. Simplify your workflow.
 
 
 
-<br>
+<br><br>
 
 
 
@@ -861,5 +789,6 @@ alt="Mihaela Koseva (Михаела Косева), Sofia University (Софий�
 
 
 <br><br><br>
+
 
 
