@@ -5,7 +5,7 @@
 
 <div align="center">
 
-<a href="https://github.com/apps/dreamerol-sync">
+<a href="https://github.com/Dreamerol">
   <img
     src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/2f8a8a9df20d90363b9a46c718a970013ee7b8e8/assets/dreamerol-sync-hero.png"
     width="100%"
@@ -122,7 +122,7 @@
 
 <div align="center">
 
-<a href="https://github.com/Dreamerol/CARDFOLIO">
+<a href="https://github.com/Dreamerol">
 
 <img
 src="https://raw.githubusercontent.com/Dreamerol/Dreamerol/main/mihaela%20koseva-PYTHON-22.jpg"
@@ -149,7 +149,7 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 <h1 align="center">
-  🌙 <a href="https://github.com/apps/dreamerol-sync"
+  🌙 <a href="https://github.com/Dreamerol"
      title="GitHub Fork Synchronization Center — DREAMEROL SYNC">
     <b>𝗗𝗥𝗘𝗔𝗠𝗘𝗥𝗢𝗟 𝗦𝗬𝗡𝗖</b>
   </a>
