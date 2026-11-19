@@ -470,46 +470,15 @@ The tests use fakes for GitHub API calls and the system keyring.
 DREAMEROL-SYNC/
 ├── main.py
 ├── fork_sync/
-│   ├── accounts.py
-│   ├── github.py
-│   └── synchronizer.py
 ├── auth_broker/
-│   ├── app.py
-│   ├── client.py
-│   ├── config.py
-│   ├── oauth.py
-│   ├── rate_limit.py
-│   ├── routes.py
-│   ├── security.py
-│   ├── token_policy.py
-│   └── transactions.py
 ├── api/
-│   ├── app.py
-│   ├── auth.py
-│   ├── routes.py
-│   └── sync_history.py
 ├── DASHBOARD/
-│   ├── app.js
-│   ├── dashboard.css
-│   ├── index.html
-│   └── utils.js
 ├── web/
-│   ├── index.html
-│   ├── app.js
-│   └── style.css
 ├── backend/
-│   └── github_client.py
 ├── tests/
-│   └── test_*.py
 ├── docs/
-│   ├── GITHUB_APP_AUTH_SPEC.md
-│   └── WORKLOG/
 ├── scripts/
-│   ├── check.ps1
-│   ├── start-smoke.ps1
-│   ├── stop-smoke.ps1
-│   └── watch-smoke.ps1
-├── .github/workflows/tests.yml
+├── .github/
 ├── requirements.txt
 ├── LICENSE
 └── README.md
