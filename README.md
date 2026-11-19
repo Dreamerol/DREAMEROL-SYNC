@@ -178,7 +178,22 @@ Designed to make fork management easier, faster and more convenient. 🧩⚡
 
 ## 🖥️ Application Screenshots
 
-![Dashboard] [assets/screenshots/dashboard.png](https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/e1a60ae99746c1a464849bda1ae1f6d82e1b6a7e/assets/SCREENSHOT1.png)
+
+
+
+<div align="center">
+
+<a href="https://github.com/apps/dreamerol-sync">
+  <img
+    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/e1a60ae99746c1a464849bda1ae1f6d82e1b6a7e/assets/SCREENSHOT1.png"
+    width="100%"
+    alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
+  />
+</a>
+
+</div>
+
+
 
 ![GitHub Authentication](assets/screenshots/authentication.png)
 
