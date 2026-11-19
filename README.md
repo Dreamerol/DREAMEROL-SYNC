@@ -171,7 +171,23 @@ Designed to make fork management easier, faster and more convenient. 🧩⚡
 
 > 💜 Simple workflow. Secure authentication. Reliable synchronization. And a tiny bit of magic ✨.
 
+
 ---
+
+
+
+## 🖥️ Application Screenshots
+
+![Dashboard](assets/screenshots/dashboard.png)
+
+![GitHub Authentication](assets/screenshots/authentication.png)
+
+![Synchronization Results](assets/screenshots/sync-results.png)
+
+
+
+---
+
 
 ## ✨ Requirements
 
