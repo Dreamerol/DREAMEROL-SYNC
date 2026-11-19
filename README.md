@@ -231,6 +231,90 @@ pip install -r requirements.txt
 
 ---
 
+
+
+
+
+
+
+
+
+
+
+
+## 🖥️ Application Screenshots
+
+
+
+
+<div align="center">
+
+<a href="https://github.com/apps/dreamerol-sync">
+  <img
+    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/e1a60ae99746c1a464849bda1ae1f6d82e1b6a7e/assets/SCREENSHOT1.png"
+    width="100%"
+    alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
+  />
+</a>
+
+</div>
+
+
+
+
+<br>
+
+
+
+
+<div align="center">
+
+<a href="https://github.com/apps/dreamerol-sync">
+  <img
+    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/8afeb5b942c36bf9e8ff1f53b4381569d24f4ae6/assets/SCREENSHOT3.png"
+    width="100%"
+    alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
+  />
+</a>
+
+</div>
+
+
+
+
+<br>
+
+
+
+
+
+<div align="center">
+
+<a href="https://github.com/apps/dreamerol-sync">
+  <img
+    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/e1a60ae99746c1a464849bda1ae1f6d82e1b6a7e/assets/SCREENSHOT1.png"
+    width="100%"
+    alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
+  />
+</a>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
 ## 🔐 GitHub Authentication and Saved Accounts
 
 Create a `.env` file in the project root and configure your GitHub token.
@@ -458,74 +542,6 @@ SYNC
 Only the exact confirmation `SYNC` allows the operation to continue. Any other input cancels the run. There is intentionally no confirmation-bypass flag.
 
 Repository filters match the exact `owner/repository` name among forks belonging to the selected account. A repository that does not match is reported as an error rather than silently ignored.
-
-
----
-
-
-
-
-
-
-
-## 🖥️ Application Screenshots
-
-
-
-
-<div align="center">
-
-<a href="https://github.com/apps/dreamerol-sync">
-  <img
-    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/e1a60ae99746c1a464849bda1ae1f6d82e1b6a7e/assets/SCREENSHOT1.png"
-    width="100%"
-    alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
-  />
-</a>
-
-</div>
-
-
-
-
-<br>
-
-
-
-
-<div align="center">
-
-<a href="https://github.com/apps/dreamerol-sync">
-  <img
-    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/e1a60ae99746c1a464849bda1ae1f6d82e1b6a7e/assets/SCREENSHOT1.png"
-    width="100%"
-    alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
-  />
-</a>
-
-</div>
-
-
-
-
-<br>
-
-
-<div align="center">
-
-<a href="https://github.com/apps/dreamerol-sync">
-  <img
-    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/8afeb5b942c36bf9e8ff1f53b4381569d24f4ae6/assets/SCREENSHOT3.png"
-    width="100%"
-    alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
-  />
-</a>
-
-</div>
-
-
-
-
 
 
 
