@@ -511,7 +511,7 @@ Repository filters match the exact `owner/repository` name among forks belonging
 
 <a href="https://github.com/apps/dreamerol-sync">
   <img
-    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/e1a60ae99746c1a464849bda1ae1f6d82e1b6a7e/assets/SCREENSHOT1.png"
+    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/8730beb4f90ce904f378eecf97d98a769bc1f13c/assets/SCREENSHOT2.png"
     width="100%"
     alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
   />
