@@ -404,12 +404,19 @@ The CLI keeps the polling secret in memory, displays the Broker-generated GitHub
 
 The Broker is the FastAPI application in `auth_broker/`. Configure the GitHub App client and callback URL:
 
+<br>
+
+
 | Variable | Required | Description |
 |:---|:---|:---|
 | `GITHUB_APP_CLIENT_ID` | Yes | GitHub App client ID. |
 | `GITHUB_APP_CLIENT_SECRET` | Yes | GitHub App client secret. |
 | `BROKER_CALLBACK_URL` | Yes | Fixed callback URL. Local default: `http://127.0.0.1:8000/auth/callback`; remote deployments must use HTTPS. |
 | `BROKER_REQUEST_TIMEOUT` | No | GitHub token-exchange timeout in seconds. Default: `30`. |
+
+
+<br>
+
 
 Run the Broker with:
 
@@ -423,6 +430,10 @@ When started through the factory without an explicit configuration, the Broker l
 
 Rate limits are enabled by default and stored in memory per process:
 
+
+<br>
+
+
 | Variable | Default |
 |:---|:---|
 | `BROKER_RATE_LIMIT_ENABLED` | `true` |
@@ -434,6 +445,10 @@ Rate limits are enabled by default and stored in memory per process:
 | `BROKER_RATE_LIMIT_ACK_PER_IP` | `60` |
 | `BROKER_RATE_LIMIT_ACK_PER_TRANSACTION` | `10` |
 | `BROKER_RATE_LIMIT_FAILURES_PER_IP` | `30` |
+
+
+<br>
+
 
 Blocked requests receive `429 Too Many Requests` with a `Retry-After` header; the browser callback returns an HTML `429` page. Invalid polling secrets and callback state/code values count toward `BROKER_RATE_LIMIT_FAILURES_PER_IP`; poll and ACK also have per-transaction limits.
 
