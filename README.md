@@ -178,7 +178,7 @@ Designed to make fork management easier, faster and more convenient. 🧩⚡
 
 ## 🖥️ Application Screenshots
 
-![Dashboard](assets/screenshots/dashboard.png)
+![Dashboard] [assets/screenshots/dashboard.png](https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/e1a60ae99746c1a464849bda1ae1f6d82e1b6a7e/assets/SCREENSHOT1.png)
 
 ![GitHub Authentication](assets/screenshots/authentication.png)
 
