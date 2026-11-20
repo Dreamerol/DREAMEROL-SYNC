@@ -1,4 +1,4 @@
-
+=
 
 
 
@@ -682,7 +682,7 @@ Synchronize your forks. Simplify your workflow.
 
 
 
-<h2 align="center">⭐ Explore repos & star what you find interesting.</h2>
+<h2 align="center">⭐ Explore repos & star what you find interesting</h2>
 
 
 
