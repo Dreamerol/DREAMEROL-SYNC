@@ -671,7 +671,7 @@ Synchronize your forks. Simplify your workflow.
 
 
 <br>
-<br>
+
 
 
 
@@ -714,7 +714,7 @@ Mihaela Koseva • Sofia University • SMG (СМГ) • Sofia • AI Engineer �
 
 
 
-<br><br>
+<br><br><br>
 
 
 
