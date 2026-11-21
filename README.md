@@ -195,7 +195,7 @@ Open the project in VS Code, launch your personal AI assistant (GitHub Copilot, 
 
 ---
 
-## 📦 Installation
+## 📦 Installation (without AI assitent)
 
 ### 1. Clone the repository
 
