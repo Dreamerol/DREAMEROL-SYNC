@@ -129,7 +129,7 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
-<br><br>
+<br>
 
 
 
@@ -168,7 +168,13 @@ Before getting started, make sure you have:
 - 🔧 **Git**
 - 🐍 **Python 3.11+**
 
+
+
 ---
+
+
+<br>
+
 
 ## 🚀 Quick Start (with an AI Assistant)
 **1. Install the GitHub App** - Download [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
