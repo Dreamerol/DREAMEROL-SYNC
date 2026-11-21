@@ -179,15 +179,17 @@ Designed to make fork management easier, faster and more convenient. 🧩⚡
 ---
 
 
-## ✨ Requirements
+🐍 **Python 3.11+**
 
-Before getting started, make sure you have:
+Quick Start (with AI assitent)
+1. Download the GitHub App
+Get it from the [GitHub App link].
 
-- 🐍 **Python 3.11+**
-- 🔑 **GitHub Personal Access Token** with access to the repositories being synchronized and permission to update them.
-- 🔐 **Operating-system keyring backend** required for saved accounts.
+2. Clone the project
+Copy DREAMEROL SYNC to your local computer.
 
-No cape required. 🦸
+3. Open and enjoy!
+Open the project in VS Code, launch your personal AI assistant (GitHub Copilot, Claude Code, OpenCode, or another), and ask it to open DREAMEROL SYNC in your browser.
 
 
 
