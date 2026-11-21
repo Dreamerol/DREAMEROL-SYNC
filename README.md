@@ -144,16 +144,6 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
-
-<h1 align="center">
-  🌙 <a href="https://github.com/Dreamerol"
-     title="GitHub Fork Synchronization Center — DREAMEROL SYNC">
-    <b>𝗗𝗥𝗘𝗔𝗠𝗘𝗥𝗢𝗟 𝗦𝗬𝗡𝗖</b>
-  </a>
-</h1>
-
-
-
 <div align="center">
 
 <a href="https://github.com/apps/dreamerol-sync">
@@ -166,6 +156,16 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 </div>
 
+
+
+
+
+<h1 align="center">
+  🌙 <a href="https://github.com/Dreamerol"
+     title="GitHub Fork Synchronization Center — DREAMEROL SYNC">
+    <b>𝗗𝗥𝗘𝗔𝗠𝗘𝗥𝗢𝗟 𝗦𝗬𝗡𝗖 - DOWNLOAD</b>
+  </a>
+</h1>
 
 
 
