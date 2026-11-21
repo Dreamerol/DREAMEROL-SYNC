@@ -192,7 +192,8 @@ Before getting started, make sure you have:
 
 **2. Clone the project** - Download DREAMEROL SYNC to your local computer.
 
-**3. Open and enjoy the app! 🎉** - Open the project in VS Code, launch your personal AI assistant (Copilot, Claude Code, OpenCode, or other), and ask it to open DREAMEROL SYNC in your browser. 
+**3. Open and enjoy the app! 🎉** - Open the project in VS Code, launch your personal AI assistant<br>
+(Copilot, Claude Code, OpenCode, or other), and ask it to open DREAMEROL SYNC in your browser. 
 
 
 
