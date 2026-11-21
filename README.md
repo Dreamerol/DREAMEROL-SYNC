@@ -205,7 +205,8 @@ Before getting started, make sure you have:
 
 
 
----
+<br>
+
 
 
 ## 📦 Installation (without AI assitent)
@@ -243,14 +244,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
----
 
 
 
 
 
 
-
+<br>
 
 
 
@@ -288,11 +288,8 @@ pip install -r requirements.txt
 
 
 
-<br>
+<br><br><br>
 
-<br>
-
-<br>
 
 
 
@@ -339,19 +336,11 @@ pip install -r requirements.txt
 
 
 <br>
+<br>
 
 
 
 
-
-
-
-
-
-
-
-
----
 
 ## 🔐 GitHub Authentication and Saved Accounts
 
@@ -414,6 +403,10 @@ When started through the factory without an explicit configuration, the Broker l
 
 Rate limits are enabled by default and stored in memory per process:
 
+
+<br>
+
+
 | Variable | Default |
 |:---|:---|
 | `BROKER_RATE_LIMIT_ENABLED` | `true` |
@@ -426,6 +419,10 @@ Rate limits are enabled by default and stored in memory per process:
 | `BROKER_RATE_LIMIT_ACK_PER_TRANSACTION` | `10` |
 | `BROKER_RATE_LIMIT_FAILURES_PER_IP` | `30` |
 
+
+<br>
+
+
 Blocked requests receive `429 Too Many Requests` with a `Retry-After` header; the browser callback returns an HTML `429` page. Invalid polling secrets and callback state/code values count toward `BROKER_RATE_LIMIT_FAILURES_PER_IP`; poll and ACK also have per-transaction limits.
 
 Set `BROKER_TRUSTED_PROXIES` to a comma-separated list of reverse-proxy IPs or CIDRs that are allowed to supply `X-Forwarded-For`. Leave it empty when clients connect directly. When configured, the Broker uses the rightmost untrusted forwarded address for per-IP limits.
@@ -434,9 +431,7 @@ Rate-limit counters are local to each process and are not shared between workers
 
 
 
-
-
----
+<br>
 
 
 
@@ -466,7 +461,7 @@ python main.py --account octocat
 
 
 
----
+<br>
 
 
 
@@ -511,7 +506,11 @@ Or synchronize a specific repository:
 python main.py --repo octocat/project-fork
 ```
 
----
+
+
+<br>
+
+
 
 ## 🌐 Web Dashboard
 
@@ -563,7 +562,11 @@ Set `GITHUB_APP_CLIENT_ID` and `GITHUB_APP_CLIENT_SECRET` in `.env` before the r
 - Re-authorize after installing the app on another account/organization or changing repository access, for example adding forks or switching from selected repositories to include the target fork.
 - If sync returns `HTTP 403` / `Resource not accessible by integration`, verify installation and **Contents: Read and write** access for that specific fork/profile, then re-authorize and retry on one safe `behind` repository.
 
----
+
+
+<br>
+
+
 
 ## 📊 Synchronization Results and Safety
 
@@ -596,9 +599,10 @@ Repository filters match the exact `owner/repository` name among forks belonging
 
 
 
+<br>
 
 
----
+
 
 ## 🧪 Tests and Project Structure
 
@@ -632,6 +636,10 @@ DREAMEROL-SYNC/
 └── README.md
 ```
 
+
+<br>
+
+
 ### 🧩 Core Components
 
 | File | Description |
@@ -649,7 +657,12 @@ DREAMEROL-SYNC/
 | `backend/github_client.py` | Legacy GitHub client kept for compatibility tests. |
 | `tests/` | Automated test suite. |
 
----
+
+
+
+<br>
+
+
 
 ## 📌 Dependency Reproducibility
 
@@ -659,7 +672,10 @@ It is not a complete transitive lockfile.
 
 For byte-for-byte reproducible environments, generate and commit a platform-aware lockfile, for example using `pip-compile --generate-hashes`, after resolving dependencies for the supported Python and platform matrix.
 
----
+
+
+<br>
+
 
 ## 📜 License and author information
 
@@ -671,7 +687,9 @@ Made by Dreamerol.
 
 Synchronize your forks. Simplify your workflow.
 
----
+
+<br>
+
 
 ## 💜 DREAMEROL
 
@@ -681,10 +699,10 @@ Made with ❤️ by Dreamerol.
 
 Synchronize your forks. Simplify your workflow.
 
----
 
 
 
+<br>
 
 <br>
 
