@@ -188,9 +188,8 @@ Before getting started, make sure you have:
 ---
 
 ## 🚀 Quick Start (with an AI Assistant)
-**1. Install the GitHub App**
-
-Install [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
+**1. Install the GitHub App** 
+Download [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
 
 **2. Clone the project**
 Clone DREAMEROL SYNC to your local computer.
