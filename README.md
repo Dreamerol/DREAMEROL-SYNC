@@ -207,10 +207,6 @@ Before getting started, make sure you have:
 
 
 
-<br>
-
-
-
 ## 📦 Installation (without AI assitent)
 
 ### 1. Clone the repository
