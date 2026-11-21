@@ -196,7 +196,7 @@ Before getting started, make sure you have:
 
 
 
-<div align="center">
+<div align="left">
 
 <a href="https://github.com/apps/dreamerol-sync">
   <img
