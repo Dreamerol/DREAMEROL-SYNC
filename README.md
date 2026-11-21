@@ -157,7 +157,9 @@ Designed to make fork management easier, faster and more convenient. 🧩⚡
 
 
 
----
+
+<br>
+
 
 
 ## ✨ Requirements
@@ -170,7 +172,6 @@ Before getting started, make sure you have:
 
 
 
----
 
 
 <br>
