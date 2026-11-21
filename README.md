@@ -189,11 +189,6 @@ Before getting started, make sure you have:
 
 
 
-<br>
-<br>
-
-
-
 
 
 <div align="left">
@@ -211,9 +206,6 @@ Before getting started, make sure you have:
 
 
 
-
-<br>
-<br>
 
 
 
