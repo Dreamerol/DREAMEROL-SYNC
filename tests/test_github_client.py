@@ -5,6 +5,7 @@ import pytest
 import requests
 
 from backend.github_client import GitHubClient
+from fork_sync import github as fork_github_module
 from fork_sync.github import GitHubClient as ForkGitHubClient
 
 
@@ -224,3 +225,76 @@ def test_merge_upstream_uses_correct_endpoint(fork_sync_client):
         "/repos/octocat/demo-fork/merge-upstream",
         json={"branch": "master"},
     )
+
+
+def _retryable_http_error(status_code, retry_after="0"):
+    response = Mock(status_code=status_code)
+    response.headers = {"Retry-After": retry_after}
+    response.json.return_value = {}
+    response.text = "Retryable response"
+    return requests.HTTPError(f"HTTP {status_code}", response=response)
+
+
+def _successful_response(payload):
+    response = Mock(status_code=200)
+    response.content = b"payload"
+    response.json.return_value = payload
+    return response
+
+
+def test_fork_client_retries_get_5xx(fork_sync_client, monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(fork_github_module.time, "sleep", sleeps.append)
+    failing = Mock()
+    failing.raise_for_status.side_effect = _retryable_http_error(503)
+    fork_sync_client.session.request.side_effect = [failing, _successful_response({"ok": True})]
+
+    result = fork_sync_client._request("GET", "/retry")
+
+    assert result == {"ok": True}
+    assert fork_sync_client.session.request.call_count == 2
+    assert sleeps == [0.5]
+
+
+def test_fork_client_honors_retry_after_for_get_429(fork_sync_client, monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(fork_github_module.time, "sleep", sleeps.append)
+    failing = Mock()
+    failing.raise_for_status.side_effect = _retryable_http_error(429, "2")
+    fork_sync_client.session.request.side_effect = [failing, _successful_response({"ok": True})]
+
+    result = fork_sync_client._request("GET", "/rate-limited")
+
+    assert result == {"ok": True}
+    assert sleeps == [2.0]
+
+
+def test_fork_client_stops_after_three_failed_gets(fork_sync_client, monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(fork_github_module.time, "sleep", sleeps.append)
+    failures = []
+    for _ in range(3):
+        failure = Mock()
+        failure.raise_for_status.side_effect = _retryable_http_error(502)
+        failures.append(failure)
+    fork_sync_client.session.request.side_effect = failures
+
+    with pytest.raises(requests.HTTPError):
+        fork_sync_client._request("GET", "/always-fails")
+
+    assert fork_sync_client.session.request.call_count == 3
+    assert sleeps == [0.5, 1.0]
+
+
+def test_fork_client_does_not_retry_post_5xx(fork_sync_client, monkeypatch):
+    sleeps = []
+    monkeypatch.setattr(fork_github_module.time, "sleep", sleeps.append)
+    failing = Mock()
+    failing.raise_for_status.side_effect = _retryable_http_error(503)
+    fork_sync_client.session.request.return_value = failing
+
+    with pytest.raises(requests.HTTPError):
+        fork_sync_client._request("POST", "/merge", json={"branch": "main"})
+
+    assert fork_sync_client.session.request.call_count == 1
+    assert sleeps == []

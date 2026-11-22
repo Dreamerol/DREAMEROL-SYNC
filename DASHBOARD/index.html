@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#07090d">
+    <title>DREAMEROL SYNC - Dashboard</title>
+    <link rel="stylesheet" href="/dashboard/static/dashboard.css?v=20261122s">
+    <script type="module" src="/dashboard/static/theme_guard.js?v=20261121a"></script>
+</head>
+<body>
+    <main class="dashboard">
+        <nav class="top-strip" aria-label="Dashboard navigation">
+            <div class="brand" aria-label="GITHUB SYNC CENTER — by DREAMEROL">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-primary">GITHUB SYNC CENTER</span>
+                <span class="brand-separator" aria-hidden="true">—</span>
+                <a class="brand-secondary" href="https://github.com/Dreamerol/" target="_blank" rel="noopener noreferrer">by DREAMEROL</a>
+            </div>
+
+            <div class="account-row">
+                <div class="account-block">
+                    <img id="user-avatar" alt="" hidden>
+                    <svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 0.5A11.5 11.5 0 0 0 8.36 23.1c0.58 0.1 0.79-0.25 0.79-0.56v-2.1c-3.2 0.7-3.88-1.37-3.88-1.37-0.52-1.33-1.28-1.69-1.28-1.69-1.05-0.72 0.08-0.7 0.08-0.7 1.16 0.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36 0.96 0.1-0.75 0.4-1.26 0.73-1.55-2.56-0.29-5.25-1.28-5.25-5.7 0-1.26 0.45-2.29 1.19-3.1-0.12-0.29-0.52-1.46 0.11-3.05 0 0 0.97-0.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18 0.63 1.59 0.24 2.76 0.12 3.05 0.74 0.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.26 5.69 0.41 0.36 0.78 1.06 0.78 2.14v3.17c0 0.31 0.21 0.67 0.8 0.56A11.5 11.5 0 0 0 12 0.5Z"></path>
+                    </svg>
+                    <span id="user-name" class="account-name">Loading...</span>
+                    <span id="connection-status" class="connection-status" aria-hidden="true">Connecting...</span>
+                    <div class="header-actions">
+                        <a id="signin-button" class="ghost-button" href="/?switch=1&v=20261121j">Sign in</a>
+                        <button type="button" id="signout-button" class="ghost-button">Sign out</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <header class="hero-card">
+            <a class="hero-art-link" href="https://github.com/Dreamerol/" target="_blank" rel="noopener noreferrer"><img class="hero-art" src="/dashboard/static/dreamerol-sync-hero.png?v=20261122q" alt="Moonlit fantasy artwork with a girl, her dog, a crescent moon and an illuminated city"></a>
+            <div class="hero-controls">
+                <section class="hero-action" aria-label="Synchronization actions">
+                    <button type="button" id="sync-button" class="hero-sync-button hero-sync-button--chosen" aria-label="SYNC CHOSEN" disabled>
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 12a8 8 0 0 1 13.7-5.7"></path>
+                            <path d="M18 4v3h-3"></path>
+                            <path d="M20 12a8 8 0 0 1-13.7 5.7"></path>
+                            <path d="M6 20v-3h3"></path>
+                        </svg>
+                        <span class="sync-title">SYNC CHOSEN</span>
+                    </button>
+                    <button type="button" id="sync-all-button" class="hero-sync-button hero-sync-button--all" aria-label="SYNC ALL" disabled>
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 12a8 8 0 0 1 13.7-5.7"></path>
+                            <path d="M18 4v3h-3"></path>
+                            <path d="M20 12a8 8 0 0 1-13.7 5.7"></path>
+                            <path d="M6 20v-3h3"></path>
+                        </svg>
+                        <span class="sync-title">SYNC ALL</span>
+                    </button>
+                </section>
+                <div id="sync-eligible-count" class="sync-eligible-count" aria-live="polite">No READY TO SYNC forks</div>
+            </div>
+        </header>
+
+        <section id="preview-progress" class="progress-panel" aria-label="Check progress" hidden>
+            <span id="preview-spinner" class="spinner" aria-hidden="true"></span>
+            <strong id="preview-progress-label">Checking repositories...</strong>
+            <span id="preview-progress-count" class="progress-count">0 / 0</span>
+        </section>
+        <section id="sync-progress" class="progress-panel sync-panel" aria-label="Sync progress" hidden>
+            <span id="sync-spinner" class="spinner" aria-hidden="true"></span>
+            <strong id="sync-progress-label">SYNC</strong>
+            <span id="sync-progress-count" class="progress-count">0 / 0</span>
+            <p id="sync-current-info" class="current-repo"></p>
+        </section>
+
+        <p id="status-message" class="status-message" role="status" aria-live="polite">Restoring session...</p>
+
+        <section class="stats" aria-label="Fork counters">
+            <article class="stat stat-total" title="All valid discovered repositories where fork is true.">
+                <span class="stat-label">TOTAL FORKS</span>
+                <strong id="stat-total" class="stat-value">0</strong>
+            </article>
+            <article class="stat stat-ok" title="Forks where ahead_by = 0 and behind_by = 0.">
+                <span class="stat-label">UP TO DATE</span>
+                <strong id="stat-up-to-date" class="stat-value">0</strong>
+            </article>
+            <article class="stat stat-warn" title="Forks where ahead_by = 0 and behind_by > 0. Safe candidates for synchronization.">
+                <span class="stat-label">READY TO SYNC</span>
+                <strong id="stat-to-be-synced" class="stat-value">0</strong>
+            </article>
+            <article class="stat stat-danger" title="Diverged forks, AHEAD-only forks and inspection errors. AHEAD-only is included here and is never auto-synced.">
+                <span class="stat-label">UNSYNCABLE</span>
+                <strong id="stat-unsyncable" class="stat-value">0</strong>
+            </article>
+        </section>
+
+        <section class="panel repo-panel" aria-labelledby="repo-heading">
+            <div class="panel-header">
+                <div>
+                    <h2 id="repo-heading">FORKED REPOSITORIES</h2>
+                    <p class="panel-hint">Valid GitHub forks only. Original repositories are excluded.</p>
+                </div>
+                <div class="repo-tools">
+                    <input type="search" id="repo-search" placeholder="Search repositories" aria-label="Search repositories">
+                    <select id="status-filter" aria-label="Filter by status">
+                        <option value="all">ALL</option>
+                        <option value="up-to-date">UP TO DATE</option>
+                        <option value="to-be-synced">READY TO SYNC</option>
+                        <option value="unsyncable">UNSYNCABLE</option>
+                    </select>
+                </div>
+            </div>
+            <ul id="repo-list" class="repo-list"></ul>
+        </section>
+
+        <section id="final-summary" class="final-summary" aria-label="Final check summary" aria-live="polite">
+            <div class="summary-head">
+                <h2>FINAL CHECK SUMMARY</h2>
+                <span id="summary-status" class="summary-status">Checking starts automatically after sign-in.</span>
+            </div>
+            <div class="summary-grid">
+                <div><span>FORKS CHECKED</span><strong id="summary-total">0</strong></div>
+                <div><span>UP TO DATE</span><strong id="summary-up-to-date">0</strong></div>
+                <div><span>READY TO SYNC</span><strong id="summary-to-be-synced">0</strong></div>
+                <div><span>UNSYNCABLE</span><strong id="summary-unsyncable">0</strong></div>
+            </div>
+            <p id="summary-attention" class="summary-attention" hidden></p>
+            <p id="ahead-note" class="ahead-note" hidden></p>
+        </section>
+
+        <details class="activity-details">
+            <summary>
+                <span class="summary-row">
+                    <span class="activity-summary-label">Sync history and last result</span>
+                    <a class="activity-credit" href="https://github.com/Dreamerol/" target="_blank" rel="noopener noreferrer">Made with ❤️ by Dreamerol · MIT Licensed</a>
+                </span>
+            </summary>
+            <ul id="sync-history" class="compact-list activity-dropdown-result"></ul>
+        </details>
+    </main>
+    <script type="module" src="/dashboard/static/app.js?v=20261121l"></script>
+</body>
+</html>
