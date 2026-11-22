@@ -343,7 +343,21 @@ pip install -r requirements.txt
 
 
 
+### Detailed Technical Documentation
+
+For more detailed technical information, architecture specifications, implementation details, authentication workflows, and system design, please refer to the following documentation:
+
+📘 [GITHUB APP AUTHENTICATION SPECIFICATION](docs/GITHUB_APP_AUTH_SPEC.md)
+
+Please review the full document for comprehensive technical details about the GitHub App authentication implementation.
+
+
+
+
 <br>
+
+
+
 
 
 ## 📜 License and author information
