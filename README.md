@@ -343,10 +343,10 @@ pip install -r requirements.txt
 
 
 
-### Detailed Technical Documentation
-
 
 ---
+
+
 
 ## 📘 Detailed Technical Documentation
 
