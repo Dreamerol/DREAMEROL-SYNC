@@ -212,46 +212,6 @@ Before getting started, make sure you have:
 
 
 
-## 📦 Installation (without AI assitent)
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Dreamerol/DREAMEROL-SYNC.git
-cd DREAMEROL-SYNC
-```
-
-### 2. Create a virtual environment
-
-```bash
-python -m venv .venv
-```
-
-### 3. Activate the environment
-
-🐧 macOS / Linux
-
-```bash
-source .venv/bin/activate
-```
-
-🪟 Windows PowerShell
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-### 4. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-
-
-
-
-
 
 <br>
 
