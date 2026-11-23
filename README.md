@@ -170,8 +170,6 @@ Designed to make fork management easier, faster and more convenient. 🧩⚡
 
 
 
-
-
 ## ✨ Requirements
 
 Before getting started, make sure you have:
@@ -202,6 +200,9 @@ Before getting started, make sure you have:
 
 
 <br>
+
+
+
 
 
 
@@ -279,10 +280,11 @@ Before getting started, make sure you have:
 
 
 
----
 
 
 
+
+<br>
 <br>
 
 
@@ -301,6 +303,37 @@ For a complete technical overview of DREAMEROL SYNC, including system architectu
 
 <br>
 
+
+
+
+
+## ✅ Release status
+
+DREAMEROL SYNC is a working open-source project. The repository started from a partial implementation and now contains the full tested codebase. The following has been verified automatically:
+
+- Python 3.11+ with `pip install -r requirements.txt`.
+- `python -m pytest -q` → 506 passing tests.
+- `python main.py --help` and a fresh clone from this repository both work.
+- The `Tests` workflow passes on Ubuntu and Windows with Python 3.11 and 3.12 (4 jobs).
+- MIT License; no paid features, subscriptions or monetization.
+
+### Requires your own setup
+
+- Your own GitHub credentials: a personal access token or GitHub App credentials. `.env` and secrets are not committed.
+- Local loopback callback for the GitHub App (`127.0.0.1:8000`).
+
+### Not covered by automated CI
+
+- Real GitHub App sign-in/callback and installation permissions — these need your own GitHub App configuration.
+- Mutating synchronization against your live repositories — CI runs read-only tests only.
+- Remote HTTPS/TLS proxy deployment (`COOKIE_SECURE=true` or `--proxy-headers`).
+- Multi-worker sessions and a separate CSRF token are not part of this release.
+
+Use dry-run preview first. Nothing in the CLI or Dashboard performs a live sync without explicit confirmation.
+
+
+
+<br>
 
 
 
@@ -336,7 +369,7 @@ Synchronize your forks. Simplify your workflow.
 
 <br>
 
-
+<br>
 
 
 
