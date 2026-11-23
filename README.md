@@ -291,7 +291,6 @@ Before getting started, make sure you have:
 
 
 
-
 ## 📘 Detailed Technical Documentation
 
 For a complete technical overview of DREAMEROL SYNC, including system architecture, implementation details, GitHub App authentication, Auth Broker, API, security, and deployment specifications, see:
@@ -299,7 +298,6 @@ For a complete technical overview of DREAMEROL SYNC, including system architectu
 📄 **[DREAMEROL SYNC — Technical Guide](./docs/DREAMEROL%20SYNC%20-%20TECHNICAL%20GUIDE.md)**
 
 📄 **[DREAMEROL SYNC — Technical Documentation](./docs/DREAMEROL%20SYNC%20-%20TECHNICAL%20DOCUMENTATION.md)**
-
 
 
 
@@ -373,7 +371,7 @@ Synchronize your forks. Simplify your workflow.
 
 <br>
 
-
+<br>
 
 
 
