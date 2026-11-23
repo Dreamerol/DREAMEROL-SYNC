@@ -289,15 +289,22 @@ Before getting started, make sure you have:
 
 
 
+## 📘 Detailed Technical Documentation
+
+For a complete technical overview of DREAMEROL SYNC, including system architecture, implementation details, GitHub App authentication, Auth Broker, API, security, and deployment specifications, see:
+
+📄 **[DREAMEROL SYNC — Technical Documentation](./docs/DREAMEROL%20SYNC%20-%20TECHNICAL%20DOCUMENTATION.md)**
+
+
 
 
 ## 📘 Detailed Technical Documentation
 
 For a complete technical overview of DREAMEROL SYNC, including system architecture, implementation details, GitHub App authentication, Auth Broker, API, security, and deployment specifications, see:
 
-**[DREAMEROL SYNC — Technical Documentation](docs/DREAMEROL SYNC - TECHNICAL GUIDE.md)**
+📄 **[DREAMEROL SYNC — Technical Guide](./docs/DREAMEROL%20SYNC%20-%20TECHNICAL%20GUIDE.md)**
 
-**[DREAMEROL SYNC — Technical Documentation](docs/DREAMEROL SYNC - TECHNICAL DOCUMENTATION.md)**
+📄 **[DREAMEROL SYNC — Technical Documentation](./docs/DREAMEROL%20SYNC%20-%20TECHNICAL%20DOCUMENTATION.md)**
 
 
 
