@@ -1,25 +1,69 @@
-# Project Authorship
+# 🌸 Project Authorship
 
+Welcome to the official authorship record of **DREAMEROL-SYNC**.
 
-## Original Creator
+This document recognizes the original creator and the contributors whose efforts have helped shape and develop the project.
 
-**Dreamerol (Mihaela KOSEVA)**
+---
 
-Dreamerol is the original creator and initiator of the DREAMEROL-SYNC project.
+## 💖 Original Creator
 
-The original project history begins with the initial commit `42c9517`, authored by Dreamerol.
+**[Dreamerol](https://github.com/Dreamerol)**  
+*Mihaela KOSEVA*
 
+The original creator and initiator of the DREAMEROL-SYNC project.
 
-## Contributors
+The project's Git history begins with the original, verified initial commit:
 
-The following contributors have participated in the development and evolution of the project:
+🔹 **Commit:** [`42c9517`](https://github.com/Dreamerol/DREAMEROL-SYNC/commit/42c9517)  
+🔹 **Commit message:** Initial commit  
+🔹 **Authored by:** Dreamerol
 
-- **architectquant**
-- **GabrielRules**
+The original project authorship is attributed to Dreamerol.
 
+---
 
-## Acknowledgment
+## 🤝 Contributors
 
-All contributors are recognized for their work and contributions to the project.
+With appreciation to everyone who has contributed to the development and evolution of DREAMEROL-SYNC.
 
-Original project authorship remains attributed to Dreamerol.
+- **[architectquant](https://github.com/architectquant)**
+- **[GabrielRules](https://github.com/GabrielRules)**
+
+Every contribution matters, and every effort is appreciated. ✨
+
+---
+
+## 🌹 Special Thanks
+
+A heartfelt thank you to **architectquant** and **GabrielRules** for their valuable support, dedication, technical contributions, and commitment throughout the development of DREAMEROL-SYNC.
+
+Your time, ideas, patience, and hard work have helped this project grow.
+
+More than just code, this project reflects collaboration, trust, and the willingness to support an idea and help it become something real.
+
+**Thank you both for being part of this journey!** ❤️
+
+---
+
+## 💝 Acknowledgments
+
+DREAMEROL-SYNC represents creativity, dedication, collaboration, and the effort invested in bringing an idea to life.
+
+The original authorship and project initiation remain credited to **Dreamerol**.
+
+---
+
+<div align="center">
+
+### 💗 Created with LOVE
+
+**by DREAMEROL** 🌸
+
+*With passion, dedication & a little bit of magic.* ✨
+
+---
+
+❤️ *Thank you for being part of the journey.*
+
+</div>
