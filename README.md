@@ -297,7 +297,7 @@ For a complete technical overview of DREAMEROL SYNC, including system architectu
 
 📄 **[DREAMEROL SYNC — Technical Guide](https://github.com/Dreamerol/DREAMEROL-SYNC/blob/main/docs/00%20-%20DREAMEROL%20SYNC%20-%20TECHNICAL%20GUIDE.md)**
 
-📄 **[DREAMEROL SYNC — Detailed Technical Documentation](https://github.com/Dreamerol/DREAMEROL-SYNC/blob/main/docs/DREAMEROL%20SYNC%20-%20DETAILED%20TECH%20DOC.md)**
+📄 **[DREAMEROL SYNC — Detailed Technical Documentation](https://github.com/Dreamerol/DREAMEROL-SYNC/blob/main/docs/01%20-%20DREAMEROL%20SYNC%20-%20DETAILED%20TECH%20DOC.md)**
 
 
 
