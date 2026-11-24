@@ -14,7 +14,7 @@ This page honors the original creator and recognizes the people whose contributi
 **[Dreamerol](https://github.com/Dreamerol)**  
 *Mihaela KOSEVA*
 
-The original creator, founder, and initiator of DREAMEROL-SYNC.
+The original creator, founder, and initiator of DREAMEROL-SYNC. 
 
 The project's Git history begins with the original verified commit:
 
