@@ -10,7 +10,7 @@
 
 <a href="https://dreamerol.github.io/MIHAELA-KOSEVA-AI/">
   <img 
-    src="https://raw.githubusercontent.com/Dreamerol/Dreamerol/main/Mihaela%20Koseva%20Sync.png"
+    src="https://raw.githubusercontent.com/Dreamerol/DREAMEROL-SYNC/a9233b1681ceb3766b4a508626961b816e95b1b4/assets/Mihaela%20Koseva%20Sync.jpg"
     width="100%"
     alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
   />
