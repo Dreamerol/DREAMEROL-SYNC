@@ -1,4 +1,4 @@
-# 🌸 DREAMEROL-SYNC : AUTHORSHIP
+# 🌸 DREAMEROL-SYNC
 
 Welcome to the official credits page of **DREAMEROL-SYNC**.
 
@@ -56,8 +56,8 @@ The original creator recognition remains with **Dreamerol**.
 *Made with care, dedication & a little bit of magic.* ✨
 
 
-
 </div>
 
 
-<br><br><br>
+<br><br>
+
