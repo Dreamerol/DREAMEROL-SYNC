@@ -1,49 +1,46 @@
-# 🌸 DREAMEROL-SYNC
+# 🌸 DREAMEROL-SYNC — AUTHORS
 
-Welcome to the official credits page of **DREAMEROL-SYNC**.
+Welcome to the official credits of **DREAMEROL-SYNC**.
 
-This document celebrates the original creator and recognizes everyone whose contributions, support, and dedication have helped shape and develop this project.
+This page honors the original creator and recognizes the people whose contributions, support, and dedication have helped bring this project to life and move it forward.
 
 ---
 
-
-## 💖 Author
+## 💖 Original Author
 
 **[Dreamerol](https://github.com/Dreamerol)**  
 *Mihaela KOSEVA*
 
+The original creator, founder, and initiator of DREAMEROL-SYNC.
 
-The original creator and initiator of the DREAMEROL-SYNC project.
+The project's Git history begins with the original verified commit:
 
-The project's Git history begins with the original, verified initial commit:
+- **Commit:** [`42c9517`](https://github.com/Dreamerol/DREAMEROL-SYNC/commit/42c9517)
+- **Message:** Initial commit
+- **Author:** Dreamerol
 
-🔹 **Commit:** [`42c9517`](https://github.com/Dreamerol/DREAMEROL-SYNC/commit/42c9517)  
-🔹 **Commit message:** Initial commit  
-🔹 **Authored by:** Dreamerol
-
-The original creation and initiation of DREAMEROL-SYNC are credited to **Dreamerol**.
+The project's original authorship and creation are credited to **Dreamerol**.
 
 ---
 
 ## 🤝 Contributors
 
-With appreciation to those who have contributed to the development and evolution of DREAMEROL-SYNC:
+With sincere appreciation to those who have contributed their time, knowledge, and technical skills to the development of DREAMEROL-SYNC:
 
 - **[architectquant](https://github.com/architectquant)**
 - **[GabrielRules](https://github.com/GabrielRules)**
 
-Every contribution matters, and every effort is appreciated. ✨
-
+Every contribution, every improvement, and every helping hand makes a difference. ✨
 
 ---
 
 ## 💝 Acknowledgments
 
-DREAMEROL-SYNC is a reflection of creativity, dedication, collaboration, and the passion invested in bringing an idea to life.
+A special thank you to everyone who has supported this project along the way.
 
-Every contribution has its place, and everyone who has helped along the way deserves appreciation.
+Your time, ideas, patience, encouragement, and dedication are genuinely appreciated.
 
-The original creator recognition remains with **Dreamerol**.
+Great things are rarely built alone, and every helping hand makes the journey more meaningful.
 
 ---
 
@@ -55,9 +52,8 @@ The original creator recognition remains with **Dreamerol**.
 
 *Made with care, dedication & a little bit of magic.* ✨
 
-
 </div>
 
+---
 
-<br><br>
-
+<br?
