@@ -1,4 +1,4 @@
-# 🌸 DREAMEROL-SYNC  —  Project Credits
+# 🌸 DREAMEROL-SYNC
 
 Welcome to the official credits page of **DREAMEROL-SYNC**.
 
