@@ -1,4 +1,4 @@
-# 🌸 DREAMEROL-SYNC
+# 🌸 DREAMEROL-SYNC : AUTHORS
 
 Welcome to the official credits page of **DREAMEROL-SYNC**.
 
