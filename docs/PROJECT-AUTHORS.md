@@ -32,17 +32,6 @@ With appreciation to those who have contributed to the development and evolution
 
 Every contribution matters, and every effort is appreciated. ✨
 
----
-
-## 🌹 Special Thanks
-
-A heartfelt thank you to **architectquant** and **GabrielRules** for their valuable support, dedication, technical contributions, and commitment throughout the development of DREAMEROL-SYNC.
-
-Your time, ideas, patience, encouragement, and hard work have helped this project grow.
-
-Beyond the code, this project represents collaboration, trust, friendship, and the willingness to support an idea and help turn it into something real.
-
-**Thank you both for being part of this journey!** ❤️
 
 ---
 
