@@ -62,10 +62,9 @@ The original creator recognition remains with **Dreamerol**.
 
 # DREAMEROL 🌸
 
-*With passion, dedication & a little bit of magic.* ✨
+*Made with care, dedication & a little bit of magic.* ✨
 
 ---
 
-❤️ *Made with care. Built with passion. Shared with love.*
 
 </div>
