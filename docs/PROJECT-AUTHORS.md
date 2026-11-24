@@ -6,10 +6,12 @@ This document celebrates the original creator and recognizes everyone whose cont
 
 ---
 
-## 💖 Original Creator
+
+## 💖 Author
 
 **[Dreamerol](https://github.com/Dreamerol)**  
 *Mihaela KOSEVA*
+
 
 The original creator and initiator of the DREAMEROL-SYNC project.
 
