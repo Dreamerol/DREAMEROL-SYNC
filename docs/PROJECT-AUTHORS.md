@@ -4,7 +4,10 @@ Welcome to the official credits of **DREAMEROL-SYNC**.
 
 This page honors the original creator and recognizes the people whose contributions, support, and dedication have helped bring this project to life and move it forward.
 
----
+
+
+<br>
+
 
 ## 💖 Original Author
 
@@ -21,7 +24,9 @@ The project's Git history begins with the original verified commit:
 
 The project's original authorship and creation are credited to **Dreamerol**.
 
----
+
+<br>
+
 
 ## 🤝 Contributors
 
@@ -32,7 +37,10 @@ With sincere appreciation to those who have contributed their time, knowledge, a
 
 Every contribution, every improvement, and every helping hand makes a difference. ✨
 
----
+
+
+<br>
+
 
 ## 💝 Acknowledgments
 
@@ -41,8 +49,6 @@ A special thank you to everyone who has supported this project along the way.
 Your time, ideas, patience, encouragement, and dedication are genuinely appreciated.
 
 Great things are rarely built alone, and every helping hand makes the journey more meaningful.
-
----
 
 
 
@@ -62,4 +68,4 @@ Great things are rarely built alone, and every helping hand makes the journey mo
 
 
 
-<br><br>
+<br>
