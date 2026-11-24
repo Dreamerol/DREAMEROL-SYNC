@@ -1,8 +1,8 @@
-# 🌸 Project Authorship
+# 🌸 DREAMEROL-SYNC — Project Credits
 
-Welcome to the official authorship record of **DREAMEROL-SYNC**.
+Welcome to the official credits page of **DREAMEROL-SYNC**.
 
-This document recognizes the original creator and the contributors whose efforts have helped shape and develop the project.
+This document celebrates the original creator and recognizes everyone whose contributions, support, and dedication have helped shape and develop this project.
 
 ---
 
@@ -19,13 +19,13 @@ The project's Git history begins with the original, verified initial commit:
 🔹 **Commit message:** Initial commit  
 🔹 **Authored by:** Dreamerol
 
-The original project authorship is attributed to Dreamerol.
+The original creation and initiation of DREAMEROL-SYNC are credited to **Dreamerol**.
 
 ---
 
 ## 🤝 Contributors
 
-With appreciation to everyone who has contributed to the development and evolution of DREAMEROL-SYNC.
+With appreciation to those who have contributed to the development and evolution of DREAMEROL-SYNC:
 
 - **[architectquant](https://github.com/architectquant)**
 - **[GabrielRules](https://github.com/GabrielRules)**
@@ -38,9 +38,9 @@ Every contribution matters, and every effort is appreciated. ✨
 
 A heartfelt thank you to **architectquant** and **GabrielRules** for their valuable support, dedication, technical contributions, and commitment throughout the development of DREAMEROL-SYNC.
 
-Your time, ideas, patience, and hard work have helped this project grow.
+Your time, ideas, patience, encouragement, and hard work have helped this project grow.
 
-More than just code, this project reflects collaboration, trust, and the willingness to support an idea and help it become something real.
+Beyond the code, this project represents collaboration, trust, friendship, and the willingness to support an idea and help turn it into something real.
 
 **Thank you both for being part of this journey!** ❤️
 
@@ -48,9 +48,11 @@ More than just code, this project reflects collaboration, trust, and the willing
 
 ## 💝 Acknowledgments
 
-DREAMEROL-SYNC represents creativity, dedication, collaboration, and the effort invested in bringing an idea to life.
+DREAMEROL-SYNC is a reflection of creativity, dedication, collaboration, and the passion invested in bringing an idea to life.
 
-The original authorship and project initiation remain credited to **Dreamerol**.
+Every contribution has its place, and everyone who has helped along the way deserves appreciation.
+
+The original creator recognition remains with **Dreamerol**.
 
 ---
 
@@ -58,12 +60,12 @@ The original authorship and project initiation remain credited to **Dreamerol**.
 
 ### 💗 Created with LOVE
 
-**by DREAMEROL** 🌸
+# DREAMEROL 🌸
 
 *With passion, dedication & a little bit of magic.* ✨
 
 ---
 
-❤️ *Thank you for being part of the journey.*
+❤️ *Made with care. Built with passion. Shared with love.*
 
 </div>
