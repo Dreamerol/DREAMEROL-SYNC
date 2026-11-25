@@ -204,6 +204,8 @@ Before getting started, make sure you have:
 
 
 
+
+
 ## 🚀 Quick Start
 **1. Install the GitHub App** - Download [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
 
@@ -233,43 +235,16 @@ Before getting started, make sure you have:
 
 
 
+### Without an AI Assistant
 
-Without AI assistant proceed like that:
+No AI assistant? No problem! Follow the [Installation](#-installation) instructions to set up the environment and dependencies, then follow the [Web Dashboard](#-web-dashboard) instructions to launch the application.
 
-
-**3. Set up the environment**
-
-```bash
-python -m venv .venv
-```
-
-Activate it:
-
-- macOS / Linux: `source .venv/bin/activate`
-- Windows PowerShell: `.venv\Scripts\Activate.ps1`
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-**4. Configure and launch**
-
-Follow the [GitHub App and authentication setup](#) and the Dashboard startup instructions in the documentation.
-
-**5. Open DREAMEROL SYNC**
-
-Once the application is running, open:
-
-`http://127.0.0.1:8001`
-
-Sign in with GitHub and access your Dashboard.
-
-**You're ready to manage and synchronize your GitHub forks!** 🌙
+**That's it! Welcome to DREAMEROL SYNC.** 🌙
 
 
 
+
+<br>
 
 
 
