@@ -200,9 +200,9 @@ Before getting started, make sure you have:
 
 ### Without an AI Assistant
 
-Follow the Installation instructions: 📄 [**DREAMEROL SYNC - TECHNICAL GUIDE**](https://github.com/Dreamerol/DREAMEROL-SYNC/blob/main/docs/00%20-%20DREAMEROL%20SYNC%20-%20TECHNICAL%20GUIDE.md)
+Follow the Installation instructions: 📄 [**DREAMEROL SYNC — Technical Guide**](https://github.com/Dreamerol/DREAMEROL-SYNC/blob/main/docs/00%20-%20DREAMEROL%20SYNC%20-%20TECHNICAL%20GUIDE.md)
 
-**That's it! Welcome to DREAMEROL SYNC.** 🌙
+**That's it! Welcome to the app!** 🌙
 
 
 
