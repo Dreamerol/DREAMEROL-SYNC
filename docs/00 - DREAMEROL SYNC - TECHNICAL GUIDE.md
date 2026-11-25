@@ -169,12 +169,15 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
-
 ### ⚡ Keep your GitHub forks synchronized effortlessly.
 
-A Python command-line tool that automatically discovers GitHub forks owned by an authenticated account and requests upstream synchronization through the official GitHub API.
+DREAMEROL SYNC is a Python-powered application designed to simplify GitHub fork management through an intuitive, user-friendly graphical interface.
 
-Designed to make fork management easier, faster and more convenient. 🧩⚡
+It automatically discovers GitHub forks associated with an authenticated account and provides a streamlined way to request upstream synchronization through the official GitHub API.
+
+From its welcoming onboarding experience to its interactive Dashboard, DREAMEROL SYNC brings fork discovery, management, and synchronization together in one convenient place.
+
+**Simple to use. Secure by design. Built for effortless GitHub workflows.** 🧩⚡
 
 > 💜 Simple workflow. Secure authentication. Reliable synchronization. And a tiny bit of magic ✨.
 
@@ -196,11 +199,12 @@ Before getting started, make sure you have:
 
 
 
-
 <br>
 
 
-## 🚀 Quick Start (with an AI Assistant)
+
+
+## 🚀 Quick Start
 **1. Install the GitHub App** - Download [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
 
 
@@ -208,6 +212,7 @@ Before getting started, make sure you have:
 
 **3. Open and enjoy the app! 🎉** - Open the project in VS Code, launch your personal AI assistant<br>
 (Copilot, Claude Code, OpenCode, or other), and ask it to open DREAMEROL SYNC in your browser. 
+
 
 
 
