@@ -207,6 +207,26 @@ Before getting started, make sure you have:
 
 
 
+
+## 🚀 Quick Start
+
+
+**1. Install the GitHub App** – Install [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
+
+**2. Clone the project** – Get DREAMEROL SYNC on your local computer.
+
+**3. Open and enjoy the app! 🎉** – Open the project in VS Code, launch your preferred AI assistant (Copilot, Claude Code, OpenCode, or another), and ask it to start DREAMEROL SYNC and open the Dashboard in your browser.
+
+**That's it! Welcome to DREAMEROL SYNC.** 🌙
+
+
+
+
+
+<br>
+
+
+
 ## 📦 Installation
 
 ### 1. Clone the repository
