@@ -182,7 +182,7 @@ From its welcoming onboarding experience to its interactive Dashboard, DREAMEROL
 
 **Simple to use. Secure by design. Built for effortless GitHub workflows.** 🧩⚡
 
-> 💜 Simple workflow. Secure authentication. Reliable synchronization. And a tiny bit of magic ✨.
+
 
 
 
