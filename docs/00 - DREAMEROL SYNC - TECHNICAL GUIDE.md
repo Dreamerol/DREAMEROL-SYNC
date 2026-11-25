@@ -233,7 +233,7 @@ Before getting started, make sure you have:
 
 
 
-## 📦 Installation (without AI assitent)
+## 📦 Installation
 
 ### 1. Clone the repository
 
