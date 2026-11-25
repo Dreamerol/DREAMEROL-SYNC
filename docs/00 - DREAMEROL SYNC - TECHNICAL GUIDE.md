@@ -216,6 +216,9 @@ Before getting started, make sure you have:
 
 **3. Open and enjoy the app! 🎉** – Open the project in VS Code, launch your preferred AI assistant (Copilot, Claude Code, OpenCode, or another), and ask it to start DREAMEROL SYNC and open the Dashboard in your browser.
 
+
+
+
 <div align="left">
   <a href="https://github.com/apps/dreamerol-sync">
     <img
