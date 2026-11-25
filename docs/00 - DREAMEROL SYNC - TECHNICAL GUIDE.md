@@ -210,8 +210,43 @@ Before getting started, make sure you have:
 
 **2. Clone the project** - Download DREAMEROL SYNC to your local computer.
 
-**3. Open and enjoy the app! 🎉** - Open the project in VS Code, launch your personal AI assistant<br>
+**3. Open and enjoy the app! 🎉** - Open the project in VS Code, launch AI assistant<br>
 (Copilot, Claude Code, OpenCode, or other), and ask it to open DREAMEROL SYNC in your browser. 
+
+
+(Or without AI assistant) proceed like that:
+
+
+**3. Set up the environment**
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+- macOS / Linux: `source .venv/bin/activate`
+- Windows PowerShell: `.venv\Scripts\Activate.ps1`
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+**4. Configure and launch**
+
+Follow the [GitHub App and authentication setup](#) and the Dashboard startup instructions in the documentation.
+
+**5. Open DREAMEROL SYNC**
+
+Once the application is running, open:
+
+`http://127.0.0.1:8001`
+
+Sign in with GitHub and access your Dashboard.
+
+**You're ready to manage and synchronize your GitHub forks!** 🌙
 
 
 
