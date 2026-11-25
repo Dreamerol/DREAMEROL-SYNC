@@ -174,6 +174,27 @@ From its welcoming onboarding experience to its interactive Dashboard, DREAMEROL
 
 
 
+
+
+### ⚡ Keep your GitHub forks synchronized effortlessly.
+
+DREAMEROL SYNC is a Python-powered application designed to simplify GitHub fork management through an intuitive, user-friendly graphical interface.
+
+It automatically discovers GitHub forks associated with an authenticated account and provides a streamlined way to request upstream synchronization through the official GitHub API.
+
+From its welcoming onboarding experience to its interactive Dashboard, DREAMEROL SYNC brings fork discovery, management, and synchronization together in one convenient place.
+
+**Simple to use. Secure by design. Built for effortless GitHub workflows.** 🧩⚡
+
+> 💜 Simple workflow. Secure authentication. Reliable synchronization. And a tiny bit of magic ✨.
+
+
+
+
+<br>
+
+
+
 ## ✨ Requirements
 
 Before getting started, make sure you have:
@@ -188,14 +209,34 @@ Before getting started, make sure you have:
 <br>
 
 
+
+
 ## 🚀 Quick Start
-**1. Install the GitHub App** - Download [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
 
 
-**2. Clone the project** - Download DREAMEROL SYNC to your local computer.
+**1. Install the GitHub App** – Install [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
 
-**3. Open and enjoy the app! 🎉** - Open the project in VS Code, launch your personal AI assistant<br>
-(Copilot, Claude Code, OpenCode, or other), and ask it to open DREAMEROL SYNC in your browser. 
+**2. Clone the project** – Get DREAMEROL SYNC on your local computer.
+
+**3. Open and enjoy the app! 🎉** – Open the project in VS Code, launch your preferred AI assistant (Copilot, Claude Code, OpenCode, or another), and ask it to start DREAMEROL SYNC and open the Dashboard in your browser.
+
+<div align="left">
+  <a href="https://github.com/apps/dreamerol-sync">
+    <img
+      src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/20900f265dc266b7e4d54163e2307a44a37a4fac/assets/LOGO-DREAMEROL-SYNC.jpg"
+      width="70%"
+      alt="DREAMEROL SYNC – GitHub fork synchronization application logo"
+    />
+  </a>
+</div>
+
+
+
+### Without an AI Assistant
+
+No AI assistant? No problem! Follow the [Installation](#-installation) instructions to set up the environment and dependencies, then use the [Web Dashboard](#-web-dashboard) instructions to launch the application.
+
+**That's it! Welcome to DREAMEROL SYNC.** 🌙
 
 
 
