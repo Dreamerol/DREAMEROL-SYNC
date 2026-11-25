@@ -180,7 +180,7 @@ It automatically discovers GitHub forks associated with an authenticated account
 
 From its welcoming onboarding experience to its interactive Dashboard, DREAMEROL SYNC brings fork discovery, management, and synchronization together in one convenient place.
 
-**Simple to use. Secure by design. Built for effortless GitHub workflows.** 🧩⚡
+**Simple to use. Secure by design. Built for effortless GitHub workflows.** 🧩
 
 
 
