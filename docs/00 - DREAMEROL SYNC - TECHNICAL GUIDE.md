@@ -244,6 +244,8 @@ Before getting started, make sure you have:
 
 ## 📦 Installation
 
+Install DREAMEROL SYNC manually using your system terminal (Terminal on macOS/Linux or PowerShell on Windows).
+
 ### 1. Clone the repository
 
 ```bash
