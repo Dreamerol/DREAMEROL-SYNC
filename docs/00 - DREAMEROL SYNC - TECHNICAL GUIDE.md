@@ -237,7 +237,7 @@ Before getting started, make sure you have:
 
 ### Without an AI Assistant
 
-No AI assistant? No problem! Follow the [Installation](#-installation) instructions to set up the environment and dependencies, then follow the [Web Dashboard](#-web-dashboard) instructions to launch the application.
+Follow the [Installation](#-installation) instructions to set up the environment and dependencies, then follow the [Web Dashboard](#-web-dashboard) instructions to launch the application.
 
 **That's it! Welcome to DREAMEROL SYNC.** 🌙
 
