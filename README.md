@@ -155,6 +155,13 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
+
+<div align="left">  
+<div align="left">
+<div align="left">
+
+
+
 ### ⚡ Keep your GitHub forks synchronized effortlessly.
 
 DREAMEROL SYNC is a Python-powered application designed to simplify GitHub fork management through an intuitive, user-friendly graphical interface.
@@ -390,8 +397,17 @@ Made with ❤️ by Dreamerol.
 
 Synchronize your forks. Simplify your workflow.
 
+
+
+
 ---
 
+
+</div>
+
+</div>
+
+</div>
 
 
 
