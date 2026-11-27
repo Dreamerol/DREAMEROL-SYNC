@@ -170,6 +170,13 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
+<div align="left">
+
+<div align="left">
+
+<div align="left">
+
+
 
 
 ### ⚡ Keep your GitHub forks synchronized effortlessly.
@@ -733,6 +740,16 @@ Made with ❤️ by Dreamerol.
 🌙 DREAMEROL SYNC
 
 Synchronize your forks. Simplify your workflow.
+
+
+
+
+
+</div>
+
+</div>
+
+</div>
 
 
 
