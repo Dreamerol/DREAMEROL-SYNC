@@ -380,4 +380,3 @@ python -m pytest -q -p no:cacheprovider
 - `docs/GITHUB_APP_AUTH_SPEC.md` — GitHub App authentication contract.
 
 
-
