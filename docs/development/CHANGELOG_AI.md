@@ -2,12 +2,12 @@
 
 ## 2026-11-28 02:54 - Финализация на Sync и Dashboard стабилизацията
 
-- **Извършена задача:** Стабилизиран е Dashboard-ът след превключване на акаунти и проверки; завършени са потвърдените реални Sync операции за `architectquant` и `GabrielRules`. Състоянието е записано в WORKLOG и е подготвен локален финален commit.
+- **Извършена задача:** Стабилизиран е Dashboard-ът след превключване на акаунти и проверки; завършени са потвърдените реални Sync операции за `architectquant` и `GabrielRules`. Състоянието е записано в WORKLOG и е създаден локален финален commit `7df1703467cb0d677ab899eeee7ee277c8f18253`.
 - **Променени файлове:** `DASHBOARD/app.js`, `DASHBOARD/index.html`, `DASHBOARD/utils.js`, `tests/test_dashboard_progress.py`, `tests/test_dashboard_strict_counts.py`, `tests/test_dashboard_workflow.py`, `DECISIONS.md`, `LICENSE`, `README.md`, `docs/WORKLOG/**`, `docs/development/CHANGELOG_AI.md` и свързаните документационни файлове.
 - **Причина:** След valley на checked/unverified репозитории броячите и филтрите показваха нестабилни стойности; добавени са cache-busting `20261128a`, версиран `sessionStorage` snapshot key и категории `network/http/timeout` за грешките, без промяна в OAuth, GitHub API Sync логиката или safety checks.
 - **Изпълнени тестове:** `python -m pytest tests/test_dashboard_workflow.py -q` → `46 passed`; `python -m pytest -q` → `511 passed`, 1 `StarletteDeprecationWarning`.Извършени са read-only GitHub compare и `sync_history.json` проверки; не е пускан нов Sync от агента.
 - **Резултат:** `architectquant` — 7 успешни Sync-а в 2 операции, край `35 / 35 UP TO DATE / 0 READY TO SYNC / 0 UNSYNCABLE`; `GabrielRules` — 33 успешни Sync-а в 3 операции, край `36 / 36 / 0 / 0`. За потвърдените операции `failed=0`, `skipped=0`, `need attention=0`. Няма push; authoritative remote е `upstream` (`Dreamerol`).
-- **Оставащи проблеми:** Няма известни функционални проблеми. `origin` остава `GabrielRules`; push не е извършван и изисква отделно потвърждение.
+- **Оставащи проблеми:** Няма известни функционални проблеми. След изрично потвърждение commit `7df1703` е push-нат към `upstream` (`Dreamerol/DREAMEROL-SYNC`) като нов клон `feature/repository-refresh-20261122`; `main` не е променян. `origin` остава `GabrielRules`. При бъдещ PR към `main` има конфликти за решаване в `README.md` и `docs/01 - DREAMEROL SYNC - DETAILED TECH DOC.md`.
 
 ## 2026-11-23 00:35 - Пълно обновяване на Dreamerol/DREAMEROL-SYNC чрез PR #9
 

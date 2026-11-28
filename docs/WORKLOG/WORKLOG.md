@@ -1,5 +1,24 @@
 ﻿# WORKLOG
 
+## 2026-11-28 16:24 - Pre-Push одит и push към upstream
+- **Date/time:** 2026-11-28 16:24 (see `docs/WORKLOG/LOG_28-11-26.md`).
+- **Branch/HEAD:** локален `feature/repository-refresh-20261122` @ `7df1703467cb0d677ab899eeee7ee277c8f18253`; същият commit е публикуван на `upstream/feature/repository-refresh-20261122`. Tracking остава `origin/feature/repository-refresh-20261122` (`ahead 1`).
+- **Last completed:** Извършен е пълен read-only pre-push одит и след изрично потвърждение — успешен push само към feature клона на `upstream` (`Dreamerol/DREAMEROL-SYNC`). `main` не е променян. Преди push: `git push --dry-run` → `[new branch]` (OK) и API проверка `login=Dreamerol`, `push=true`. Повторен push върна `Everything up-to-date`.
+- **Audit details:** `upstream/main` @ `f38cbe4` (121 commits напред / 1 назад спрямо HEAD, merge-base `0a4f3a2`); само 1 commit е нов за сървъра. Установени конфликти при merge-симулация към `main` в `README.md` и `docs/01 - DREAMEROL SYNC - DETAILED TECH DOC.md`; при push на отделен клон конфликти няма. В публикуваното дърво няма `.env`, private keys, токени или `data/**`. `.env.example` съдържа само имена на променливи; `.vscode/` и `data/sync_history.json` са ignored. Стойности на тайни не са показвани.
+- **Tests:** `.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider` → `511 passed in 11.32s`; `compileall`, 3 × `node --check`, PowerShell parse (0 грешки), `pip check` → `exit 0`.
+- **Actual Git status:** След push локално остават само трите документални файла с непубликувани промени: `docs/WORKLOG/LOG_28-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md`. Tracking спрямо `origin` остава `ahead 1`, защото commit-ът е публикуван към `upstream`, а не към `origin`. Няма PR, merge или нов Sync от агента.
+- **Known issues/blockers:** Няма blockers за извършения push. Бъдещ PR към `main` ще изисква разрешаване на установените конфликти в двата посочени файла. Локалните audit записи не са включени в публикувания commit.
+- **Exact next step:** По избор — отваряне на PR от `Dreamerol:feature/repository-refresh-20261122` към `Dreamerol:main` и разрешаване на конфликтите. Без автоматичен PR или merge без изрично одобрение.
+
+## 2026-11-28 16:15 - Проверено състояние: финалният commit е наличен
+- **Date/time:** 2026-11-28 16:15 (see `docs/WORKLOG/LOG_28-11-26.md`).
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `7df1703467cb0d677ab899eeee7ee277c8f18253`, `ahead 1` спрямо `origin/feature/repository-refresh-20261122`.
+- **Last completed:** Потвърдено е, че записаната в 02:54 следваща стъпка вече е изпълнена: локалният commit `chore: finalize DREAMEROL sync and dashboard stabilization` съществува с author `Dreamerol <michaelakoseva@gmail.com>` и обхваща 20 файла. Работното дърво е чисто (`git status --porcelain` без изход).
+- **Actual Git status:** Няма uncommitted промени преди документалните записи за тази сесия. Няма push; `upstream` (`Dreamerol`) остава authoritative remote, `origin` e `GabrielRules`, `architectquant` също e наличен.
+- **Tests:** Нови тестове не са пускани в тази сесия. Важат реалните резултати от 02:54: целеви `tests/test_dashboard_workflow.py` — 46 passed; пълен `python -m pytest -q` — 511 passed, 1 StarletteDeprecationWarning.
+- **Known issues/blockers:** Няма известни blockers. Синхронизираните броячи остават architectquant `35 / 35 / 0 / 0` и GabrielRules `36 / 36 / 0 / 0`.
+- **Exact next step:** Само след изрично одобрение — да се реши дали и къде да се push-не локалният commit (`origin/feature/repository-refresh-20261122` или отделен клон към `upstream`); без автоматичен push, Sync или GitHub write.
+
 ## 2026-11-28 02:54 - Финални Sync резултати и локален commit
 - **Date/time:** 2026-11-28 02:54 (see `docs/WORKLOG/LOG_28-11-26.md`)
 - **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2` преди commit.
