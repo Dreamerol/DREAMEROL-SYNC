@@ -10,5 +10,6 @@
 - Browser smoke servers confirmed running (Broker 8000, dashboard 8001); dashboard opened at `http://127.0.0.1:8001` with HTTP 200. Live dashboard showed exactly 1 READY TO SYNC fork, as expected.
 - Live SYNC ALL completed 2026-11-28T15:39:24Z: only `GabrielRules/DREAMEROL-SYNC` synced (4 upstream commits), 1/1 processed, 0 skipped/failed/manual; counters afterwards 36 up-to-date, 0 ready, 0 unsyncable.
 - History operation `a7cce67d-0c6a-465b-ba04-804cb1bc9c25` records exactly one target/result and `success: 1`; `last_successful_sync` set only for that fork.
+- Second live SYNC ALL via `architectquant` completed 2026-11-28T15:46:53Z: only `architectquant/DREAMEROL-SYNC` synced (4 upstream commits), operation `bcfb568e-c892-4af9-961d-15bcb504d7ea`, 1 target/result, `success: 1`, 0 failed/skipped/manual. Both profiles behaved identically: one READY TO SYNC fork, one merge-upstream, clean history.
 - Pre-push audit passed: `scripts/check.ps1` → all checks passed, 513 tests; branch diff vs `upstream/main` is 2 files (WORKLOG.md, tests/test_api.py).
 - Planned PR: source branch pushed to `Dreamerol/DREAMEROL-SYNC`, base `main`, authored as Dreamerol; no direct push to `main`. `gh` CLI is not installed, so PR creation must use the GitHub web compare page.
