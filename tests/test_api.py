@@ -169,6 +169,53 @@ def _use_temp_sync_history(client, tmp_path):
     return store
 
 
+@pytest.mark.parametrize("account", ["GabrielRules", "architectquant"])
+def test_sync_all_syncs_single_ready_fork(client, monkeypatch, tmp_path, account):
+    ready_name = f"{account}/DREAMEROL-SYNC"
+    current_name = f"{account}/current"
+    github = make_github_client()
+    github.get_authenticated_user.return_value = {"login": account}
+    patch_github(monkeypatch, github)
+    store = _use_temp_sync_history(client, tmp_path)
+
+    ready_fork = make_fork(ready_name)
+    current_fork = make_fork(current_name)
+    synchronizer = Mock()
+    synchronizer.get_forks.return_value = [ready_fork, current_fork]
+    synchronizer.preview_fork.side_effect = [
+        {"repository": ready_name, "status": "behind", "ahead_by": 0, "behind_by": 1},
+        {"repository": current_name, "status": "up-to-date", "ahead_by": 0, "behind_by": 0},
+    ]
+    synchronizer.sync_all.return_value = [
+        {
+            "repository": ready_name,
+            "status": "synced",
+            "message": "Synced 1 upstream commit.",
+            "behind_by": 1,
+            "ahead_by": 0,
+        }
+    ]
+    patch_synchronizer(monkeypatch, synchronizer)
+
+    response = post_sync(
+        client,
+        {
+            "dry_run": False,
+            "confirmation": "SYNC",
+            "repositories": [ready_name, current_name],
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["account"] == account
+    assert [item["status"] for item in data["results"]] == ["synced", "up-to-date"]
+    synchronizer.sync_all.assert_called_once_with(forks=[ready_fork])
+    assert list(store.get_map(account)) == [ready_name]
+    assert store.get_last_successful(account, ready_name)
+    assert store.get_last_successful(account, current_name) is None
+
+
 def test_preview_includes_last_sync_and_does_not_persist(client, monkeypatch, tmp_path):
     github = make_github_client()
     patch_github(monkeypatch, github)
