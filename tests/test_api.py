@@ -169,6 +169,50 @@ def _use_temp_sync_history(client, tmp_path):
     return store
 
 
+def test_sync_all_syncs_single_ready_gabrielrules_fork(client, monkeypatch, tmp_path):
+    github = make_github_client()
+    github.get_authenticated_user.return_value = {"login": "GabrielRules"}
+    patch_github(monkeypatch, github)
+    store = _use_temp_sync_history(client, tmp_path)
+
+    ready_fork = make_fork("GabrielRules/DREAMEROL-SYNC")
+    current_fork = make_fork("GabrielRules/current")
+    synchronizer = Mock()
+    synchronizer.get_forks.return_value = [ready_fork, current_fork]
+    synchronizer.preview_fork.side_effect = [
+        {"repository": "GabrielRules/DREAMEROL-SYNC", "status": "behind", "ahead_by": 0, "behind_by": 1},
+        {"repository": "GabrielRules/current", "status": "up-to-date", "ahead_by": 0, "behind_by": 0},
+    ]
+    synchronizer.sync_all.return_value = [
+        {
+            "repository": "GabrielRules/DREAMEROL-SYNC",
+            "status": "synced",
+            "message": "Synced 1 upstream commit.",
+            "behind_by": 1,
+            "ahead_by": 0,
+        }
+    ]
+    patch_synchronizer(monkeypatch, synchronizer)
+
+    response = post_sync(
+        client,
+        {
+            "dry_run": False,
+            "confirmation": "SYNC",
+            "repositories": ["GabrielRules/DREAMEROL-SYNC", "GabrielRules/current"],
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["account"] == "GabrielRules"
+    assert [item["status"] for item in data["results"]] == ["synced", "up-to-date"]
+    synchronizer.sync_all.assert_called_once_with(forks=[ready_fork])
+    assert list(store.get_map("GabrielRules")) == ["GabrielRules/DREAMEROL-SYNC"]
+    assert store.get_last_successful("GabrielRules", "GabrielRules/DREAMEROL-SYNC")
+    assert store.get_last_successful("GabrielRules", "GabrielRules/current") is None
+
+
 def test_preview_includes_last_sync_and_does_not_persist(client, monkeypatch, tmp_path):
     github = make_github_client()
     patch_github(monkeypatch, github)
