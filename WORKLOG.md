@@ -7,5 +7,8 @@
 - Dashboard eligibility check for the same data: one READY TO SYNC fork, one up-to-date fork excluded.
 - Verified: `python -m pytest -q -p no:cacheprovider` → 512 passed (1 Starlette/httpx deprecation warning); `python -m compileall -q api auth_broker backend fork_sync main.py tests`; `node --check` on all three JS entry files.
 - Git state at start: `main...origin/main [ahead 116]`, clean working tree; HEAD matched `upstream/main`.
-- Browser smoke servers confirmed running (Broker 8000, dashboard 8001); dashboard opened at `http://127.0.0.1:8001` with HTTP 200. User reports the live dashboard shows exactly 1 READY TO SYNC fork, as expected; live SYNC ALL execution and its history are still pending.
-- Planned PR: source branch pushed to `Dreamerol/DREAMEROL-SYNC`, base `main`, authored as Dreamerol; no direct push to `main`.
+- Browser smoke servers confirmed running (Broker 8000, dashboard 8001); dashboard opened at `http://127.0.0.1:8001` with HTTP 200. Live dashboard showed exactly 1 READY TO SYNC fork, as expected.
+- Live SYNC ALL completed 2026-11-28T15:39:24Z: only `GabrielRules/DREAMEROL-SYNC` synced (4 upstream commits), 1/1 processed, 0 skipped/failed/manual; counters afterwards 36 up-to-date, 0 ready, 0 unsyncable.
+- History operation `a7cce67d-0c6a-465b-ba04-804cb1bc9c25` records exactly one target/result and `success: 1`; `last_successful_sync` set only for that fork.
+- Pre-push audit passed: `scripts/check.ps1` → all checks passed, 513 tests; branch diff vs `upstream/main` is 2 files (WORKLOG.md, tests/test_api.py).
+- Planned PR: source branch pushed to `Dreamerol/DREAMEROL-SYNC`, base `main`, authored as Dreamerol; no direct push to `main`. `gh` CLI is not installed, so PR creation must use the GitHub web compare page.
