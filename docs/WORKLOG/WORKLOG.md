@@ -1,5 +1,421 @@
 ﻿# WORKLOG
 
+## 2026-11-28 02:54 - Финални Sync резултати и локален commit
+- **Date/time:** 2026-11-28 02:54 (see `docs/WORKLOG/LOG_28-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2` преди commit.
+- **Last completed:** Завършена е стабилизацията на Dashboard (cache-busting `20261128a`, версиран snapshot key, `network/http/timeout` diagnostics) и са потвърдени всички реални Sync операции: architectquant 7 успешни Sync-а, GabrielRules 33 успешни Sync-а, `failed=0`, `skipped=0`, `need attention=0`.
+- **Actual Git status:** Променени са `DASHBOARD/app.js`, `DASHBOARD/index.html`, `DASHBOARD/utils.js`, `DECISIONS.md`, `LICENSE`, `README.md`, документацията под `docs/` и тестовете. Предишните одобрени docs/Git промени са запазени. Няма нов Sync, login или GitHub write от агента.
+- **Tests:** Целеви `tests/test_dashboard_workflow.py` — 46 passed; пълен `python -m pytest -q` — 511 passed, 1 StarletteDeprecationWarning.
+- **Known issues/blockers:** Няма известни blockers. Крайни броячи: architectquant `35 / 35 / 0 / 0`, GabrielRules `36 / 36 / 0 / 0`.
+- **Exact next step:** Локален commit с message `chore: finalize DREAMEROL sync and dashboard stabilization`; без push. Authoritative remote е `upstream` (`Dreamerol`), `origin` остава `GabrielRules`.
+
+## 2026-11-28 00:22 - Стабилизация: версиран snapshot и категории грешки
+- **Date/time:** 2026-11-28 00:22 (see `docs/WORKLOG/LOG_28-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`.
+- **Last completed:** По одобрение snapshot ключът е версиран като `dreamerol.dashboardSnapshot.20261128a`, за да не се зареждат стари `operationCounts` след deploy. `requestJson` добавя `kind` категории `network`, `http`, `timeout`; `requestErrorMessage` показва категорията, HTTP статуса и санитизирано съобщение без токени. cache-busting версията остава `20261128a`.
+- **Actual Git status:** Променени са `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `tests/test_dashboard_workflow.py` и логовете. Предишните docs/Git промени са запазени. Няма нов Sync, login или GitHub write от агента.
+- **Tests:** Целеви `tests/test_dashboard_workflow.py` — 46 passed; пълен `python -m pytest -q` — 511 passed, 1 StarletteDeprecationWarning.
+- **Known issues/blockers:** Няма нови известни бъгове. Потребителят потвърди след sign out/in: `35 / 27 / 3 / 0` по време на проверки, след това `35 / 28 UP TO DATE / 7 READY TO SYNC / 0 UNSYNCABLE` с `READY TO SYNC` отгоре.
+- **Exact next step:** Няма одобрена следваща промяна. Нов реален Sync само с изрично одобрение.
+
+## 2026-11-28 00:16 - Cache-busting 20261128a и стабилизационен анализ
+- **Date/time:** 2026-11-28 00:16 (see `docs/WORKLOG/LOG_28-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`.
+- **Last completed:** Сменен е само version identifier-ът за JS ресурсите: `DASHBOARD/index.html` сочи `app.js?v=20261128a`, а `DASHBOARD/app.js` импортира `utils.js?v=20261128a`. Обновени са три теста със стари хардкоднати версии. Направен е read-only анализ на `operationCounts`/`liveCounts` и HTTP/network error handling; без кодови промени в тези области.
+- **Actual Git status:** Променени са `DASHBOARD/index.html`, `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `tests/test_dashboard_progress.py`, `tests/test_dashboard_strict_counts.py`, `tests/test_dashboard_workflow.py` и логовете. Предишните docs/Git промени са запазени. Няма нов Sync, login или GitHub write от агента.
+- **Tests:** Целеви `tests/test_dashboard_workflow.py` — 44 passed; пълен `python -m pytest -q` — 509 passed, 1 StarletteDeprecationWarning.
+- **Known issues/blockers:** Съобщението `35 / 27 UP TO DATE / 0 READY TO SYNC / 0 UNSYNCABLE` заедно с `Background checks continue` е съвместимо с течащи проверки; живите броячи се използват след приключване. Предложения за snapshot version-key и по-богати error типове чакат отделно одобрение.
+- **Exact next step:** Потребителят да одобри или отхвърли snapshot/error диагностичните подобрения. Нов реален Sync само с изрично одобрение.
+
+## 2026-11-28 00:10 - Филтърът READY TO SYNC изключва проверки с грешка
+- **Date/time:** 2026-11-28 00:10 (see `docs/WORKLOG/LOG_28-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`.
+- **Last completed:** По изрично одобрение `filteredRepos()` в `DASHBOARD/app.js:616` използва `c === "behind" && !isCheckError(r)`. Добавен е тест за трите `preview_error` репозитория и един валиден `behind` запис.
+- **Actual Git status:** Променени са `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `tests/test_dashboard_progress.py`, `tests/test_dashboard_strict_counts.py`, `tests/test_dashboard_workflow.py` и логовете. Предишните docs/Git промени са запазени. Няма нов Sync, login или GitHub write от агента.
+- **Tests:** Целеви `tests/test_dashboard_workflow.py` — 44 passed; пълен `python -m pytest -q` — 509 passed, 1 StarletteDeprecationWarning.
+- **Known issues/blockers:** Потребителят съобщи Dashboard стойности `35 / 28 UP TO DATE / 7 READY TO SYNC / 0 UNSYNCABLE` след промяната; реален Sync не е стартиран.
+- **Exact next step:** Потребителят да потвърди имената в `READY TO SYNC`, ако желае. Нов реален Sync само с изрично одобрение.
+
+## 2026-11-28 00:00 - UNVERIFIED проверки: timeout, подреждане и броячи
+- **Date/time:** 2026-11-28 00:00 (see `docs/WORKLOG/LOG_28-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`.
+- **Last completed:** След изрично одобрение frontend-ът запазва `AbortError` (`DASHBOARD/utils.js:17-21`), timeout-овете са 20s/60s (`DASHBOARD/app.js:30-31`), `sortReposForDisplay` праща всички `UNVERIFIED` след потвърдените групи, а `computeDashboardCounts` брои грешките само като `check_errors`, не и като `to_be_synced`/`up_to_date`.
+- **Actual Git status:** Променени са `DASHBOARD/app.js`, `DASHBOARD/utils.js`, `tests/test_dashboard_progress.py`, `tests/test_dashboard_strict_counts.py`, `tests/test_dashboard_workflow.py` и логовете. Предишните docs/Git промени са запазени. Няма нов Sync, login или GitHub write от агента.
+- **Tests:** Целеви тестове — 84 passed; пълен `python -m pytest -q` — 508 passed, 1 StarletteDeprecationWarning.
+- **Known issues/blockers:** Браузърът може да кешира старите JS файлове; при нужда е необходим hard refresh (Ctrl+F5). Реалният Sync на осемте репота не е стартиран от агента.
+- **Exact next step:** Потребителят да направи hard refresh на Dashboard и да провери, че осемте `UNVERIFIED` са след `up to date` и че броячът показва 8 unverified. Нов реален Sync само с изрично одобрение.
+
+## 2026-11-27 23:54 - UNVERIFIED репотата са реално behind; грешката е в проверката
+- **Date/time:** 2026-11-27 23:54 (see `docs/WORKLOG/LOG_27-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без кодови промени от агента.
+- **Last completed:** Диагностицирано е съобщението `Could not reach the server.` при `UNVERIFIED` редовете. `DASHBOARD/utils.js:17-21` губи `AbortError` при wrap на `fetch` грешка, затова клиентските timeout-ове се показват като мрежова грешка (`DASHBOARD/app.js:887-894`, `:983-987`). Пет проверени репота (вкл. трите от последното съобщение) са `behind` спрямо `Dreamerol` според публичен read-only compare.
+- **Actual Git status:** Без сорс промени; обновени са логовете. Няма нов Sync, login или GitHub write от агента.
+- **Tests:** Нов pytest не е пускан. Read-only: публичен GitHub compare за пет репота, проверка на живитеBroker/Dashboard процеси и логовете.
+- **Known issues/blockers:** `UNVERIFIED` не означава, че репото не може да се синхронизира — означава, че последната проверка е прекъсната/превърната в грешка и frontend-ът я изключва. Точният тип прекъсване е маскиран от error-wrapping. Има предложена минимална поправка, но чака одобрение.
+- **Exact next step:** Потребителят да одобри или отхвърли минималната поправка в `DASHBOARD/utils.js` (запазване на `AbortError`) и евентуално увеличение на timeout-овете. Без нов Sync без изрично одобрение.
+
+## 2026-11-27 23:51 - Втора жива операция: общо 14 успешни Sync-а днес
+- **Date/time:** 2026-11-27 23:51 (see `docs/WORKLOG/LOG_27-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без кодови промени от агента.
+- **Last completed:** Потребителят е пуснал последните 2 `READY TO SYNC`. Потвърдена е операция `e38122e0-ec80-4550-ad1d-b6efb93c709d`, `created_at 2026-11-27T21:50:36Z`, `targets=2`, `success=2`, `failed=0`. Общо за деня: 14 успешни Sync-а (12 в 21:08Z + 2 в 21:50Z).
+- **Actual Git status:** Без сорс промени; обновени са логовете. `data/sync_history.json` е променен от приложението (gitignored).
+- **Tests:** Нов pytest не е пускан; проверката е read-only четене на историята.
+- **Known issues/blockers:** Потребителят съобщава, че останалите 8 са `UNVERIFIED`; това не е независимо проверено. Точната причина изисква текста на съобщението от един такъв ред или от диалога `Excluded after safety check`.
+- **Exact next step:** Потребителят да препише едно `UNVERIFIED` съобщение; след това само read-only диагностика. Без нов Sync без изрично одобрение.
+
+## 2026-11-27 23:43 - Корекция и диагностика: SYNC CHOSEN, 12 от 15 синхронизирани
+- **Date/time:** 2026-11-27 23:43 (see `docs/WORKLOG/LOG_27-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без кодови промени от агента.
+- **Last completed:** Потребителят уточни, че е избрал 15 репота и е натиснал `SYNC CHOSEN`, а не `SYNC ALL`. Записаната live операция `9ccf4b0a-8bdc-4321-ad3d-aadacfe96d0d` остава `targets=12`, `success=12`, `failed=0`; потребителят съобщава за около 8 `UNVERIFIED` реда. По-ранният запис от 23:09 е неточен само по действие, не по резултат.
+- **Actual Git status:** Без сорс промени; обновени са логовете. `data/sync_history.json` е променен от приложението в 23:08 и остава gitignored.
+- **Tests:** Нов pytest не е пускан. Read-only проверки: историята, frontend/backend кода и публичен GitHub API (`35` fork-а за `architectquant`, rate limit `59/60`).
+- **Known issues/blockers:** Трите избрани репота, липсващи от живото заявка, са отпаднали на preflight (`DASHBOARD/app.js:954-988`, `:1028-1031`). `UNVERIFIED` се показва при `preview_error`/`error`/`timeout` и се изключва от потвърдените броячи (`DASHBOARD/utils.js:124-150`, `DASHBOARD/app.js:632-676`). Точните съобщения не са прочетени; нужен е текст от един такъв ред или от диалога `Excluded after safety check` (`DASHBOARD/app.js:1045`).
+- **Exact next step:** Потребителят да препише едно `UNVERIFIED` съобщение; след това само read-only диагностика. Без нов Sync без изрично одобрение.
+
+## 2026-11-27 23:09 - Потвърден реален SYNC ALL от акаунт architectquant
+- **Date/time:** 2026-11-27 23:09 (see `docs/WORKLOG/LOG_27-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без кодови промени от агента.
+- **Last completed:** Потребителят е натиснал `SYNC ALL` в отворения Dashboard. Проверен е записаният резултат: операция `9ccf4b0a-8bdc-4321-ad3d-aadacfe96d0d`, `created_at 2026-11-27T21:08:07Z`, акаунт `architectquant`, `12/12 synced`, `0 failed`, `0 skipped`, `0 need attention`.
+- **Actual Git status:** Без промени в сорс кодa; `data/sync_history.json` е обновен от приложението (gitignored), добавен е новият лог запис. Предходните несвързани промени остават непокътнати.
+- **Tests:** Нов pytest не е пускан. Логът на Dashboard показва един финален `POST /api/sync` → `200` и последващ `GET /api/history` → `200`; history данните са прочетени директно и са консистентни.
+- **Known issues/blockers:** Потребителят очаква 33 fork-а, но записаните цели са 12. `SYNC ALL` по дизайн таргетира само `READY TO SYNC` (`DASHBOARD/app.js:1018-1021`) и преминава preflight (`DASHBOARD/app.js:1028-1031`); причината за разликата не е потвърдена. Няма регистрирани грешки.
+- **Exact next step:** Да се изясни дали 33 е бил общият брой fork-ове или очакван брой за синхронизиране; при нужда само read-only преглед на текущите броячи. Без нов реален Sync без изрично одобрение.
+
+## 2026-11-27 23:01 - Отворен Dashboard за проверка на реални профили
+- **Date/time:** 2026-11-27 23:01 (see `docs/WORKLOG/LOG_27-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; работното дърво остава с предишните несвързани промени.
+- **Last completed:** Стартиран е локалният smoke стек (Broker PID `17156`, dashboard PID `21756`) и е отворен `http://127.0.0.1:8001/dashboard` в браузъра.
+- **Actual Git status:** Без промени в сорс кодa; добавени са новият дневен лог и този запис. Предходните промени от 2026-11-24 са непокътнати.
+- **Tests:** Нов pytest не е пускан. HTTP проверки: Broker `/healthz` → `200`, dashboard `/` → `200`.
+- **Known issues/blockers:** Няма потвърден кодови дефект за реалните профили; нужни са валидна OAuth сесия и GitHub App инсталация/права за конкретния профил. Няма login, preview или реален Sync.
+- **Exact next step:** Потребителят да посочи целевия реален GitHub профил и наблюдавания проблем; първо само read-only Preview. Реален Sync само след изрично одобрение.
+
+## 2026-11-24 01:03 - Финална проверка; проектът е в добро състояние
+- **Date/time:** 2026-11-24 01:03 (see `docs/WORKLOG/LOG_24-11-26.md`)
+- **Branch/HEAD:** `upstream/main` @ `59dfe3c`. Активен отдалечен клон: `docs/technical-documentation-refresh-dreamerol` @ `f6a7d04`. Локалното работно дърво остава `feature/repository-refresh-20261122` @ `0a4f3a2`.
+- **Last completed:** Потвърдено: PR #12 е `merged` от Dreamerol; PR #11 е `closed` (не merge-нат). GitHub Actions #73–#75 на `main` са `success`. Чист clone на Dreamerol main дава `506 passed in 8.81s` и `python main.py --help` exit 0.
+- **Actual Git status:** основното работно дърво е непроменено спрямо предишната проверка, плюс текущият лог: ` M DECISIONS.md`; ` M README.md`; ` M LICENSE`; ` D docs/DREAMEROL_SYNC_TECHNICAL_DOC.md`; ` M docs/WORKLOG/LOG_22-11-26.md`; ` M docs/WORKLOG/WORKLOG.md`; ` M docs/development/CHANGELOG_AI.md`; `?? "docs/00 - DREAMEROL SYNC - TECHNICAL GUIDE.md"`; `?? "docs/DREAMEROL SYNC - DETAILED TECH DOC.md"`; `?? docs/WORKLOG/LOG_23-11-26.md`; `?? docs/WORKLOG/LOG_24-11-26.md`. Тези локални промени не са част от публикувания main.
+- **Tests:** Чист clone на main: `python -m pytest -q -p no:cacheprovider` → **506 passed in 8.81s** (2026-11-24). `python main.py --help` → exit 0.
+- **Known issues/blockers:** Няма критични. Има несвързани локални работни промени в текущото дърво; преди Git действия трябва да се избере само точният обхват.
+- **Exact next step:** Край на деня. По желание — почивка. След това, при изрична команда: да се изолира чист commit/PR само за избрани файлове, базиран на `upstream/main`, без да се пипат несвързаните локални промени.
+
+## 2026-11-23 23:57 - Documentation-only PR клонът е качен в Dreamerol
+- **Date/time:** 2026-11-23 23:57 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** основното работно дърво остава `feature/repository-refresh-20261122` @ `0a4f3a2`. Отделният PR клон е `docs/technical-documentation-refresh` @ `6e4c46e`, изолиран worktree в `%TEMP%\opencode\dreamerol-docs-pr`.
+- **Last completed:** Подготвен е documentation-only PR: `README.md` с поправени линкове, нов `docs/DREAMEROL SYNC - DETAILED TECH DOC.md` и нов `docs/00 - DREAMEROL SYNC - TECHNICAL GUIDE.md`. Клонът е push-нат към `upstream` (Dreamerol).
+- **Actual Git status (main tree):** ` M DECISIONS.md`; ` M README.md`; ` D docs/DREAMEROL_SYNC_TECHNICAL_DOC.md`; ` M docs/WORKLOG/LOG_22-11-26.md`; ` M docs/WORKLOG/WORKLOG.md`; ` M docs/development/CHANGELOG_AI.md`; `?? "docs/00 - DREAMEROL SYNC - TECHNICAL GUIDE.md"`; `?? "docs/DREAMEROL SYNC - DETAILED TECH DOC.md"`; `?? docs/WORKLOG/LOG_23-11-26.md`.
+- **Tests:** Нови тестове не са пускани в тази стъпка (само документация). Важи реалният резултат `506 passed in 8.09s` от 2026-11-23 22:39; GitHub `Tests` #50 остава `success` според по-ранните записи.
+- **Known issues/blockers:** Няма. `gh` CLI не е инсталиран, затова PR не е отворен от терминал; GitHub върна готов URL за ръчно създаване. Merge ще направи авторът ръчно.
+- **Exact next step:** Отваряне на PR от `Dreamerol:docs/technical-documentation-refresh` → `Dreamerol:main` чрез `https://github.com/Dreamerol/DREAMEROL-SYNC/pull/new/docs/technical-documentation-refresh`; без merge от агента.
+
+## 2026-11-23 23:21 - Състоянието на документите е потвърдено
+- **Date/time:** 2026-11-23 23:21 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без GitHub промени.
+- **Last completed:** Потребителят потвърди, че изтриването на `docs/DREAMEROL_SYNC_TECHNICAL_DOC.md` и новият `docs/DREAMEROL SYNC - TECHNICAL GUIDE.md` са умишлени.
+- **Actual Git status:** непроменен спрямо 23:15 — ` M DECISIONS.md`; ` M README.md`; ` D docs/DREAMEROL_SYNC_TECHNICAL_DOC.md`; ` M docs/WORKLOG/LOG_22-11-26.md`; ` M docs/WORKLOG/WORKLOG.md`; ` M docs/development/CHANGELOG_AI.md`; `?? "docs/DREAMEROL SYNC - TECHNICAL DOCUMENTATION.md"`; `?? "docs/DREAMEROL SYNC - TECHNICAL GUIDE.md"`; `?? docs/WORKLOG/LOG_23-11-26.md`.
+- **State:** Няма нови файлови промени след потвърждението. Новият guide остава готов за преглед; старите предварително съществуващи промени са непокътнати.
+- **Tests:** След презаписването не е пускан нов pytest; важи `506 passed in 8.09s` от 2026-11-23 22:39.
+- **Known issues/blockers:** Няма несигурност по документите. Отворен въпрос: дали да се прави локален commit и/или отделен клон/PR — изисква се изрична команда.
+- **Next exact step:** Изчакване на изрична команда за commit/клон/PR; без Git писания преди това.
+
+## 2026-11-23 23:15 - Референцията към стария документ е актуализирана
+- **Date/time:** 2026-11-23 23:15 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без GitHub промени.
+- **Last completed:** Двете препратки в новия guide сочат към вече съществуващия `docs/DREAMEROL SYNC - TECHNICAL GUIDE.md`, вместо към изчезналия `docs/DREAMEROL_SYNC_TECHNICAL_DOC.md`.
+- **Actual Git status:** ` M DECISIONS.md`; ` M README.md`; ` D docs/DREAMEROL_SYNC_TECHNICAL_DOC.md`; ` M docs/WORKLOG/LOG_22-11-26.md`; ` M docs/WORKLOG/WORKLOG.md`; ` M docs/development/CHANGELOG_AI.md`; `?? "docs/DREAMEROL SYNC - TECHNICAL DOCUMENTATION.md"`; `?? "docs/DREAMEROL SYNC - TECHNICAL GUIDE.md"`; `?? docs/WORKLOG/LOG_23-11-26.md`.
+- **State:** Изтритият стар документ не е възстановяван; новият guide файл не е редактиран от тази задача. Хешовете показват, че новият файл не е точно копие на стария (разлика 144/127 реда), затова е третиран като отделна външна промяна.
+- **Tests:** След презаписването не е пускан нов pytest. Важи реалният резултат `506 passed in 8.09s` от 2026-11-23 22:39.
+- **Known issues/blockers:** Има външни за текущата задача промени — изтрит проследяван файл и нов untracked guide. Не са пипани; необходимо е потвърждение дали са умишлени.
+- **Next exact step:** Потребителят да потвърди състоянието на двата файла; без commit/push/merge без изрична команда.
+
+## 2026-11-23 23:13 - Техническият guide е презаписан под същото име
+- **Date/time:** 2026-11-23 23:13 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без GitHub промени.
+- **Last completed:** `docs/DREAMEROL SYNC - TECHNICAL DOCUMENTATION.md` е презаписан като пълен технически implementation guide с проверени детайли от кода, API contract-и, parameterized test инвентаризация и frontend/авторизационните подобрения от последната седмица.
+- **State:** Файлът е 25 785 байта / 411 реда и остава untracked. Останалите предварително съществуващи промени са непокътнати. Няма промяна в кода или конфигурацията.
+- **Tests:** След презаписването не е пускан нов pytest. Важи реалният резултат от 2026-11-23 22:39 — `506 passed in 8.09s`; GitHub `Tests` #50 остава `success` според предишните записи.
+- **Known issues/blockers:** Няма. Потребителят съобщи, че файлът изглежда празен в GitHub — причината е, че нищо не е качвано в GitHub; локално файлът винаги е съдържал текст.
+- **Next exact step:** Потребителят да прегледа локалния файл; при одобрение — локален commit или отделен клон/PR. Без push/merge без изрична команда.
+
+## 2026-11-23 23:04 - Крайно име на техническата документация
+- **Date/time:** 2026-11-23 23:04 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без GitHub промени.
+- **Last completed:** По изрично потвърждение файлът е преименуван на `docs/DREAMEROL SYNC - TECHNICAL DOCUMENTATION.md`. Съдържанието е непроменено; първоначалният `docs/DREAMEROL_SYNC_TECK_DOCUMENTATION.md` вече не съществува.
+- **State:** Новият файл е untracked. Останалите предварително съществуващи промени са непокътнати. Няма промяна в кода, конфигурацията или тестовете.
+- **Tests:** След преименуването не е пускан нов pytest. Важи реалният резултат от 22:39 — `506 passed in 8.09s`; GitHub `Tests` #50 остава `success` според предишните записи.
+- **Known issues/blockers:** Няма. Старите записи в логовете сочат първоначалното име като исторически факт.
+- **Next exact step:** Потребителят да потвърди крайното име; при одобрение — локален commit или отделен клон/PR. Без push/merge без изрична команда.
+
+## 2026-11-23 22:40 - Техническа README документация е създадена
+- **Date/time:** 2026-11-23 22:40 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без GitHub промени.
+- **Last completed:** Създаден е `docs/DREAMEROL_SYNC_TECK_DOCUMENTATION.md` — технически README с архитектура, конфигурация, API, OAuth, sync модел, пълна тестова инвентаризация и frontend/авторизационни подобрения от 17–23.11.2026.
+- **State:** Новият файл е untracked. Предварично съществуващите промени в `DECISIONS.md`, `README.md`, `docs/WORKLOG/LOG_22-11-26.md`, `docs/WORKLOG/WORKLOG.md`, `docs/development/CHANGELOG_AI.md` и untracked `docs/WORKLOG/LOG_23-11-26.md` са непокътнати. `docs/DREAMEROL_SYNC_TECHNICAL_DOC.md` не е пипан.
+- **Tests:** Пуснат е `python -m pytest -q -p no:cacheprovider` → `506 passed in 8.09s`. Преброени са 349 тестови декларации в 19 файла. GitHub `Tests` #50 остава `success` според предишните записи; нов GitHub run няма.
+- **Known issues/blockers:** Няма. Документът използва поисканото изписване `TECK` в името на файла.
+- **Next exact step:** Потребителят да прегледа новия документ; при одобрение — локален commit или отделен клон/PR. Без push/merge без изрична команда.
+
+## 2026-11-23 02:39 - Трите репота са в синхрон
+- **Date/time:** 2026-11-23 02:39 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main`, `architectquant/main`, `GabrielRules/main` — всички `9f1a17f`, 72 файла.
+- **Last completed:** Потребителят е извършил SYNC/Discard в architectquant и GabrielRules; проверено е състоянието на трите репота.
+- **State:** `ahead=0`, `behind=0` и в двете fork-ове спрямо Dreamerol. Няма отворени PR-и. 11-те стари commit-а вече не са в `architectquant/main`.
+- **Tests:** Няма нови тестове; важат `506 passed` и `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край — forks са напълно синхронизирани; при нужда нови промени само чрез feature branch.
+
+## 2026-11-23 02:37 - Architectquant fork: 11 ahead / 9 behind
+- **Date/time:** 2026-11-23 02:37 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `architectquant/main` @ `269cd4e`; `Dreamerol/main` @ `9f1a17f`; base `0a4f3a2`.
+- **Last completed:** Анализирано е съобщението за конфликти при Sync fork и предложението „Discard 11 commits“.
+- **State:** 11-те commit-а са стари cleanup/delete commit-и, чийто краен резултат вече е в Dreamerol чрез PR #9/#10. Няма отворени PR-и в двете репота. Discard е съдържателно безопасен, но е destructive за `main` на fork-а.
+- **Tests:** Няма нови тестове; важат `506 passed` и `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма; при желание първо се прави backup branch от `269cd4e`.
+- **Next exact step:** Потвърждение дали да се създаде backup branch преди discard.
+
+## 2026-11-23 02:20 - GitHub contributors: 3 акаунта
+- **Date/time:** 2026-11-23 02:20 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `9f1a17f`; без GitHub промени.
+- **Last completed:** Проверен е броят contributor-и след въпрос за UI, показващ само 1.
+- **State:** API: `architectquant` 155, `Dreamerol` 147, `GabrielRules` 55 — общо 3. Contributor-ите се броят по commit author, не по PR author.
+- **Tests:** Няма нови тестове; важат `506 passed` и `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма; възможен е само стар кеш в GitHub UI или погледнат затворен PR списък.
+- **Next exact step:** Край; при нужда Insights → Contributors / hard refresh.
+
+## 2026-11-23 02:05 - PR #10 е Dreamerol-авторски и е merge-нат
+- **Date/time:** 2026-11-23 02:05 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `9f1a17f`, 72 файла; локалният repo непокътнат.
+- **Last completed:** Потребителят е отворил и merge-нал PR #10 от `Dreamerol/chore/dreamerol-refresh-20261123` → `Dreamerol/main`.
+- **State:** PR #10 `author=Dreamerol`, `merged_by=Dreamerol`, `merged=true`, `merge_commit_sha=9f1a17f`. `architectquant` се показва само при стария PR #9. README в main съдържа Release status секцията.
+- **Tests:** Няма нови тестове; важат `506 passed` и `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край; при желание — нов Actions run на `main`.
+
+## 2026-11-23 01:57 - README Release status за Dreamerol-авторски PR
+- **Date/time:** 2026-11-23 01:57 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** локален `feature/repository-refresh-20261122` @ `0a4f3a2`; `Dreamerol/main` @ `c64de22`; без GitHub промени.
+- **Last completed:** Добавена е секция `## ✅ Release status` в README сVerified / Requires your own setup / Not covered by automated CI.
+- **State:** Готовото копие за качване е `C:\AI-Projects\DREAMEROL-SYNC\README.md`; освежени са ZIP (72 файла, 7 076 779 байта) и patch (2 214 байта). `git apply --check` → `exit 0`.
+- **Tests:** Няма нови тестове; никой тест не чете README. Важат `506 passed` и GitHub `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Потребителят качва README/ZIP в `chore/dreamerol-refresh-20261123`, commit и PR → `main` като Dreamerol.
+
+## 2026-11-23 01:55 - Batch Preview вече е изпълнен (корекция)
+- **Date/time:** 2026-11-23 01:55 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `c64de22`; без GitHub промени.
+- **Last completed:** Установено е, че batch read-only Preview вече е в `main` от commit `9561228`; поправен е статусът в `DECISIONS.md`.
+- **State:** `BATCH_CHECK_SIZE = 10`, 4×10 заявки и 2 теста са налични и покрити от `506 passed` / `Tests` #50. Следва избор на друга идея за PR.
+- **Tests:** Няма нови тестове; важат `506 passed` и GitHub `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Избор на реално неизпълнено подобрение за Dreamerol-авторски PR.
+
+## 2026-11-23 01:50 - Revert-ът на merge #9 не е наличен в GitHub
+- **Date/time:** 2026-11-23 01:50 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `c64de22`, 72 файла; локалният repo непокътнат.
+- **Last completed:** Потребителят съобщи за revert, но API проверка не показва такъв.
+- **State:** Няма нов revert commit, нов PR или Revert събитие. Клонът `chore/dreamerol-refresh-20261123` е на `c64de22`. `PR #9` остава `closed/merged`.
+- **Tests:** Няма нови тестове; GitHub run-овете остават #46–#50 `success`.
+- **Known issues/blockers:** Не е ясно какво точно е изпълнено от потребителя; мястото на revert-а не е видимо в GitHub.
+- **Next exact step:** Изясняване; при потвърдено желание подготвям локален revert patch за ръчно прилагане.
+
+## 2026-11-23 01:33 - Локална и API самоличност: Dreamerol / architectquant
+- **Date/time:** 2026-11-23 01:33 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** локален `feature/repository-refresh-20261122` @ `0a4f3a2`; `upstream/main` @ `c64de22`; без GitHub промени.
+- **Last completed:** Потвърдено е, че локалните commit-и са от `Dreamerol`, но API/CLI достъпът ми остава `architectquant` само с read върху Dreamerol репото.
+- **State:** `git config` → `Dreamerol <michaelakoseva@gmail.com>`; `GET /user` → `architectquant`; `Dreamerol/DREAMEROL-SYNC` permissions → `push=False`, `admin=False`.
+- **Tests:** Няма нови тестове; важат `506 passed` и GitHub `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма блокер за ръчния PR от уеб; директният API PR от мое име би бил от `architectquant`.
+- **Next exact step:** Край; потребителят отваря PR ръчно като Dreamerol.
+
+## 2026-11-23 01:32 - Чист публичен комплект за ръчен PR
+- **Date/time:** 2026-11-23 01:32 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** локален `feature/repository-refresh-20261122` @ `0a4f3a2`; `upstream/main` @ `c64de22`; без GitHub промени.
+- **Last completed:** Потребителят избра ръчно отваряне на PR от уеб; подготвени са ZIP с 72 публични файла и patch само за README разликата.
+- **State:** `C:\Users\PC-Admin\AppData\Local\Temp\opencode\DREAMEROL-SYNC-public-clean-20261123.zip` (7 076 130 байта); `...\DREAMEROL-SYNC-readme-delta-20261123.patch`. `.vscode/**` и `data/**` са изключени заради локален API ключ и реална sync история; решението е в `DECISIONS.md`.
+- **Tests:** Няма нови тестове; важат `506 passed` и GitHub `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма. Локалният `.vscode/settings.json` съдържа ключ — да не се качва в GitHub.
+- **Next exact step:** Потребителят качва ZIP-а в нов Dreamerol branch и отваря PR ръчно; моделират не създава PR без изрична команда.
+
+## 2026-11-23 01:26 - Профили на локалните и публикуваните промени
+- **Date/time:** 2026-11-23 01:26 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** локален `feature/repository-refresh-20261122` @ `0a4f3a2`; `upstream/main` @ `c64de22`.
+- **Last completed:** Проверено е кой акаунт стои зад локалните и remote промените.
+- **State:** Локалните 6 файла са само на диска (при commit → `Dreamerol <michaelakoseva@gmail.com>`), не са push-нати. PR #9: author `architectquant`, `merged_by Dreamerol`. След merge — `fd1fedd` и 4 README commit-а от Dreamerol (GitHub noreply). Локалният README се различава от remote (`+6/-4`).
+- **Tests:** Няма нови тестове; важат `506 passed` и GitHub `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край; при желание локалните промени да се комитнат с Dreamerol и да се пусне нов PR.
+
+## 2026-11-23 01:25 - Локална Git самоличност: Dreamerol
+- **Date/time:** 2026-11-23 01:25 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; без GitHub промени.
+- **Last completed:** По изрична команда са зададени `user.name=Dreamerol` и `user.email=michaelakoseva@gmail.com` само в локалния `.git/config`.
+- **State:** Проверено с `git config user.name` / `git config user.email`. Няма промяна в commit-и, код или GitHub.
+- **Tests:** Няма нови тестове; важат `506 passed` и GitHub `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край; бъдещите локални commit-и ще използват новата самоличност.
+
+## 2026-11-23 01:21 - Потвърдено: проектът е без монетизация
+- **Date/time:** 2026-11-23 01:21 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `fd1fedd`; без GitHub промени.
+- **Last completed:** Уточнено е, че „без комерсиална страна“ означава липса на монетизация в кода — вече е изпълнено; записано е в `DECISIONS.md`.
+- **State:** Няма плащания, абонаменти, платени функции или спонсорски блокове в публичното репо. MIT позволява комерсиално ползване от трети страни, но проектът не монетизира.
+- **Tests:** Няма нови тестове; важат `506 passed` и GitHub `Tests` #50 → `success`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край на задачата.
+
+## 2026-11-23 01:17 - Няма други GitHub тестове за стартиране
+- **Date/time:** 2026-11-23 01:17 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `fd1fedd`; без GitHub промени.
+- **Last completed:** Проверено е дали има допълнителни workflows извън `Tests`.
+- **State:** `.github/workflows/` съдържа само `tests.yml`. `scripts/` има локални smoke/check скриптове, не GitHub workflows.
+- **Tests:** `Tests` #50 → 4/4 успешни; локално `506 passed`. Други автоматични тестове няма.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край на задачата.
+
+## 2026-11-23 01:16 - Ръчен Tests run #50 е успешен
+- **Date/time:** 2026-11-23 01:16 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `fd1fedd`; локалният repo непроменен.
+- **Last completed:** Потребителят стартира ръчно `Tests` workflow от GitHub; проверен е статусът през API.
+- **State:** `run_number=50`, `id=45082084073`, `event=workflow_dispatch`, `actor=Dreamerol`, `status=completed`, `conclusion=success`. 4/4 job-а `success`. Run-ове #46–#49 също са успешни.
+- **Tests:** Локално в клона `506 passed in 7.03s`; GitHub `Tests` #50 → `success` (4 job-а).
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край на задачата; без допълнителни действия.
+
+## 2026-11-23 00:56 - Използва се съществуващият Tests workflow
+- **Date/time:** 2026-11-23 00:56 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `fd1fedd`; без GitHub промени.
+- **Last completed:** Решено е да не се създава нова тестова папка/workflow — използва се наличният `Tests`.
+- **State:** `.github/workflows/tests.yml` има `workflow_dispatch`, push/PR тригери и 4 job-а (Ubuntu/Windows × py3.11/py3.12); успешен run `45077795102`.
+- **Tests:** Няма нови тестове; важат `506 passed` и успешният GitHub run.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** При нужда — Actions → Tests → Run workflow на `main`.
+
+## 2026-11-23 00:55 - Решение: MIT лицензът остава
+- **Date/time:** 2026-11-23 00:55 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `fd1fedd`; локалният repo непроменен.
+- **Last completed:** Потребителят избра да запази MIT лиценза вместо публикуване без лиценз или смяна към MIT-0/CC0. Решението е записано в `DECISIONS.md`.
+- **State:** `LICENSE` остава в репото; отделният `COPYRIGHT.md` не се възстановява. Няма промени в GitHub, кода или тестовете.
+- **Tests:** Няма нови тестове; важат `506 passed` в клона и GitHub `Tests` run `45077795102` → `success`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край на задачата; без допълнителни действия без одобрение.
+
+## 2026-11-23 00:54 - GitHub Tests на main е успешен; нови тестове не са нужни
+- **Date/time:** 2026-11-23 00:54 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `Dreamerol/main` @ `fd1fedd`.
+- **Last completed:** Проверен е статусът на GitHub Actions след merge-а на PR #9.
+- **State:** `workflow_runs_total=1`: run `45077795102`, `Tests`, `completed/success`, създаден при merge-а. `check-runs` API показва `0`, както и по-рано.
+- **Tests:** Клонирано репо → `506 passed in 7.03s`; `main.py --help` → `exit 0`; GitHub `Tests` → `success`.
+- **Known issues/blockers:** Няма. `main.py --help` сам по себе си не доказва цялата функционалност — доказателство е пълният pytest.
+- **Next exact step:** Край; при клониране на нова машина — `pip install -r requirements.txt` и собствени credentials за реален Sync.
+
+## 2026-11-23 00:50 - Клонираното Dreamerol репо е проверено като работещо
+- **Date/time:** 2026-11-23 00:50 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** клониран `Dreamerol/main` @ `fd1fedd` в `%TEMP%\opencode\dreamerol-clone-check`; локалният repo непроменен.
+- **Last completed:** Клонирано е публичното репо и са пуснати тестове директно от клона, за да се отговори дали проектът работи без изключените локални файлове.
+- **State:** 72 файла в клона; `LICENSE` присъства (21 реда), `COPYRIGHT.md` липсва по решение на потребителя. Кодът не реферира изключените документи.
+- **Tests:** В клона, със същия `.venv`: `python -m pytest -q -p no:cacheprovider` → `506 passed in 7.03s`; `python main.py --help` → `exit 0`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край на проверката; проектът може да се клонира директно от Dreamerol.
+
+## 2026-11-23 00:48 - Локалното дърво е сравнено с Dreamerol/main
+- **Date/time:** 2026-11-23 00:48 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `upstream/main` @ `fd1fedd`; локален `feature/repository-refresh-20261122` @ `0a4f3a2`.
+- **Last completed:** Read-only сравнение на локалното работно дърво с `https://github.com/Dreamerol/DREAMEROL-SYNC`.
+- **State:** С изключени само `docs/WORKLOG/**` и `docs/development/**`: 0 променени файла, 0 remote-only, 6 local-only (`.opencode/commands/log.md`, `AGENTS.md`, `COPYRIGHT.md`, `CURRENT_STATUS.md`, `DECISIONS.md`, `NEXT_STEPS.md`). С всички договорени изключения: само `COPYRIGHT.md`, 0 content разлики; дървото = PR head `7cc4da7`.
+- **Tests:** Няма нови тестове — само `git diff`/`git ls-tree` проверки.
+- **Known issues/blockers:** Няма. `COPYRIGHT.md` е изтрит от потребителя в remote след merge.
+- **Next exact step:** Край на проверката; без действия без одобрение.
+
+## 2026-11-23 00:35 - Задачата е завършена: PR #9 е merge-нат в Dreamerol/main
+- **Date/time:** 2026-11-23 00:35 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** локален `feature/repository-refresh-20261122` @ `0a4f3a2`; PR head `architectquant:chore/dreamerol-full-refresh` @ `75d64c8`; `upstream/main` @ `fd1fedd`.
+- **Last completed:** Потребителят е merge-нал PR #9 от `architectquant` към `Dreamerol/main`. Проверено е реалното състояние след merge.
+- **State:** PR `closed`, `merged:true`, `merged_by:Dreamerol`, `merge_commit_sha:e01a05c8`, `merged_at:2026-11-22T22:27:07Z`. След merge потребителят е направил `fd1fedd Delete COPYRIGHT.md`. `main` има 72 файла, PR head — 73; единствената разлика е `COPYRIGHT.md`. Изключените работни документи липсват, README присъства. Локалните 4 неcommitted файла и новият лог са непокътнати.
+- **Tests:** Няма нови тестове в тази сесия; важат `506 passed in 8.11s` от 2026-11-22. Проверки: `git fetch`, `git ls-tree`, `git diff`, GitHub API за PR/merge статус.
+- **Known issues/blockers:** Няма блокери. `COPYRIGHT.md` е изтрит от потребителя след merge — дали да се възстанови е негов избор.
+- **Next exact step:** Край на задачата; без допълнителни push/merge без одобрение.
+
+## 2026-11-23 00:19 - PR #9 е проверен за пълно заместване
+- **Date/time:** 2026-11-23 00:19 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `architectquant:chore/dreamerol-full-refresh` @ `75d64c8`; PR #9 → `Dreamerol:main`.
+- **Last completed:** Потвърдено е, че след merge repo дървото ще съвпадне с локалната версия (без изключените работни документи).
+- **State:** PR `open`, `mergeable:true`, 211 commit-а, 66 файла; `0` назад / `211` напред; `17 M`, `49 A`, `0 D`; `base_excluded=0`, `worktree_vs_branch_diff=0`. Merge през `architectquant` върна `404` — няма write върху базовия repo.
+- **Tests:** Няма нови тестове; важат предишните `506 passed`.
+- **Known issues/blockers:** Merge изисква акаунт с write върху `Dreamerol/DREAMEROL-SYNC`.
+- **Next exact step:** Потребителят (Dreamerol) да мержне PR #9 след верификацията: https://github.com/Dreamerol/DREAMEROL-SYNC/pull/9
+
+## 2026-11-23 00:16 - ZIP на PR съдържанието за ръчно качване
+- **Date/time:** 2026-11-23 00:16 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** `chore/dreamerol-full-refresh` @ `75d64c8`; текущият клон и работното копие непроменени.
+- **Last completed:** Създаден `git archive` ZIP от дървото на клона за ръчно качване през GitHub UI.
+- **State:** `%TEMP%\opencode\DREAMEROL-SYNC-PR-75d64c8.zip` — 7 080 061 байта, 87 записа, README включен, 0 изключени файла. Диф спрямо `upstream/main`: 17 M, 49 A, 0 D. Няма push, PR или merge.
+- **Tests:** Няма нови тестове; важат предишните `506 passed`.
+- **Known issues/blockers:** Верификацията/липсата на write токен остава; ръчното качване е заобиколен път.
+- **Next exact step:** Разархивиране и качване в нов GitHub клон, после PR към `main`; изтриване на стари файлове НЕ е нужно (0 D).
+
+## 2026-11-23 00:14 - Изчакване по искане на потребителя
+- **Date/time:** 2026-11-23 00:14 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** локален `chore/dreamerol-full-refresh` @ `75d64c8` (author Dreamerol); текущият `feature/repository-refresh-20261122` @ `0a4f3a2` непроменен.
+- **Last completed:** Нищо ново по push/PR — потребителят избра да изчака заради сложна GitHub верификация.
+- **State:** Няма Git credentials, `gh` липсва, `.env` токенът е само за четене, CDP сесия липсва. Няма push, PR или merge. 4-те неcommitted файла са на място.
+- **Tests:** Няма нови тестове; важат предишните `506 passed`.
+- **Known issues/blockers:** GitHub верификацията на потребителя и липсата на write токен/сесия.
+- **Next exact step:** След верификацията — избор между обновен `.env` токен, Auth Broker OAuth, ръчен PR през GitHub UI или друго.
+
+## 2026-11-23 00:10 - Commitът за Dreamerol е с author Dreamerol
+- **Date/time:** 2026-11-23 00:10 (see `docs/WORKLOG/LOG_23-11-26.md`)
+- **Branch/HEAD:** локален клон `chore/dreamerol-full-refresh` @ `75d64c8` (замени `cef29c1`); текущият `feature/repository-refresh-20261122` @ `0a4f3a2` и работното копие не са променяни.
+- **Last completed:** Commitът е пренаправен със същите tree и parent, но с author/committer `Dreamerol <108183728+Dreamerol@users.noreply.github.com>`.
+- **State:** Няма push, PR или merge. Диф спрямо `upstream/main`: 66 файла, `+553/-15582`; 0 изключени файла; README blob = работен файл.
+- **Tests:** Няма нови тестове — няма промяна в проектния код; важат предишните `506 passed`.
+- **Known issues/blockers:** Токенът в `.env` няма write права за push/PR; клонът все още не е в GitHub.
+- **Next exact step:** `git push upstream chore/dreamerol-full-refresh:refs/heads/chore/dreamerol-full-refresh` с Dreamerol credentials, после създаване на PR → `main`.
+
+## 2026-11-22 23:47 - Клонът за пълно заместване е пренаправен от работното копие
+- **Date/time:** 2026-11-22 23:47 (see `docs/WORKLOG/LOG_22-11-26.md`)
+- **Branch/HEAD:** локален клон `chore/dreamerol-full-refresh` @ `cef29c1` (замени `b755dae`); текущият `feature/repository-refresh-20261122` @ `0a4f3a2` и работното копие не са променяни.
+- **Last completed:** Потребителят уточни, че коригираното работно копие е вярното. Клонът е преизграден от текущото работно дърво (вкл. неговия README), без `docs/WORKLOG/**`, `docs/development/**`, `AGENTS.md`, `.opencode/**`, `CURRENT_STATUS.md`, `NEXT_STEPS.md`, `DECISIONS.md`.
+- **State:** Няма push, PR или merge. Диф спрямо `upstream/main`: 66 файла, `+553/-15582`. Проверено: 0 изключени файла, `.env` липсва, README blob = работен файл (`769d57ca`).
+- **Tests:** Няма нови тестове — няма промяна в проектния код; важат предишните `506 passed`.
+- **Known issues/blockers:** Токенът в `.env` все още няма write права; PR не може да се създаде преди клонът да е качен.
+- **Next exact step:** `git push upstream chore/dreamerol-full-refresh:refs/heads/chore/dreamerol-full-refresh`, след което създаване на PR от `Dreamerol:chore/dreamerol-full-refresh` → `main`.
+
+## 2026-11-22 23:42 - Push/merge към Dreamerol е блокиран от токена
+- **Date/time:** 2026-11-22 23:42 (see `docs/WORKLOG/LOG_22-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; `upstream/main` @ `3665b4c`; `0` назад / `210` напред.
+- **Last completed:** Проверка на възможността за push и merge към `Dreamerol/DREAMEROL-SYNC`. Няма съществуващ клон и няма отворен PR.
+- **State:** Push през Git с `bearer` и `Basic` от `.env` → `403`; създаване на ref през API → `Resource not accessible by personal access token`. Токенът е акаунт `Dreamerol`, но без write за съдържание. Няма създаден branch, PR или merge.
+- **Tests:** Няма нови тестове — няма промяна в проектния код. Локалните 4 неcommitted файла (включително презаписания `README.md`) остават непокътнати и извън евентуален commit.
+- **Known issues/blockers:** Токенът в `.env` няма `Contents: write` / `Pull requests: write`, въпреки че профилът е собственик.
+- **Next exact step:** Потребителят да обнови `GITHUB_TOKEN` с write права за `Dreamerol/DREAMEROL-SYNC` или да направи интерактивен Git login, след което да се повтори push → PR → merge.
+
+## 2026-11-22 20:07 - GitHub Actions: успешни check runs на main
+- **Date/time:** 2026-11-22 20:07 (see `docs/WORKLOG/LOG_22-11-26.md`)
+- **Branch/HEAD:** `architectquant/main` @ `269cd4e`; workflow run `45053204749`.
+- **Last completed:** Стартиран e `Tests` workflow чрез `workflow_dispatch` на `main` — без push, без промяна в кода.
+- **State:** `status:completed`, `conclusion:success`; 4/4 job-а `success` (ubuntu/windows × py3.11/py3.12). URL: https://github.com/architectquant/DREAMEROL-SYNC/actions/runs/45053204749.
+- **Tests:** GitHub Actions `pytest` matrix → 4× success; локално по-рано `506 passed in 8.11s`.
+- **Known issues/blockers:** Няма.
+- **Next exact step:** Край на задачата — repository-то е готово за публикуване.
+
+## 2026-11-22 19:48 - PR #3 изтри docs/WORKLOG от GitHub
+- **Date/time:** 2026-11-22 19:48 (see `docs/WORKLOG/LOG_22-11-26.md`)
+- **Branch/HEAD:** `architectquant/main` @ `269cd4e94b26fbb31891bdd72275e75d0d28b818`.
+- **Last completed:** Създаден и merge-нат PR #3 `Remove obsolete WORKLOG directory` — 14 файла от `docs/WORKLOG/` са изтрити само от GitHub. Локалните 14 файла и `.opencode/commands/log.md` остават на диска.
+- **State:** PR #3 `closed/merged`, 1 commit, 14 deletions, `+0/-9480`, `0` кодови файла. Remote `docs/WORKLOG` има 0 файла.
+- **Tests:** Не са нужни — само documentation deletion; предходният suite от PR #2 остава `506 passed in 8.11s`.
+- **Known issues/blockers:** Няма. Локалният `README.md` все още е презаписан външно (26 байта) и не е възстановяван.
+- **Next exact step:** Край на задачата. Локалните документационни промени остават неcommitted по изрично желание на потребителя.
+
+## 2026-11-22 19:33 - PR #2 е merge-нат в architectquant/main
+- **Date/time:** 2026-11-22 19:33 (see `docs/WORKLOG/LOG_22-11-26.md`)
+- **Branch/HEAD:** `feature/repository-refresh-20261122` @ `0a4f3a2`; `architectquant/main` @ `92a1905ad20c93d3d083b064d8a7dc5981b81f0d`.
+- **Last completed:** След потвърждение от потребителя е направен интерактивен Git login като `architectquant` (push/admin = true). Базата отново се премести на `e430e44`; решено е с втори `git merge --no-ff -s ours` (`0a4f3a2`) и push към `origin`. PR #2 е merge-нат чрез GitHub API с `merge_method:merge`.
+- **State:** API: `state:closed`, `merged:true`, `merged_at:2026-11-22T17:33:09Z`, `merge_commit_sha:92a1905...`. `git fetch architectquant main` → `92a1905`; дървото на remote main съвпада с локалния HEAD (93 файла, `git diff` без разлики). MERGE е извършен, задачата е завършена.
+- **Tests:** Преди merge: `compileall`, 3× `node --check`, PowerShell parse, `pip check` → OK; pytest `506 passed in 8.11s`. GitHub Actions: 0 check runs за PR #2 (`status:pending`); локалните проверки са преминати.
+- **Known issues/blockers:** Локалният `README.md` е презаписан външно в 19:30 (26 байта, 841 реда изтрити спрямо HEAD) и НЕ е възстановяван поради правилото за запазване на неcommitted промени. В `architectquant/main` README.md е пълната версия от PR-а.
+- **Next exact step:** Край на задачата. Ако потребителят потвърди, локалният `README.md` може да бъде възстановен с `git checkout -- README.md`; документите тук са само локални след merge и не са в remote main.
+
 ## 2026-11-22 19:14 - PR #2 създаден и подготвен за merge
 - **Date/time:** 2026-11-22 19:14 (see `docs/WORKLOG/LOG_22-11-26.md`)
 - **Branch/HEAD:** `feature/repository-refresh-20261122` @ `eb2f457`, синхронизиран с `origin`.

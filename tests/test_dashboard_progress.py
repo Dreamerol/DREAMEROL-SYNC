@@ -51,7 +51,7 @@ def test_all_real_statuses_classified_and_counted():
     )
     assert out["classes"] == ["behind", "ahead", "diverged", "error", "unknown", "pending", "synced"]
     assert out["counts"]["total"] == 7
-    assert out["counts"]["up_to_date"] == 1
+    assert out["counts"]["up_to_date"] == 0
     assert out["counts"]["to_be_synced"] == 1
     assert out["counts"]["unsyncable"] == 2
     assert out["counts"]["ahead"] == 1
@@ -102,7 +102,7 @@ def test_preview_error_preserves_last_known_status():
     assert out["repo"]["preview_error"] == "API timeout"
     assert out["cls"] == "synced"
     assert out["counts"]["total"] == 1
-    assert out["counts"]["up_to_date"] == 1
+    assert out["counts"]["up_to_date"] == 0
     assert out["counts"]["unsyncable"] == 0
     assert out["counts"]["check_errors"] == 1
     assert out["counts"]["complete"] is False
@@ -199,7 +199,7 @@ def test_merge_preview_result_success_clears_preview_error():
     assert "preview_error" not in out
 
 
-def test_temporary_error_does_not_change_known_counters():
+def test_temporary_error_withholds_known_counters():
     out = run_node(
         "import {mergePreviewError,computeDashboardCounts} from './DASHBOARD/utils.js';"
         "const repos=["
@@ -211,10 +211,10 @@ def test_temporary_error_does_not_change_known_counters():
         "console.log(JSON.stringify(computeDashboardCounts(repos)));"
     )
     assert out["total"] == 4
-    assert out["up_to_date"] == 1
-    assert out["to_be_synced"] == 1
-    assert out["unsyncable"] == 2
-    assert out["ahead"] == 1
+    assert out["up_to_date"] == 0
+    assert out["to_be_synced"] == 0
+    assert out["unsyncable"] == 0
+    assert out["ahead"] == 0
     assert out["errors"] == 4
     assert out["check_errors"] == 4
     assert out["complete"] is False
@@ -229,7 +229,7 @@ def test_next_successful_preview_updates_after_temporary_error():
         "repo=mergePreviewResult(repo,{repository:'o/r',status:'up-to-date'},'o/r');"
         "console.log(JSON.stringify({afterError,afterSuccess:computeDashboardCounts([repo]),status:repo.status}));"
     )
-    assert out["afterError"]["to_be_synced"] == 1
+    assert out["afterError"]["to_be_synced"] == 0
     assert out["afterError"]["check_errors"] == 1
     assert out["afterError"]["complete"] is False
     assert out["afterSuccess"]["up_to_date"] == 1
@@ -248,7 +248,7 @@ def test_mismatched_or_missing_preview_result_preserves_known_status():
     assert out["r1"]["status"] == "up-to-date" and out["r1"]["preview_error"]
     assert out["r2"]["status"] == "up-to-date" and out["r2"]["preview_error"]
     assert out["counts"]["total"] == 1
-    assert out["counts"]["up_to_date"] == 1 and out["counts"]["unsyncable"] == 0
+    assert out["counts"]["up_to_date"] == 0 and out["counts"]["unsyncable"] == 0
     assert out["counts"]["check_errors"] == 1
     assert out["counts"]["complete"] is False
 

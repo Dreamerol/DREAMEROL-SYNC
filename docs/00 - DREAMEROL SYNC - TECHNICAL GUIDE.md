@@ -5,17 +5,43 @@
 
 
 
+
 <div align="center">
 
-<a href="https://github.com/Dreamerol">
-  <img
-    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/2f8a8a9df20d90363b9a46c718a970013ee7b8e8/assets/dreamerol-sync-hero.png"
+<a href="https://dreamerol.github.io/MIHAELA-KOSEVA-AI/">
+  <img 
+    src="https://raw.githubusercontent.com/Dreamerol/DREAMEROL-SYNC/a9233b1681ceb3766b4a508626961b816e95b1b4/assets/Mihaela%20Koseva%20Sync.jpg"
     width="100%"
     alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
   />
 </a>
 
 </div>
+
+
+
+
+<br>
+<br>
+<br>
+
+
+
+
+<div align="center">
+
+<a href="https://github.com/Dreamerol/CARDFOLIO">
+
+<img
+src="https://raw.githubusercontent.com/Dreamerol/Dreamerol/main/mihaela%20koseva-PYTHON-22.jpg"
+width="100%"
+alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софийски университет) • SMG (СМГ) • Sofia • GitHub: Dreamerol • github.com/Dreamerol • LinkedIn: Mihaela Koseva • Software Engineering • AI Engineer • Applied Machine Learning • Data Science • Python • C++ • Java • SQL • Mihaela Koseva (Михаела Косева)"
+/>
+
+</a>
+
+</div>
+
 
 
 
@@ -38,8 +64,6 @@
 
 <table>
 <tr>
-
-
 
 <td align="center" width="12%">
 <span style="font-size:1.55em;">🌐</span><br>
@@ -102,6 +126,8 @@
 </td>
 
 
+
+
 </tr>
 </table>
 
@@ -111,32 +137,17 @@
 
 
 
-<br>
 
 
 
-
-
-<div align="center">
-
-<a href="https://github.com/Dreamerol">
-
-<img
-src="https://raw.githubusercontent.com/Dreamerol/Dreamerol/main/mihaela%20koseva-PYTHON-22.jpg"
-width="100%"
-alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софийски университет) • SMG (СМГ) • Sofia • GitHub: Dreamerol • github.com/Dreamerol • LinkedIn: Mihaela Koseva • Software Engineering • AI Engineer • Applied Machine Learning • Data Science • Python • C++ • Java • SQL • Mihaela Koseva (Михаела Косева)"
-/>
-
-</a>
-
-</div>
-
-
+---
 
 
 
 
 <br>
+
+
 
 
 
@@ -149,18 +160,36 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
+
+
+
+
+
 <br>
+
+
+
+
+<div align="left">
+
+<div align="left">
+
+<div align="left">
 
 
 
 
 ### ⚡ Keep your GitHub forks synchronized effortlessly.
 
-A Python command-line tool that automatically discovers GitHub forks owned by an authenticated account and requests upstream synchronization through the official GitHub API.
+DREAMEROL SYNC is a Python-powered application designed to simplify GitHub fork management through an intuitive, user-friendly graphical interface.
 
-Designed to make fork management easier, faster and more convenient. 🧩⚡
+It automatically discovers GitHub forks associated with an authenticated account and provides a streamlined way to request upstream synchronization through the official GitHub API.
 
-> 💜 Simple workflow. Secure authentication. Reliable synchronization. And a tiny bit of magic ✨.
+From its welcoming onboarding experience to its interactive Dashboard, DREAMEROL SYNC brings fork discovery, management, and synchronization together in one convenient place.
+
+**Simple to use. Secure by design. Built for effortless GitHub workflows.** 🧩
+
+
 
 
 
@@ -184,14 +213,19 @@ Before getting started, make sure you have:
 <br>
 
 
-## 🚀 Quick Start (with an AI Assistant)
-**1. Install the GitHub App** - Download [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
 
 
-**2. Clone the project** - Download DREAMEROL SYNC to your local computer.
+## 🚀 Quick Start
 
-**3. Open and enjoy the app! 🎉** - Open the project in VS Code, launch your personal AI assistant<br>
-(Copilot, Claude Code, OpenCode, or other), and ask it to open DREAMEROL SYNC in your browser. 
+
+**1. Install the GitHub App** – Install [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
+
+**2. Clone the project** – Get DREAMEROL SYNC on your local computer.
+
+**3. Open and enjoy the app! 🎉** – Open the project in VS Code, launch your preferred AI assistant (Copilot, Claude Code, OpenCode, or another), and ask it to start DREAMEROL SYNC and open the Dashboard in your browser.
+
+**That's it! Welcome to DREAMEROL SYNC.** 🌙
+
 
 
 
@@ -212,7 +246,12 @@ Before getting started, make sure you have:
 
 
 
-## 📦 Installation (without AI assitent)
+
+
+
+## 📦 Installation
+
+
 
 ### 1. Clone the repository
 
@@ -684,7 +723,7 @@ For byte-for-byte reproducible environments, generate and commit a platform-awar
 
 This project is licensed under the MIT License.
 
-See the [LICENSE](LICENSE) file for details.
+See the [LICENSE](../LICENSE) file for details.
 
 Made by Dreamerol.
 
@@ -701,6 +740,16 @@ Made with ❤️ by Dreamerol.
 🌙 DREAMEROL SYNC
 
 Synchronize your forks. Simplify your workflow.
+
+
+
+
+
+</div>
+
+</div>
+
+</div>
 
 
 
@@ -732,7 +781,7 @@ Synchronize your forks. Simplify your workflow.
 
 
 
-Mihaela Koseva • Sofia University • SMG (СМГ) • Sofia • AI Engineer • Software Engineer • Data Systems & APIs • Applied Machine Learning • Computer Vision • Neural Networks • Model Training • Data Science • LLMs • Python • C++ • Java • SQL • PyTorch • TensorFlow • Scikit-learn • Pandas • NumPy • ETL • Data Modeling • MLOps • Git • GitHub: Dreamerol • github.com/Dreamerol
+Mihaela Koseva (Михаела Косева) • Sofia University • SMG (СМГ) • Sofia • AI Engineer • Software Engineer • Applied Machine Learning • Deep Learning • Neural Networks • Model Optimization • Computer Vision • Image Processing • OpenCV • Object Detection • Data Science • LLMs • Python • C++ • Java • SQL • PyTorch • TensorFlow • Scikit-learn • Pandas • NumPy • ETL • Data Modeling • Data Systems & APIs • MLOps • Git • GitHub: Dreamerol • github.com/Dreamerol
 </p>
 
 <p style="font-size:10px; opacity:0.7;">
@@ -753,7 +802,7 @@ Mihaela Koseva • Sofia University • SMG (СМГ) • Sofia • AI Engineer �
 
 
 
-<br><br><br>
+<br>
 
 
 
@@ -765,7 +814,7 @@ Mihaela Koseva • Sofia University • SMG (СМГ) • Sofia • AI Engineer �
 
 <a href="https://github.com/Dreamerol">
   <img
-   src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/b9e6b02cdec052215fb70ed7c1c9cfb9af0510f6/assets/DREAMEROL-SYNC-Mihaela%20Koseva.jpg"
+   src="https://raw.githubusercontent.com/Dreamerol/DREAMEROL-SYNC/c5d7c33592b1c1d44cce35cda26569f31ef7e2c0/web/assets/hero-welcome.jpg"
     width="100%"
     alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
   />
@@ -838,9 +887,9 @@ alt="Mihaela Koseva (Михаела Косева), Sofia University (Софий�
 
 
 
-
-<br><br>
-
+<br>
+<br>
+<br>
 
 
 

@@ -5,11 +5,13 @@
 
 
 
+
+
 <div align="center">
 
 <a href="https://github.com/Dreamerol">
   <img
-    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/2f8a8a9df20d90363b9a46c718a970013ee7b8e8/assets/dreamerol-sync-hero.png"
+    src="https://raw.githubusercontent.com/Dreamerol/DREAMEROL-SYNC/90ee4e1e9456330c361177fe8e96ede112b573ab/assets/dreamerol-sync-hero.png"
     width="100%"
     alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
   />
@@ -154,18 +156,28 @@ alt="Mihaela Koseva (Михаела Косева) • Sofia University (Софи
 
 
 
+<div align="left">  
+<div align="left">
+<div align="left">
+
+
+
 ### ⚡ Keep your GitHub forks synchronized effortlessly.
 
-A Python command-line tool that automatically discovers GitHub forks owned by an authenticated account and requests upstream synchronization through the official GitHub API.
+DREAMEROL SYNC is a Python-powered application designed to simplify GitHub fork management through an intuitive, user-friendly graphical interface.
 
-Designed to make fork management easier, faster and more convenient. 🧩⚡
+It automatically discovers GitHub forks associated with an authenticated account and provides a streamlined way to request upstream synchronization through the official GitHub API.
 
-> 💜 Simple workflow. Secure authentication. Reliable synchronization. And a tiny bit of magic ✨.
+From its welcoming onboarding experience to its interactive Dashboard, DREAMEROL SYNC brings fork discovery, management, and synchronization together in one convenient place.
+
+**Simple to use. Secure by design. Built for effortless GitHub workflows.** 🧩
+
 
 
 
 
 <br>
+
 
 
 
@@ -180,73 +192,40 @@ Before getting started, make sure you have:
 
 
 
-
 <br>
 
 
-## 🚀 Quick Start (with an AI Assistant)
-**1. Install the GitHub App** - Download [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
+
+## 🚀 Quick Start
 
 
-**2. Clone the project** - Download DREAMEROL SYNC to your local computer.
+**1. Install the GitHub App** – Install [DREAMEROL SYNC](https://github.com/apps/dreamerol-sync) and authorize access to your repositories.
 
-**3. Open and enjoy the app! 🎉** - Open the project in VS Code, launch your personal AI assistant<br>
-(Copilot, Claude Code, OpenCode, or other), and ask it to open DREAMEROL SYNC in your browser. 
+**2. Clone the project** – Get DREAMEROL SYNC on your local computer.
 
+**3. Open and enjoy the app! 🎉** – Open the project in VS Code, launch your preferred AI assistant (Copilot, Claude Code, OpenCode, or another), and ask it to start DREAMEROL SYNC and open the Dashboard in your browser. 
 
 
 
 
 <div align="left">
-
-<a href="https://github.com/apps/dreamerol-sync">
-  <img
-    src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/20900f265dc266b7e4d54163e2307a44a37a4fac/assets/LOGO-DREAMEROL-SYNC.jpg"
-    width="70%"
-    alt="Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Software Engineering, AI Engineer, Applied Machine Learning, Data Science, Software Engineer, Backend Engineer, REST APIs, Python, C++, Java, SQL, Mihaela Koseva (Михаела Косева), Sofia University (Софийски университет), Sofia "
-  />
-</a>
-
+  <a href="https://github.com/apps/dreamerol-sync">
+    <img
+      src="https://raw.githubusercontent.com/architectquant/DREAMEROL-SYNC/20900f265dc266b7e4d54163e2307a44a37a4fac/assets/LOGO-DREAMEROL-SYNC.jpg"
+      width="70%"
+      alt="DREAMEROL SYNC – GitHub fork synchronization application logo"
+    />
+  </a>
 </div>
 
 
 
 
-## 📦 Installation (without AI assitent)
+### Without an AI Assistant
 
-### 1. Clone the repository
+No AI assistant? No problem! Follow the Installation instructions to set up the environment and dependencies, then use the Web Dashboard instructions to launch the application: 📄 [**DREAMEROL SYNC — Technical Guide**](https://github.com/Dreamerol/DREAMEROL-SYNC/blob/main/docs/00%20-%20DREAMEROL%20SYNC%20-%20TECHNICAL%20GUIDE.md)
 
-```bash
-git clone https://github.com/Dreamerol/DREAMEROL-SYNC.git
-cd DREAMEROL-SYNC
-```
-
-### 2. Create a virtual environment
-
-```bash
-python -m venv .venv
-```
-
-### 3. Activate the environment
-
-🐧 macOS / Linux
-
-```bash
-source .venv/bin/activate
-```
-
-🪟 Windows PowerShell
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-### 4. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
+**That's it! Welcome to DREAMEROL SYNC!** 🌙
 
 
 
@@ -345,92 +324,13 @@ pip install -r requirements.txt
 
 
 
-## 🔐 GitHub Authentication and Saved Accounts
+## 📘 Detailed Technical Documentation
 
-Create a `.env` file in the project root and configure your GitHub token.
+For a complete technical overview of DREAMEROL SYNC, including system architecture, implementation details, GitHub App authentication, Auth Broker, API, security, and deployment specifications, see:
 
-```dotenv
-GITHUB_TOKEN=your_github_token_here
-```
+📄 **[DREAMEROL SYNC — Technical Guide](https://github.com/Dreamerol/DREAMEROL-SYNC/blob/main/docs/00%20-%20DREAMEROL%20SYNC%20-%20TECHNICAL%20GUIDE.md)**
 
-You can also use the built-in saved account manager described below.
-
-> ⚠️ Security Notice
->
-> Keep your GitHub tokens private.
-> Never share your credentials or commit your `.env` file.
-> The `.env` file is ignored by Git.
-
-### ➕ Add an account
-
-```bash
-python main.py --add-account
-```
-
-Tokens are entered without echo and securely stored using your operating system's keyring.
-
-### 🔑 Sign in through the Auth Broker
-
-```bash
-python main.py --login
-```
-
-Set the Broker URL with `--broker-url` or the `BROKER_URL` environment variable:
-
-```bash
-python main.py --login --broker-url https://broker.example.com
-```
-
-The CLI keeps the polling secret in memory, displays the Broker-generated GitHub authorization URL, stores the returned credential in the system keyring, and acknowledges the credential only after storage succeeds. If keyring storage fails, the CLI does not acknowledge the credential and offers a safe retry while the transaction remains valid.
-
-### 🚀 Deploy the Auth Broker
-
-The Broker is the FastAPI application in `auth_broker/`. Configure the GitHub App client and callback URL:
-
-| Variable | Required | Description |
-|:---|:---|:---|
-| `GITHUB_APP_CLIENT_ID` | Yes | GitHub App client ID. |
-| `GITHUB_APP_CLIENT_SECRET` | Yes | GitHub App client secret. |
-| `BROKER_CALLBACK_URL` | Yes | Fixed callback URL. Local default: `http://127.0.0.1:8000/auth/callback`; remote deployments must use HTTPS. |
-| `BROKER_REQUEST_TIMEOUT` | No | GitHub token-exchange timeout in seconds. Default: `30`. |
-
-Run the Broker with:
-
-```bash
-uvicorn auth_broker.app:create_app --factory --host 127.0.0.1 --port 8000
-```
-
-For a remote deployment behind an HTTPS reverse proxy, bind the proxy-facing interface explicitly and configure HTTPS plus the proxy address.
-
-When started through the factory without an explicit configuration, the Broker loads variables from `.env` in the working directory. Passing a `BrokerConfig` to `create_app()` bypasses environment loading.
-
-Rate limits are enabled by default and stored in memory per process:
-
-
-<br>
-
-
-| Variable | Default |
-|:---|:---|
-| `BROKER_RATE_LIMIT_ENABLED` | `true` |
-| `BROKER_RATE_LIMIT_WINDOW_SECONDS` | `60` |
-| `BROKER_RATE_LIMIT_START_PER_IP` | `60` |
-| `BROKER_RATE_LIMIT_CALLBACK_PER_IP` | `120` |
-| `BROKER_RATE_LIMIT_POLL_PER_IP` | `240` |
-| `BROKER_RATE_LIMIT_POLL_PER_TRANSACTION` | `60` |
-| `BROKER_RATE_LIMIT_ACK_PER_IP` | `60` |
-| `BROKER_RATE_LIMIT_ACK_PER_TRANSACTION` | `10` |
-| `BROKER_RATE_LIMIT_FAILURES_PER_IP` | `30` |
-
-
-<br>
-
-
-Blocked requests receive `429 Too Many Requests` with a `Retry-After` header; the browser callback returns an HTML `429` page. Invalid polling secrets and callback state/code values count toward `BROKER_RATE_LIMIT_FAILURES_PER_IP`; poll and ACK also have per-transaction limits.
-
-Set `BROKER_TRUSTED_PROXIES` to a comma-separated list of reverse-proxy IPs or CIDRs that are allowed to supply `X-Forwarded-For`. Leave it empty when clients connect directly. When configured, the Broker uses the rightmost untrusted forwarded address for per-IP limits.
-
-Rate-limit counters are local to each process and are not shared between workers. Adjust the limits for shared NAT environments, or deploy a shared limiter if strict global limits are required.
+📄 **[DREAMEROL SYNC — Detailed Technical Documentation](https://github.com/Dreamerol/DREAMEROL-SYNC/blob/main/docs/01%20-%20DREAMEROL%20SYNC%20-%20DETAILED%20TECH%20DOC.md)**
 
 
 
@@ -438,246 +338,37 @@ Rate-limit counters are local to each process and are not shared between workers
 
 
 
-### 📋 List saved accounts
-
-```bash
-python main.py --list-accounts
-```
-
-### 🔍 Preview account repositories
-
-```bash
-python main.py --dry-run --account octocat
-```
-
-### ⚡ Synchronize an account
-
-```bash
-python main.py --account octocat
-```
-
-### 💡 Account selection
-
-- Multiple saved accounts require `--account USERNAME`.
-- If `GITHUB_TOKEN` is configured, it is used unless `--account` is explicitly supplied.
-- Saved-account commands require a functioning operating-system keyring.
 
 
+## ✅ Release status
 
-<br>
+DREAMEROL SYNC is a working open-source project. The repository started from a partial implementation and now contains the full tested codebase. The following has been verified automatically:
 
+- Python 3.11+ with `pip install -r requirements.txt`.
+- `python -m pytest -q` → 506 passing tests.
+- `python main.py --help` and a fresh clone from this repository both work.
+- The `Tests` workflow passes on Ubuntu and Windows with Python 3.11 and 3.12 (4 jobs).
+- MIT License; no paid features, subscriptions or monetization.
 
+### Requires your own setup
 
-## 🧭 CLI Usage and Synchronization Modes
+- Your own GitHub credentials: a personal access token or GitHub App credentials. `.env` and secrets are not committed.
+- Local loopback callback for the GitHub App (`127.0.0.1:8000`).
 
-DREAMEROL SYNC provides two synchronization modes:
+### Not covered by automated CI
 
-- 🔍 **Dry Run** — preview selected repositories without making changes.
-- ⚡ **Live Sync** — request actual upstream synchronization through GitHub.
+- Real GitHub App sign-in/callback and installation permissions — these need your own GitHub App configuration.
+- Mutating synchronization against your live repositories — CI runs read-only tests only.
+- Remote HTTPS/TLS proxy deployment (`COOKIE_SECURE=true` or `--proxy-headers`).
+- Multi-worker sessions and a separate CSRF token are not part of this release.
 
-### 🔍 Preview synchronization
-
-Preview all discovered forks without changing repositories or requiring confirmation.
-
-```bash
-python main.py --dry-run
-```
-
-Preview a selected fork:
-
-```bash
-python main.py --dry-run --repo octocat/project-fork
-```
-
-Select multiple forks by repeating `--repo`:
-
-```bash
-python main.py --dry-run --repo octocat/project-fork --repo octocat/another-fork
-```
-
-### ⚡ Live synchronization
-
-To perform an actual synchronization, simply omit `--dry-run`.
-
-```bash
-python main.py
-```
-
-Or synchronize a specific repository:
-
-```bash
-python main.py --repo octocat/project-fork
-```
+Use dry-run preview first. Nothing in the CLI or Dashboard performs a live sync without explicit confirmation.
 
 
 
 <br>
 
 
-
-## 🌐 Web Dashboard
-
-The repository also includes a FastAPI-backed browser dashboard in `api/`, with static assets in `DASHBOARD/` and welcome-page assets in `web/`. It supports Auth Broker sign-in.
-
-Start the Broker and the dashboard on separate local ports:
-
-```bash
-uvicorn auth_broker.app:create_app --factory --host 127.0.0.1 --port 8000
-uvicorn api.app:app --host 127.0.0.1 --port 8001
-```
-
-The dashboard reads `BROKER_URL` from `.env` (default: `http://127.0.0.1:8000`). Open `http://127.0.0.1:8001` and click **Sign in with GitHub**.
-
-The dashboard creates a server-side session, opens the Broker-generated GitHub authorization URL, and polls `/api/auth/status`. The API validates the returned credential with GitHub, keeps it in server memory, and acknowledges the Broker only after successful validation. The browser receives only an `HttpOnly`, `SameSite=Lax` session cookie; the GitHub token is never returned to browser JavaScript and is not read from the saved-account keyring.
-
-All `/api/` responses use `Cache-Control: no-store`, and state-changing endpoints accept only `POST`. If the dashboard runs behind an HTTPS reverse proxy or tunnel, start Uvicorn with `--proxy-headers` and the proxy address in `--forwarded-allow-ips` so the session cookie is marked `Secure`.
-
-The welcome page does not provide a manual personal-access-token form; browser users must sign in through the Auth Broker.
-
-The dashboard shows fork-only counters — `TOTAL FORKS`, `UP TO DATE`, `TO BE SYNCED` and `UNSYNCABLE` — and synchronizes only forks shown as `behind`, after an explicit `SYNC` confirmation.
-
-> Web sessions and credentials are stored in process memory for 10 minutes, are lost when the API restarts, and are not shared between multiple workers. Run a single API worker, or add shared session storage before scaling horizontally.
-
-### 🧪 One-command local smoke test (Windows)
-
-```powershell
-.\scripts\start-smoke.ps1 -Watchdog
-.\scripts\stop-smoke.ps1
-```
-
-`start-smoke.ps1` starts the Broker on `127.0.0.1:8000` and the dashboard on `127.0.0.1:8001`, waits for Broker `/healthz`, and verifies the dashboard. It does not start a tunnel or rewrite `BROKER_CALLBACK_URL`. Use `-Force` to restart an existing run and `-DryRun` to check prerequisites only.
-
-With `-Watchdog`, `start-smoke.ps1` also starts `watch-smoke.ps1`. The watchdog checks `/healthz` every 5 seconds and restarts the Broker or dashboard on its local port if needed. Run a single check with `.\scripts\watch-smoke.ps1 -Once`. `stop-smoke.ps1` stops the watchdog first, then the dashboard and Broker.
-
-Set `GITHUB_APP_CLIENT_ID` and `GITHUB_APP_CLIENT_SECRET` in `.env` before the real login.
-
-#### GitHub App installation requirements
-
-1. **Callback URL:** set once to `http://127.0.0.1:8000/auth/callback` (local default). Disable wildcard callback matching.
-2. **Token expiration:** user-to-server token expiration must be opted out for the approved OAuth flow.
-3. **Repository permissions:** grant **Contents: Read and write** and **Metadata: Read-only** required for preview and `merge-upstream` sync.
-4. **Installation/account access:** install the app on the account/organization that owns the forks and grant access to the repositories, all or selected, you intend to sync. The signed-in user must have write access to each fork; diverged forks are never auto-synced.
-5. **Network:** leave `BROKER_TRUSTED_PROXIES` empty for direct loopback access; configure it only behind a trusted reverse proxy.
-
-#### When re-authorization is required
-
-- Re-authorize and sign in again after changing the app's permissions or requested access.
-- Re-authorize after installing the app on another account/organization or changing repository access, for example adding forks or switching from selected repositories to include the target fork.
-- If sync returns `HTTP 403` / `Resource not accessible by integration`, verify installation and **Contents: Read and write** access for that specific fork/profile, then re-authorize and retry on one safe `behind` repository.
-
-
-
-<br>
-
-
-
-## 📊 Synchronization Results and Safety
-
-Each repository receives a status describing the synchronization result.
-
-| Status | Description |
-|:---|:---|
-| ✅ `synced` | GitHub accepted the upstream synchronization request. |
-| 🟢 `up-to-date` | Fork and upstream already match. |
-| 🔵 `behind` | Preview found upstream commits that can be synchronized. |
-| 🟡 `ahead` | Fork has local commits and is not safe to merge automatically. |
-| 🟠 `diverged` | Fork and upstream have both changed; automatic sync is refused. |
-| ⚠️ `conflict` | GitHub reported a synchronization conflict (HTTP 409). |
-| ❌ `error` | Repository data was invalid or an API request failed. |
-
-> 📌 Exit status
->
-> The CLI exits with a non-zero status if any repository reports `error` or `conflict`.
-
-Live synchronization can update a fork's default branch. For this reason, the application requires explicit confirmation before proceeding. The tool displays the selected repositories and asks you to type:
-
-```text
-SYNC
-```
-
-Only the exact confirmation `SYNC` allows the operation to continue. Any other input cancels the run. There is intentionally no confirmation-bypass flag.
-
-Repository filters match the exact `owner/repository` name among forks belonging to the selected account. A repository that does not match is reported as an error rather than silently ignored.
-
-
-
-
-<br>
-
-
-
-
-## 🧪 Tests and Project Structure
-
-Run the test suite to verify the application's behavior.
-
-```bash
-pytest
-```
-
-The tests use fakes for GitHub API calls and the system keyring.
-
-- ✅ No real GitHub token required.
-- ✅ No actual repository synchronization.
-- ✅ Safe testing environment.
-
-```text
-DREAMEROL-SYNC/
-├── main.py
-├── fork_sync/
-├── auth_broker/
-├── api/
-├── DASHBOARD/
-├── web/
-├── backend/
-├── tests/
-├── docs/
-├── scripts/
-├── .github/
-├── requirements.txt
-├── LICENSE
-└── README.md
-```
-
-
-<br>
-
-
-### 🧩 Core Components
-
-| File | Description |
-|:---|:---|
-| `main.py` | CLI, account selection, Broker login and safety prompts. |
-| `fork_sync/accounts.py` | Keyring-backed account management. |
-| `fork_sync/github.py` | GitHub API client and repository pagination. |
-| `fork_sync/synchronizer.py` | Fork discovery, preview and upstream synchronization. |
-| `auth_broker/` | GitHub App OAuth Broker, transaction store and rate limiting. |
-| `api/` | FastAPI web/API backend for the browser dashboard. |
-| `api/auth.py` | Server-side Auth Broker sessions and credential handling for the dashboard. |
-| `DASHBOARD/` | Static browser dashboard assets. |
-| `web/` | Static welcome-page assets. |
-| `scripts/` | Local checks, smoke test startup/shutdown and watchdog. |
-| `backend/github_client.py` | Legacy GitHub client kept for compatibility tests. |
-| `tests/` | Automated test suite. |
-
-
-
-
-<br>
-
-
-
-## 📌 Dependency Reproducibility
-
-`requirements.txt` pins the direct dependencies used by the CLI, Broker, API and tests. The minimum supported version is Python 3.11, required by `httpx2==2.16.0`; CI validates on Python 3.11 and 3.12.
-
-It is not a complete transitive lockfile.
-
-For byte-for-byte reproducible environments, generate and commit a platform-aware lockfile, for example using `pip-compile --generate-hashes`, after resolving dependencies for the supported Python and platform matrix.
-
-
-
-<br>
 
 
 ## 📜 License and author information
@@ -691,7 +382,11 @@ Made by Dreamerol.
 Synchronize your forks. Simplify your workflow.
 
 
+
+
 <br>
+
+
 
 
 ## 💜 DREAMEROL
@@ -705,7 +400,17 @@ Synchronize your forks. Simplify your workflow.
 
 
 
-<br>
+---
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
 
 <br>
 
@@ -732,7 +437,7 @@ Synchronize your forks. Simplify your workflow.
 
 
 
-Mihaela Koseva • Sofia University • SMG (СМГ) • Sofia • AI Engineer • Software Engineer • Data Systems & APIs • Applied Machine Learning • Computer Vision • Neural Networks • Model Training • Data Science • LLMs • Python • C++ • Java • SQL • PyTorch • TensorFlow • Scikit-learn • Pandas • NumPy • ETL • Data Modeling • MLOps • Git • GitHub: Dreamerol • github.com/Dreamerol
+Mihaela Koseva (Михаела Косева) • Sofia University • SMG (СМГ) • Sofia • AI Engineer • Software Engineer • Applied Machine Learning • Deep Learning • Neural Networks • Model Optimization • Computer Vision • Image Processing • OpenCV • Object Detection • Data Science • LLMs • Python • C++ • Java • SQL • PyTorch • TensorFlow • Scikit-learn • Pandas • NumPy • ETL • Data Modeling • Data Systems & APIs • MLOps • Git • GitHub: Dreamerol • github.com/Dreamerol
 </p>
 
 <p style="font-size:10px; opacity:0.7;">
@@ -839,7 +544,7 @@ alt="Mihaela Koseva (Михаела Косева), Sofia University (Софий�
 
 
 
-<br><br>
+<br><br><br>
 
 
 

@@ -1,5 +1,6 @@
 import {
     requestJson,
+    requestErrorMessage,
     effectiveCountClass,
     formatLastSync,
     formatHistoryTimestamp,
@@ -24,15 +25,15 @@ import {
     getForkFlagErrors,
     getUpstreamLabel,
     summarizeSyncResults,
-} from "./utils.js?v=20261121d";
+} from "./utils.js?v=20261128a";
 
 const WELCOME_URL = `${window.location.origin}/?switch=1`;
 const BATCH_CHECK_SIZE = 10;
-const CHECK_TIMEOUT_MS = 8000;
-const PREFLIGHT_TIMEOUT_MS = 30000;
+const CHECK_TIMEOUT_MS = 20000;
+const PREFLIGHT_TIMEOUT_MS = 60000;
 const LAST_OPERATION_KEY_PREFIX = "dreamerol.lastOperation";
 const SELECTION_KEY_PREFIX = "dreamerol.selection";
-const DASHBOARD_SNAPSHOT_KEY_PREFIX = "dreamerol.dashboardSnapshot";
+const DASHBOARD_SNAPSHOT_KEY_PREFIX = "dreamerol.dashboardSnapshot.20261128a";
 const el = (id) => document.getElementById(id);
 const userName = el("user-name");
 const userAvatar = el("user-avatar");
@@ -568,7 +569,7 @@ function resetDashboardState({ clearOperation = false } = {}) {
 function updateStats() {
     const liveCounts = computeDashboardCounts(repositories);
     const snapshotActive = operationCounts
-        && (repositories.length === 0 || previewInFlight || backgroundScanActive || !liveCounts.complete);
+        && (repositories.length === 0 || previewInFlight || backgroundScanActive);
     const counts = snapshotActive ? operationCounts : liveCounts;
     const unverified = (counts.pending || 0) + (counts.check_errors || 0);
     setCounterText(statsEls.total, listError ? "—" : counts.total, false);
@@ -613,7 +614,7 @@ function filteredRepos() {
         let matchesF = false;
         if (f === "all") matchesF = true;
         else if (f === "up-to-date") matchesF = c === "synced";
-        else if (f === "to-be-synced") matchesF = c === "behind";
+        else if (f === "to-be-synced") matchesF = c === "behind" && !isCheckError(r);
         else if (f === "unsyncable") matchesF = c === "diverged" || c === "ahead";
         else if (f === "ahead-only") matchesF = c === "ahead";
         return matchesQ && matchesF;
@@ -901,7 +902,7 @@ async function runBackgroundChecks(gen, auto = false) {
                 if (operationLockedNames.has(name)) continue;
                 const writeIndex = repositories.findIndex((r) => r && r.repository === name);
                 if (writeIndex < 0) continue;
-                repositories[writeIndex] = mergePreviewError(repositories[writeIndex], (e && e.message) || "Check failed.", name);
+                repositories[writeIndex] = mergePreviewError(repositories[writeIndex], requestErrorMessage(e, "Check failed."), name);
                 if (repositories[writeIndex]) repositories[writeIndex].check_status = "error";
             }
         } finally {
@@ -980,11 +981,9 @@ async function preflightSelected(names) {
             if (!isCurrent(gen)) return { name, ok: false, message: "Session changed." };
             const writeIndex = repositories.findIndex((r) => r.repository === name);
             if (writeIndex < 0) return { name, ok: false, message: "Repository is not available." };
-            const message = e && e.name === "AbortError"
-                ? "Check timeout"
-                : (e && e.message) || "Check failed.";
+            const message = requestErrorMessage(e, "Check failed.");
             repositories[writeIndex] = mergePreviewError(repositories[writeIndex], message, name);
-            repositories[writeIndex].check_status = e && e.name === "AbortError" ? "timeout" : "error";
+            repositories[writeIndex].check_status = e && (e.kind === "timeout" || e.name === "AbortError") ? "timeout" : "error";
             return { name, ok: false, message };
         } finally {
             clearTimeout(timeoutId);

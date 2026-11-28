@@ -12,22 +12,53 @@ const KNOWN_STATUS_CLASSES = {
     "skipped": "unknown",
 };
 
+function redactSensitiveText(value) {
+    return String(value || "")
+        .replace(/Bearer\s+[^\s]+/gi, "Bearer [redacted]")
+        .replace(/\b(token|secret|password)\s*[:=]\s*[^\s,;]+/gi, "$1=[redacted]")
+        .slice(0, 300);
+}
+
+export function requestErrorMessage(error, fallback = "The request failed.") {
+    const kind = error && error.kind;
+    const status = error && error.status;
+    const message = redactSensitiveText(error && error.message) || fallback;
+    if (kind === "timeout") return "Check timeout";
+    if (kind === "http") return status ? `HTTP ${status}: ${message}` : `HTTP error: ${message}`;
+    if (kind === "network") return `Network error: ${message}`;
+    return message;
+}
+
 export async function requestJson(url, options = {}, fallbackMessage = "The request failed.") {
     let response;
     try {
         response = await fetch(url, { credentials: "same-origin", ...options });
-    } catch {
-        throw new Error("Could not reach the server.");
+    } catch (error) {
+        if (error && error.name === "AbortError") {
+            const aborted = new Error("Check timeout");
+            aborted.name = "AbortError";
+            aborted.kind = "timeout";
+            throw aborted;
+        }
+        const network = new Error("Could not reach the server.");
+        network.kind = "network";
+        throw network;
     }
     let data = null;
     try { data = await response.json(); } catch { data = null; }
     if (!response.ok) {
         const detail = data && typeof data.detail === "string" ? data.detail : fallbackMessage;
-        const error = new Error(detail);
+        const error = new Error(redactSensitiveText(detail));
         error.status = response.status;
+        error.kind = "http";
         throw error;
     }
-    if (data === null) throw new Error("The server returned an invalid response.");
+    if (data === null) {
+        const error = new Error("The server returned an invalid response.");
+        error.status = response.status;
+        error.kind = "http";
+        throw error;
+    }
     return data;
 }
 
@@ -58,6 +89,7 @@ export function effectiveCountClass(repo) {
 
 export function sortReposForDisplay(repos = []) {
     const priority = (repo) => {
+        if (isCheckError(repo)) return 4;
         const c = effectiveCountClass(repo);
         if (c === "behind") return 0;
         if (c === "synced") return 1;
@@ -137,8 +169,7 @@ export function isSelectableCandidate(repo) {
 }
 
 export function listErrorMessage(error) {
-    const message = error && typeof error.message === "string" ? error.message.trim() : "";
-    return message || "Could not load forks from GitHub.";
+    return requestErrorMessage(error, "Could not load forks from GitHub.");
 }
 
 export function isSyncableRepository(repo) {
@@ -183,8 +214,7 @@ export function computeDashboardCounts(repos = []) {
         forks.push(r);
     }
     for (const r of forks) {
-        const countableCheckError = !!r.preview_error && hasKnownCountableStatus(r);
-        if (isCheckError(r) && !countableCheckError) {
+        if (isCheckError(r)) {
             errors += 1;
             check_errors += 1;
             continue;
@@ -203,10 +233,6 @@ export function computeDashboardCounts(repos = []) {
         } else if (c === "pending") {
             pending += 1;
         } else {
-            errors += 1;
-            check_errors += 1;
-        }
-        if (countableCheckError) {
             errors += 1;
             check_errors += 1;
         }
