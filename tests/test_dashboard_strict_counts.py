@@ -210,7 +210,7 @@ def test_failed_checks_are_not_counted_as_confirmed_unsyncable():
 
 def test_check_failure_with_last_known_status_withholds_final_counters():
     out = count([fork("f/last-known", 0, 0, "up-to-date", preview_error="Check failed.")])
-    assert out["up_to_date"] == 1
+    assert out["up_to_date"] == 0
     assert out["unsyncable"] == 0
     assert out["check_errors"] == 1
     assert out["complete"] is False

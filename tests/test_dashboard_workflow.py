@@ -106,6 +106,71 @@ def test_repo_display_order_groups_ready_before_synced_before_unsyncable():
     assert "return sortReposForDisplay(repositories.filter((r) => {" in APP_SOURCE
 
 
+def test_unverified_checks_sort_after_all_normal_groups():
+    out = run_node(
+        """
+        import {sortReposForDisplay} from './DASHBOARD/utils.js';
+        const repos=[
+            {repository:'u/unverified-behind',fork:true,status:'behind',ahead_by:0,behind_by:1,preview_error:'Could not reach the server.',check_status:'error'},
+            {repository:'u/synced',fork:true,status:'up-to-date',ahead_by:0,behind_by:0,check_status:'ok'},
+            {repository:'u/ready',fork:true,status:'behind',ahead_by:0,behind_by:2,check_status:'ok'},
+            {repository:'u/unverified-unknown',fork:true,status:'error',preview_error:'Could not reach the server.',check_status:'error'},
+            {repository:'u/pending',fork:true,status:'pending'},
+        ];
+        console.log(JSON.stringify(sortReposForDisplay(repos).map(r=>r.repository)));
+        """
+    )
+    assert out == [
+        "u/ready",
+        "u/synced",
+        "u/pending",
+        "u/unverified-behind",
+        "u/unverified-unknown",
+    ]
+
+
+def test_unverified_checks_are_not_counted_as_ready_or_synced():
+    out = run_node(
+        """
+        import {computeDashboardCounts} from './DASHBOARD/utils.js';
+        const repos=[];
+        for(let i=0;i<3;i++) repos.push({repository:`u/count-${i}`,fork:true,status:'behind',ahead_by:0,behind_by:1,preview_error:'Could not reach the server.',check_status:'error'});
+        for(let i=0;i<5;i++) repos.push({repository:`u/unknown-${i}`,fork:true,status:'error',preview_error:'Could not reach the server.',check_status:'error'});
+        console.log(JSON.stringify(computeDashboardCounts(repos)));
+        """
+    )
+    assert out["total"] == 8
+    assert out["to_be_synced"] == 0
+    assert out["up_to_date"] == 0
+    assert out["check_errors"] == 8
+    assert out["complete"] is False
+
+
+def test_ready_to_sync_filter_excludes_preview_error_repositories():
+    source = APP_SOURCE[APP_SOURCE.index("function filteredRepos"):APP_SOURCE.index("function renderRepos")]
+    assert 'f === "to-be-synced") matchesF = c === "behind" && !isCheckError(r);' in source
+
+    out = run_node(
+        """
+        import {effectiveCountClass,isCheckError} from './DASHBOARD/utils.js';
+        const names=['architectquant/NUMERICAL-ANALYSIS','architectquant/MIHAELA-KOSEVA-AI','architectquant/AI-SOLUTIONS'];
+        const repos=names.map(repository=>({repository,fork:true,status:'behind',ahead_by:0,behind_by:1,preview_error:'Could not reach the server.',check_status:'error'}));
+        repos.push({repository:'u/real-ready',fork:true,status:'behind',ahead_by:0,behind_by:2,check_status:'ok'});
+        console.log(JSON.stringify({
+            unverified:repos.filter(r=>isCheckError(r)).map(r=>r.repository),
+            readyFilter:repos.filter(r=>effectiveCountClass(r)==='behind' && !isCheckError(r)).map(r=>r.repository),
+        }));
+        """
+    )
+    expected = [
+        "architectquant/NUMERICAL-ANALYSIS",
+        "architectquant/MIHAELA-KOSEVA-AI",
+        "architectquant/AI-SOLUTIONS",
+    ]
+    assert out["unverified"] == expected
+    assert out["readyFilter"] == ["u/real-ready"]
+
+
 def test_ready_to_sync_is_visible_before_background_checks_finish():
     out = run_node(
         """
@@ -164,13 +229,66 @@ def test_timeout_and_retry_do_not_make_repository_ready():
         """
     )
     assert out == {"timeout": False, "error": False, "retryable": True}
-    assert "CHECK_TIMEOUT_MS = 8000" in APP_SOURCE
+    assert "CHECK_TIMEOUT_MS = 20000" in APP_SOURCE
     assert '"Check timeout"' in APP_SOURCE
     assert "retryCheck(repo.repository)" in APP_SOURCE
 
 
+def test_request_json_errors_have_network_http_timeout_categories():
+    out = run_node(
+        """
+        import {requestJson} from './DASHBOARD/utils.js';
+        const out = {};
+        const originalFetch = globalThis.fetch;
+        try {
+            globalThis.fetch = async () => { const e = new Error('aborted'); e.name = 'AbortError'; throw e; };
+            try { await requestJson('/x'); } catch (e) { out.timeout = {kind:e.kind, name:e.name, message:e.message}; }
+            globalThis.fetch = async () => { throw new Error('offline'); };
+            try { await requestJson('/x'); } catch (e) { out.network = {kind:e.kind, message:e.message}; }
+            globalThis.fetch = async () => ({ok:false, status:403, json:async()=>({detail:'Forbidden'})});
+            try { await requestJson('/x'); } catch (e) { out.http = {kind:e.kind, status:e.status, message:e.message}; }
+            globalThis.fetch = async () => ({ok:true, status:200, json:async()=>{ throw new Error('bad json'); }});
+            try { await requestJson('/x'); } catch (e) { out.httpInvalid = {kind:e.kind, status:e.status, message:e.message}; }
+        } finally { globalThis.fetch = originalFetch; }
+        console.log(JSON.stringify(out));
+        """
+    )
+    assert out == {
+        "timeout": {"kind": "timeout", "name": "AbortError", "message": "Check timeout"},
+        "network": {"kind": "network", "message": "Could not reach the server."},
+        "http": {"kind": "http", "status": 403, "message": "Forbidden"},
+        "httpInvalid": {"kind": "http", "status": 200, "message": "The server returned an invalid response."},
+    }
+    assert "requestErrorMessage(e, \"Check failed.\")" in background_checks_source()
+    assert "requestErrorMessage(e, \"Check failed.\")" in preflight_source()
+
+
+def test_request_error_messages_are_categorized_and_redacted():
+    out = run_node(
+        """
+        import {requestErrorMessage, listErrorMessage} from './DASHBOARD/utils.js';
+        console.log(JSON.stringify({
+            timeout:requestErrorMessage({kind:'timeout',message:'Check timeout'}),
+            network:requestErrorMessage({kind:'network',message:'Could not reach the server.'}),
+            http:requestErrorMessage({kind:'http',status:403,message:'Forbidden'}),
+            redacted:requestErrorMessage({kind:'http',status:500,message:'Failed for Bearer abc123 token=xyz789'}),
+            fallback:requestErrorMessage({}, 'Could not load forks from GitHub.'),
+            list:listErrorMessage({kind:'network',message:'Could not reach the server.'}),
+        }));
+        """
+    )
+    assert out == {
+        "timeout": "Check timeout",
+        "network": "Network error: Could not reach the server.",
+        "http": "HTTP 403: Forbidden",
+        "redacted": "HTTP 500: Failed for Bearer [redacted] token=[redacted]",
+        "fallback": "Could not load forks from GitHub.",
+        "list": "Network error: Could not reach the server.",
+    }
+
+
 def test_preflight_uses_longer_timeout_than_batch_checks():
-    assert "PREFLIGHT_TIMEOUT_MS = 30000" in APP_SOURCE
+    assert "PREFLIGHT_TIMEOUT_MS = 60000" in APP_SOURCE
     assert "}, CHECK_TIMEOUT_MS * activeNames.length);" in background_checks_source()
     assert "}, PREFLIGHT_TIMEOUT_MS);" in preflight_source()
     assert "}, CHECK_TIMEOUT_MS);" not in preflight_source()
@@ -189,13 +307,14 @@ def test_refresh_restores_operation_without_returning_to_zero_counters():
     assert "Last recorded sync result:" in APP_SOURCE
 
 
-def test_refresh_keeps_last_sync_counters_until_fresh_checks_finish():
+def test_refresh_keeps_last_sync_counters_only_while_checks_are_running():
     apply_source = apply_operation_source()
     stats_source = update_stats_source()
     assert "operationCounts = next.countsBefore" in apply_source
     assert "operationCountsAfter(next.countsBefore, next.summary, next.results, next.createdAt)" in apply_source
     assert "const snapshotActive = operationCounts" in stats_source
-    assert "repositories.length === 0 || previewInFlight || backgroundScanActive || !liveCounts.complete" in stats_source
+    assert "repositories.length === 0 || previewInFlight || backgroundScanActive" in stats_source
+    assert "|| !liveCounts.complete" not in stats_source
     assert "const counts = snapshotActive ? operationCounts : liveCounts;" in stats_source
     assert "if (computeDashboardCounts(repositories).complete) {" in APP_SOURCE
 
@@ -204,7 +323,7 @@ def test_reload_restores_saved_dashboard_without_rechecking_repositories():
     init_source = APP_SOURCE[APP_SOURCE.index("async function initDashboard"):APP_SOURCE.index("function toWelcome")]
     snapshot_source = APP_SOURCE[APP_SOURCE.index("function saveDashboardSnapshot"):APP_SOURCE.index("function loadDashboardSnapshot")]
     restore_source = APP_SOURCE[APP_SOURCE.index("function restoreDashboardSnapshot"):APP_SOURCE.index("function applyOperation")]
-    assert 'DASHBOARD_SNAPSHOT_KEY_PREFIX = "dreamerol.dashboardSnapshot"' in APP_SOURCE
+    assert 'DASHBOARD_SNAPSHOT_KEY_PREFIX = "dreamerol.dashboardSnapshot.20261128a"' in APP_SOURCE
     assert "const savedSnapshot = loadDashboardSnapshot(currentAccount);" in init_source
     assert "if (savedSnapshot && snapshotOperationId === storedOperationId) {" in init_source
     assert "restoreDashboardSnapshot(savedSnapshot);" in init_source
@@ -453,7 +572,8 @@ def test_operation_results_merge_without_overriding_live_verified_counters():
 
 def test_dashboard_assets_are_cache_busted():
     html = (ROOT / "DASHBOARD" / "index.html").read_text(encoding="utf-8")
-    assert "/dashboard/static/app.js?v=" in html
+    assert "/dashboard/static/app.js?v=20261128a" in html
+    assert 'from "./utils.js?v=20261128a";' in APP_SOURCE
     assert "/dashboard/static/dashboard.css?v=" in html
 
 
@@ -515,7 +635,7 @@ def test_history_uses_backend_operation_timestamps():
     assert "formatHistoryTimestamp(r.timestamp)" in APP_SOURCE
     assert "authoritativeOperations = data.operations.filter" in APP_SOURCE
     assert "await restoreAuthoritativeOperation(gen);" in APP_SOURCE
-    assert 'from "./utils.js?v=20261121d";' in APP_SOURCE
+    assert 'from "./utils.js?v=20261128a";' in APP_SOURCE
 
 
 def test_history_section_shows_only_latest_authoritative_operation():
@@ -530,7 +650,7 @@ def test_ahead_only_status_renders_as_plain_unsyncable():
     assert "UNSYNCABLE (AHEAD-ONLY)" not in APP_SOURCE
     assert "AHEAD-ONLY is included in UNSYNCABLE" not in APP_SOURCE
     assert 'if (effective === "ahead") return "is-ahead";' in APP_SOURCE
-    assert '"/dashboard/static/app.js?v=20261121l"' in (ROOT / "DASHBOARD" / "index.html").read_text(encoding="utf-8")
+    assert '"/dashboard/static/app.js?v=20261128a"' in (ROOT / "DASHBOARD" / "index.html").read_text(encoding="utf-8")
 
 
 def test_null_compare_values_are_selectable_but_not_confirmed():
